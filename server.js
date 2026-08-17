@@ -6,7 +6,12 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Inicializar tablas de inventario y capital
+// Servir la página principal explícitamente para Render
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Inicializar tablas y columnas requeridas
 db.serialize(() => {
     db.run(`ALTER TABLE usuarios ADD COLUMN rol TEXT DEFAULT 'empleado'`, () => {});
     db.run(`ALTER TABLE usuarios ADD COLUMN comision_porcentaje REAL DEFAULT 30`, () => {});
@@ -22,7 +27,7 @@ db.serialize(() => {
         stock_v12 INTEGER DEFAULT 0
     )`);
 
-    // Insertar registro inicial si no existe
+    // Registro inicial de almacén si no existe
     db.get("SELECT COUNT(*) as total FROM taller_estado", [], (err, row) => {
         if (row && row.total === 0) {
             db.run("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 0, 0, 0)");
@@ -32,7 +37,7 @@ db.serialize(() => {
     // Historial de Movimientos de Capital e Inventario
     db.run(`CREATE TABLE IF NOT EXISTS movimientos_capital (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tipo TEXT, -- 'ingreso_capital', 'compra_v8', 'compra_v12', 'venta_pedido'
+        tipo TEXT,
         descripcion TEXT,
         monto REAL,
         usuario_nombre TEXT,
@@ -98,9 +103,9 @@ app.post('/api/almacen/ingresar-capital', (req, res) => {
     });
 });
 
-// 5. COMPRAR MOTORES A FÁBRICA (RESTA CAPITAL Y SUMA STOCK)
+// 5. COMPRAR MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', (req, res) => {
-    const { tipo_motor, cantidad, usuario_nombre } = req.body; // tipo_motor: 'v8' o 'v12'
+    const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
     if (isNaN(cant) || cant <= 0) return res.status(400).json({ error: "Cantidad inválida." });
 
@@ -144,7 +149,7 @@ app.put('/api/usuarios/modificar', (req, res) => {
     });
 });
 
-// 8. REGISTRAR FACTURA (DESCUENTA STOCK SI LLEVA MOTORES)
+// 8. REGISTRAR FACTURA
 app.post('/api/facturas', (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje } = req.body;
 
@@ -153,21 +158,18 @@ app.post('/api/facturas', (req, res) => {
     db.get("SELECT nombre, COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", [usuario_id], (err, user) => {
         if (err || !user) return res.status(400).json({ error: "Usuario no encontrado." });
 
-        // Calcular requerimiento de motores
         let v8Necesarios = 0;
         let v12Necesarios = 0;
 
         items.forEach(item => {
-            // Motores directos o combos
-            if (item.id === 8 || item.id === 18 || item.id === 19) { // Motor V8, Full Tunning Pro, Full Tunning
+            if (item.id === 8 || item.id === 18 || item.id === 19) {
                 v8Necesarios += item.cantidad;
             }
-            if (item.id === 7 || item.id === 20 || item.id === 21) { // Motor V12, Full Tunning V12, Full Tunning V12 Pro
+            if (item.id === 7 || item.id === 20 || item.id === 21) {
                 v12Necesarios += item.cantidad;
             }
         });
 
-        // Verificar stock en almacén
         db.get("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1", [], (errStock, estado) => {
             if (errStock || !estado) return res.status(500).json({ error: "Error verificando almacén." });
 
@@ -194,7 +196,6 @@ app.post('/api/facturas', (req, res) => {
             const itemsJSON = JSON.stringify(items);
 
             db.serialize(() => {
-                // 1. Guardar factura
                 db.run(`INSERT INTO facturas (usuario_id, cliente, total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje, items_json) 
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
                     [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje || 0, itemsJSON],
@@ -202,7 +203,6 @@ app.post('/api/facturas', (req, res) => {
                         if (errFactura) return res.status(500).json({ error: errFactura.message });
                         const facturaId = this.lastID;
 
-                        // 2. Restar stock del almacén
                         if (v8Necesarios > 0 || v12Necesarios > 0) {
                             db.run(`UPDATE taller_estado SET stock_v8 = stock_v8 - ?, stock_v12 = stock_v12 - ? WHERE id = 1`, [v8Necesarios, v12Necesarios]);
                             db.run(`INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('despacho_almacen', ?, 0, ?)`,
@@ -223,7 +223,7 @@ app.post('/api/facturas', (req, res) => {
     });
 });
 
-// 9. HISTORIAL DE UN TRABAJADOR
+// 9. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', (req, res) => {
     const { usuario_id } = req.params;
     const sql = `SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC`;
@@ -233,7 +233,7 @@ app.get('/api/mis-facturas/:usuario_id', (req, res) => {
     });
 });
 
-// 10. HISTORIAL GLOBAL DE FACTURAS (ADMIN)
+// 10. HISTORIAL GLOBAL (ADMIN)
 app.get('/api/admin/todas-facturas', (req, res) => {
     const sql = `
         SELECT f.*, u.nombre as trabajador_nombre, u.usuario as trabajador_usuario 
