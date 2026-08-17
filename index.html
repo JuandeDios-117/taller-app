@@ -20,7 +20,8 @@
                 <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-white text-black">
                     🧮 CALCULADORA
                 </button>
-                <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white">
+                <!-- BOTÓN EXCLUSIVO ADMIN: ALMACÉN Y CAPITAL -->
+                <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-amber-400 hover:text-amber-300 hidden">
                     🏢 ALMACÉN Y CAPITAL
                 </button>
                 <button onclick="cambiarPestana('combos')" id="tab-combos" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white">
@@ -32,7 +33,7 @@
                 <button onclick="cambiarPestana('top')" id="tab-top" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white">
                     🏆 TOP TRABAJADORES
                 </button>
-                <!-- BOTÓN EXCLUSIVO PARA ADMINISTRADORES -->
+                <!-- BOTÓN EXCLUSIVO ADMIN: PANEL ADMIN -->
                 <button onclick="cambiarPestana('admin')" id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-amber-400 hover:text-amber-300 hidden">
                     👑 PANEL ADMIN
                 </button>
@@ -144,7 +145,7 @@
             </div>
         </div>
 
-        <!-- PESTAÑA: ALMACÉN Y CAPITAL -->
+        <!-- PESTAÑA: ALMACÉN Y CAPITAL (SOLO ADMIN) -->
         <div id="seccion-almacen" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-bg p-5 rounded-xl border-l-4 border-emerald-500">
@@ -477,13 +478,18 @@
         function actualizarVistaUsuario() {
             const container = document.getElementById('userInfo');
             const btnAdmin = document.getElementById('tab-admin');
+            const btnAlmacen = document.getElementById('tab-almacen');
 
             if (usuarioActual) {
                 const esAdmin = usuarioActual.rol === 'admin';
+                
+                // CONTROL DE VISIBILIDAD ESTRICTO: SOLO ADMIN PUEDE VER ALMACÉN Y PANEL ADMIN
                 if (esAdmin) {
                     btnAdmin.classList.remove('hidden');
+                    btnAlmacen.classList.remove('hidden');
                 } else {
                     btnAdmin.classList.add('hidden');
+                    btnAlmacen.classList.add('hidden');
                 }
 
                 container.innerHTML = `
@@ -494,6 +500,7 @@
                 cambiarPestana('calculadora');
             } else {
                 btnAdmin.classList.add('hidden');
+                btnAlmacen.classList.add('hidden');
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
                 document.getElementById('seccion-calculadora').classList.add('hidden');
@@ -557,8 +564,9 @@
         function cambiarPestana(pestana) {
             if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
 
-            if (pestana === 'admin' && usuarioActual.rol !== 'admin') {
-                return mostrarAviso('Acceso Denegado', 'Solo los administradores tienen permiso para acceder a este panel.', true);
+            // BLOQUEO ESTRICTO DE SEGURIDAD: Solo admin entra a 'admin' o 'almacen'
+            if ((pestana === 'admin' || pestana === 'almacen') && usuarioActual.rol !== 'admin') {
+                return mostrarAviso('Acceso Denegado', 'Solo los administradores tienen permiso para acceder a esta sección.', true);
             }
 
             const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin'];
@@ -577,7 +585,7 @@
             document.getElementById('seccion-top').classList.toggle('hidden', pestana !== 'top');
             document.getElementById('seccion-admin').classList.toggle('hidden', pestana !== 'admin');
 
-            if (pestana === 'almacen') cargarAlmacen();
+            if (pestana === 'almacen' && usuarioActual.rol === 'admin') cargarAlmacen();
             if (pestana === 'historial') cargarHistorial();
             if (pestana === 'top') cargarTop();
             if (pestana === 'admin' && usuarioActual.rol === 'admin') cargarGestionAdmin();
