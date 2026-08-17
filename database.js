@@ -1,14 +1,19 @@
-const sqlite3 = require('sqlite3').verbose();
+const { createClient } = require('@libsql/client');
 const path = require('path');
 
-const dbPath = path.resolve(__dirname, 'taller.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) console.error('Error al conectar con SQLite:', err.message);
-    else console.log('Base de datos SQLite conectada con éxito.');
+// Se conecta a Turso si existen las variables en Render, o crea archivo local si estás en tu PC
+const url = process.env.TURSO_DATABASE_URL || "file:taller.db";
+const authToken = process.env.TURSO_AUTH_TOKEN || "";
+
+const client = createClient({
+  url: url,
+  authToken: authToken
 });
 
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS usuarios (
+async function initDB() {
+  try {
+    // Tabla de Usuarios
+    await client.execute(`CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT NOT NULL,
         usuario TEXT UNIQUE NOT NULL,
@@ -17,7 +22,8 @@ db.serialize(() => {
         rol TEXT DEFAULT 'empleado'
     )`);
 
-    db.run(`CREATE TABLE IF NOT EXISTS facturas (
+    // Tabla de Facturas / Pedidos
+    await client.execute(`CREATE TABLE IF NOT EXISTS facturas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         usuario_id INTEGER,
         cliente TEXT,
@@ -31,6 +37,35 @@ db.serialize(() => {
         fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
     )`);
-});
 
-module.exports = db;
+    // Tabla de Capital y Stock
+    await client.execute(`CREATE TABLE IF NOT EXISTS taller_estado (
+        id INTEGER PRIMARY KEY,
+        capital REAL DEFAULT 0,
+        stock_v8 INTEGER DEFAULT 0,
+        stock_v12 INTEGER DEFAULT 0
+    )`);
+
+    // Historial de Movimientos de Capital e Inventario
+    await client.execute(`CREATE TABLE IF NOT EXISTS movimientos_capital (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tipo TEXT,
+        descripcion TEXT,
+        monto REAL,
+        usuario_nombre TEXT,
+        fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    // Inicializar estado del taller si está vacío
+    const estado = await client.execute("SELECT COUNT(*) as total FROM taller_estado");
+    if (estado.rows[0].total === 0) {
+      await client.execute("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 0, 0, 0)");
+    }
+  } catch (err) {
+    console.error("Error inicializando tablas en la base de datos:", err);
+  }
+}
+
+initDB();
+
+module.exports = client;
