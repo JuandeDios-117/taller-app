@@ -4,11 +4,13 @@ const path = require('path');
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Servir la página principal explícitamente para Render
+// Servir archivos estáticos directamente desde la raíz
+app.use(express.static(__dirname));
+
+// Servir la página principal
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Inicializar tablas y columnas requeridas
