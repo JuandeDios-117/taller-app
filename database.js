@@ -1,14 +1,14 @@
-const { createClient } = require('@libsql/client/http');
+const { createClient } = require('@libsql/client');
 
-let url = (process.env.TURSO_DATABASE_URL || 'file:taller.db').trim();
-if (url.startsWith('libsql://')) {
-    url = url.replace('libsql://', 'https://');
+let rawUrl = (process.env.TURSO_DATABASE_URL || 'file:taller.db').trim();
+if (rawUrl.startsWith('libsql://')) {
+    rawUrl = rawUrl.replace('libsql://', 'https://');
 }
 
 const authToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
 
 const client = createClient({
-    url: url,
+    url: rawUrl,
     authToken: authToken
 });
 
@@ -34,7 +34,8 @@ async function initDB() {
             descuento_porcentaje REAL DEFAULT 0,
             estado_pago TEXT DEFAULT 'pendiente',
             items_json TEXT,
-            fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+            fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
         )`);
 
         await client.execute(`CREATE TABLE IF NOT EXISTS taller_estado (
@@ -57,9 +58,9 @@ async function initDB() {
         if (estado.rows[0].total === 0) {
             await client.execute("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 0, 0, 0)");
         }
-        console.log("Conectado exitosamente a Turso.");
+        console.log("Conectado con éxito a Turso en la nube.");
     } catch (err) {
-        console.error("Detalle inicialización Turso:", err.message);
+        console.error("Error al inicializar base de datos:", err);
     }
 }
 
