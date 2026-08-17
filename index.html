@@ -74,9 +74,24 @@
         <!-- CALCULADORA -->
         <div id="seccion-calculadora" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
             <div class="lg:col-span-2 space-y-6">
-                <div class="card-bg p-5 rounded-xl">
-                    <label class="block text-xs font-bold text-zinc-400 uppercase mb-2">Nombre del Cliente (Solo para el recibo)</label>
-                    <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-bg px-4 py-3 rounded-lg font-medium uppercase">
+                <div class="card-bg p-5 rounded-xl space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-400 uppercase mb-2">Nombre del Cliente (Solo para el recibo)</label>
+                        <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-bg px-4 py-3 rounded-lg font-medium uppercase">
+                    </div>
+
+                    <!-- OPCIÓN EXCLUSIVA ADMIN: COBRAR A PRECIO DE FÁBRICA -->
+                    <div id="contenedorModoFabrica" class="hidden pt-2 border-t border-zinc-800">
+                        <label class="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl cursor-pointer hover:bg-amber-500/20 transition">
+                            <input type="checkbox" id="checkPrecioFabrica" onchange="togglePrecioFabrica()" class="w-4 h-4 text-amber-500 rounded bg-zinc-900 border-zinc-700 focus:ring-amber-500 focus:ring-offset-zinc-900">
+                            <div>
+                                <div class="text-xs font-black text-amber-400 uppercase flex items-center gap-1.5">
+                                    👑 Cobrar a Precio de Fábrica (Modo Admin)
+                                </div>
+                                <p class="text-[11px] text-zinc-400">Calcula y factura las piezas a su costo directo de fábrica (Sin ganancia ni comisiones).</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="card-bg p-5 rounded-xl space-y-4">
@@ -99,7 +114,7 @@
 
                     <div class="border-t border-zinc-800 pt-4 space-y-2">
                         <div class="flex justify-between text-xs text-zinc-400">
-                            <span>Subtotal (Antes):</span>
+                            <span id="labelSubtotal">Subtotal (Antes):</span>
                             <span id="subtotalText" class="font-bold text-zinc-200">$0</span>
                         </div>
                         <div id="filaDescuento" class="flex justify-between text-xs text-red-400 hidden">
@@ -123,17 +138,18 @@
                         Realizar Orden
                     </button>
 
-                    <div class="border-t border-zinc-800 pt-4 space-y-3">
+                    <!-- SECCIÓN DESCUENTOS: 10%, 15%, 20% -->
+                    <div id="seccionDescuentosContenedor" class="border-t border-zinc-800 pt-4 space-y-3">
                         <label class="block text-xs font-bold text-zinc-400 uppercase">Añadir Descuento</label>
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="aplicarDescuento(5)" id="btn-5" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white">5%</button>
-                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white">10%</button>
-                            <button onclick="aplicarDescuento(15)" id="btn-15" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white">15%</button>
-                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-red-400">Quitar</button>
+                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-700 transition">10%</button>
+                            <button onclick="aplicarDescuento(15)" id="btn-15" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-700 transition">15%</button>
+                            <button onclick="aplicarDescuento(20)" id="btn-20" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-700 transition">20%</button>
+                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-red-400 hover:bg-zinc-700 transition">Quitar</button>
                         </div>
                         <div class="flex gap-2 items-center pt-1">
                             <div class="relative flex-1">
-                                <input type="number" id="inputDescuentoManual" placeholder="Otro % (ej. 20, 50)" min="0" max="100" class="w-full input-bg px-3 py-2 rounded-lg text-xs font-medium pr-6 focus:outline-none focus:border-zinc-500">
+                                <input type="number" id="inputDescuentoManual" placeholder="Otro % (ej. 25, 30)" min="0" max="100" class="w-full input-bg px-3 py-2 rounded-lg text-xs font-medium pr-6 focus:outline-none focus:border-zinc-500">
                                 <span class="absolute right-3 top-2 text-xs text-zinc-500 font-bold">%</span>
                             </div>
                             <button onclick="aplicarDescuentoManual()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs px-3 py-2 rounded-lg border border-zinc-700 transition">
@@ -241,6 +257,13 @@
                             <td class="p-3 text-green-400">$140,000</td>
                             <td class="p-3 text-green-400">$550,000</td>
                             <td class="p-3 text-green-400">$580,000</td>
+                        </tr>
+                        <tr class="text-amber-400/80">
+                            <td class="p-3 font-bold text-zinc-400 uppercase">COSTO FÁBRICA</td>
+                            <td class="p-3">$67,000</td>
+                            <td class="p-3">$95,000</td>
+                            <td class="p-3">$327,000</td>
+                            <td class="p-3">$348,000</td>
                         </tr>
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">MOTOR</td>
@@ -402,7 +425,7 @@
             </div>
             <div class="bg-zinc-900 p-4 rounded-xl space-y-2 border border-zinc-800/80 text-left text-xs">
                 <div class="flex justify-between text-zinc-400">
-                    <span>Total Venta:</span>
+                    <span>Total Cobrado:</span>
                     <strong class="text-white text-sm" id="modalTotal">$0</strong>
                 </div>
                 <div class="flex justify-between text-zinc-400 border-t border-zinc-800/80 pt-2">
@@ -455,6 +478,7 @@
         let esModoRegistro = false;
         let carrito = {};
         let descuentoPorcentaje = 0;
+        let modoPrecioFabrica = false;
         let facturasAdminGlobal = [];
 
         function tieneCombosSinDescuento() {
@@ -475,21 +499,48 @@
             document.getElementById('modalAviso').classList.add('hidden');
         }
 
+        function togglePrecioFabrica() {
+            if (!usuarioActual || usuarioActual.rol !== 'admin') {
+                document.getElementById('checkPrecioFabrica').checked = false;
+                modoPrecioFabrica = false;
+                return mostrarAviso('Acceso Restringido', 'Solo los administradores pueden cobrar a precio de fábrica.', true);
+            }
+
+            modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
+            
+            // Si activa precio de fábrica, desactivar descuentos
+            if (modoPrecioFabrica) {
+                descuentoPorcentaje = 0;
+                document.getElementById('inputDescuentoManual').value = '';
+                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+            }
+
+            document.getElementById('seccionDescuentosContenedor').classList.toggle('opacity-40', modoPrecioFabrica);
+            document.getElementById('seccionDescuentosContenedor').classList.toggle('pointer-events-none', modoPrecioFabrica);
+            
+            actualizarCarrito();
+        }
+
         function actualizarVistaUsuario() {
             const container = document.getElementById('userInfo');
             const btnAdmin = document.getElementById('tab-admin');
             const btnAlmacen = document.getElementById('tab-almacen');
+            const contModoFabrica = document.getElementById('contenedorModoFabrica');
 
             if (usuarioActual) {
                 const esAdmin = usuarioActual.rol === 'admin';
                 
-                // CONTROL DE VISIBILIDAD ESTRICTO: SOLO ADMIN PUEDE VER ALMACÉN Y PANEL ADMIN
+                // CONTROL DE VISIBILIDAD ESTRICTO ADMIN
                 if (esAdmin) {
                     btnAdmin.classList.remove('hidden');
                     btnAlmacen.classList.remove('hidden');
+                    contModoFabrica.classList.remove('hidden');
                 } else {
                     btnAdmin.classList.add('hidden');
                     btnAlmacen.classList.add('hidden');
+                    contModoFabrica.classList.add('hidden');
+                    modoPrecioFabrica = false;
+                    document.getElementById('checkPrecioFabrica').checked = false;
                 }
 
                 container.innerHTML = `
@@ -501,6 +552,8 @@
             } else {
                 btnAdmin.classList.add('hidden');
                 btnAlmacen.classList.add('hidden');
+                contModoFabrica.classList.add('hidden');
+                modoPrecioFabrica = false;
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
                 document.getElementById('seccion-calculadora').classList.add('hidden');
@@ -558,13 +611,14 @@
 
         function cerrarSesion() {
             usuarioActual = null;
+            modoPrecioFabrica = false;
             actualizarVistaUsuario();
         }
 
         function cambiarPestana(pestana) {
             if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
 
-            // BLOQUEO ESTRICTO DE SEGURIDAD: Solo admin entra a 'admin' o 'almacen'
+            // BLOQUEO ESTRICTO DE SEGURIDAD
             if ((pestana === 'admin' || pestana === 'almacen') && usuarioActual.rol !== 'admin') {
                 return mostrarAviso('Acceso Denegado', 'Solo los administradores tienen permiso para acceder a esta sección.', true);
             }
@@ -753,7 +807,7 @@
                             </div>
                             <div class="text-right">
                                 <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
-                                <div class="text-xs text-zinc-400">Total Vendido</div>
+                                <div class="text-xs text-zinc-400">Total Cobrado</div>
                             </div>
                         </div>
 
@@ -920,7 +974,7 @@
                                 <h4 class="font-bold text-white text-sm">${p.nombre}</h4>
                                 <p class="text-xs text-zinc-500">
                                     Venta: <span class="text-zinc-200 font-semibold">$${p.venta.toLocaleString()}</span> 
-                                    · Costo: <span class="text-zinc-400">$${p.costo.toLocaleString()}</span>
+                                    · Fábrica: <span class="text-amber-400/90 font-semibold">$${p.costo.toLocaleString()}</span>
                                 </p>
                             </div>
                             <div>
@@ -948,7 +1002,7 @@
             if (!carrito[id]) carrito[id] = { ...p, cantidad: 1 };
             else carrito[id].cantidad++;
 
-            if (tieneCombosSinDescuento() && descuentoPorcentaje > 0) {
+            if (!modoPrecioFabrica && tieneCombosSinDescuento() && descuentoPorcentaje > 0) {
                 descuentoPorcentaje = 0;
                 document.getElementById('inputDescuentoManual').value = '';
                 document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
@@ -969,6 +1023,10 @@
         function eliminar(id) { delete carrito[id]; actualizarCarrito(); }
 
         function aplicarDescuento(porcentaje) {
+            if (modoPrecioFabrica) {
+                return mostrarAviso('No Permitido', 'No se pueden aplicar descuentos adicionales cuando se cobra a precio de fábrica.');
+            }
+
             if (porcentaje > 0 && tieneCombosSinDescuento()) {
                 return mostrarAviso('Descuento No Permitido', 'En los combos FULL TUNNING V12 y V12 PRO no aplica ningún tipo de descuento.');
             }
@@ -983,6 +1041,10 @@
         }
 
         function aplicarDescuentoManual() {
+            if (modoPrecioFabrica) {
+                return mostrarAviso('No Permitido', 'No se pueden aplicar descuentos adicionales cuando se cobra a precio de fábrica.');
+            }
+
             if (tieneCombosSinDescuento()) {
                 return mostrarAviso('Descuento No Permitido', 'En los combos FULL TUNNING V12 y V12 PRO no aplica ningún tipo de descuento.');
             }
@@ -1009,14 +1071,15 @@
                 container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>';
             } else {
                 items.forEach(item => {
-                    const itemTotal = item.venta * item.cantidad;
+                    const precioUnitario = modoPrecioFabrica ? item.costo : item.venta;
+                    const itemTotal = precioUnitario * item.cantidad;
                     subtotal += itemTotal;
                     totalCantidad += item.cantidad;
                     container.innerHTML += `
                         <div class="flex justify-between items-start text-xs">
                             <div>
                                 <h4 class="font-bold text-white">${item.nombre}</h4>
-                                <p class="text-zinc-500">${item.cantidad} × $${item.venta.toLocaleString()}</p>
+                                <p class="text-zinc-500">${item.cantidad} × $${precioUnitario.toLocaleString()} ${modoPrecioFabrica ? '<span class="text-amber-400 font-bold">(Fábrica)</span>' : ''}</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="font-bold text-white">$${itemTotal.toLocaleString()}</span>
@@ -1027,7 +1090,7 @@
                 });
             }
 
-            if (tieneCombosSinDescuento()) {
+            if (modoPrecioFabrica || tieneCombosSinDescuento()) {
                 descuentoPorcentaje = 0;
             }
 
@@ -1035,6 +1098,7 @@
             const totalFinal = subtotal - montoDescuento;
 
             document.getElementById('cantItems').innerText = totalCantidad;
+            document.getElementById('labelSubtotal').innerText = modoPrecioFabrica ? 'Subtotal (Fábrica):' : 'Subtotal (Antes):';
             document.getElementById('subtotalText').innerText = `$${subtotal.toLocaleString()}`;
 
             if (descuentoPorcentaje > 0 && subtotal > 0) {
@@ -1072,14 +1136,15 @@
                     usuario_id: usuarioActual.id, 
                     cliente, 
                     items, 
-                    descuento_porcentaje: descuentoPorcentaje 
+                    descuento_porcentaje: modoPrecioFabrica ? 0 : descuentoPorcentaje,
+                    es_precio_fabrica: modoPrecioFabrica
                 })
             });
 
             const data = await res.json();
             if (res.ok) {
                 document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
-                document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente}`;
+                document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente} ${data.es_precio_fabrica ? '(A Precio Fábrica)' : ''}`;
                 document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
                 document.getElementById('modalPorcentajeComision').innerText = data.porcentaje_aplicado;
                 document.getElementById('modalComision').innerText = `$${data.comision.toLocaleString()}`;
@@ -1088,6 +1153,9 @@
 
                 carrito = {};
                 descuentoPorcentaje = 0;
+                modoPrecioFabrica = false;
+                document.getElementById('checkPrecioFabrica').checked = false;
+                document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
                 document.getElementById('nombreCliente').value = '';
                 document.getElementById('inputDescuentoManual').value = '';
                 aplicarDescuento(0);

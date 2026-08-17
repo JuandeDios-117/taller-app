@@ -144,13 +144,16 @@ app.put('/api/usuarios/modificar', async (req, res) => {
 
 // 8. REGISTRAR FACTURA / ORDEN
 app.post('/api/facturas', async (req, res) => {
-    const { usuario_id, cliente, items, descuento_porcentaje } = req.body;
+    const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
 
     try {
-        const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [usuario_id] });
+        const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [usuario_id] });
         if (userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
         const user = userRes.rows[0];
+
+        // Validar que solo admins puedan aplicar precio de fábrica
+        const aplicarFabrica = es_precio_fabrica && user.rol === 'admin';
 
         let v8Necesarios = 0;
         let v12Necesarios = 0;
@@ -163,11 +166,9 @@ app.post('/api/facturas', async (req, res) => {
         const estadoRes = await db.execute("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1");
         const estado = estadoRes.rows[0] || { stock_v8: 0, stock_v12: 0 };
 
-        if (v8Necesarios > 0 && estado.stock_v8 < v8Necesarios) {
-            return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v8Necesarios} Motor(es) V8 y hay ${estado.stock_v8} en stock.` });
-        }
+        // ÚNICA RESTRICCIÓN OBLIGATORIA: Motor V12
         if (v12Necesarios > 0 && estado.stock_v12 < v12Necesarios) {
-            return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12 y hay ${estado.stock_v12} en stock.` });
+            return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12 y solo hay ${estado.stock_v12} en stock.` });
         }
 
         const pctComision = user.comision / 100;
@@ -175,11 +176,12 @@ app.post('/api/facturas', async (req, res) => {
         let coste_fabrica_total = 0;
 
         items.forEach(item => {
-            subtotal_cliente += item.venta * item.cantidad;
+            const precioCobrado = aplicarFabrica ? item.costo : item.venta;
+            subtotal_cliente += precioCobrado * item.cantidad;
             coste_fabrica_total += item.costo * item.cantidad;
         });
 
-        const descuento = subtotal_cliente * ((descuento_porcentaje || 0) / 100);
+        const descuento = aplicarFabrica ? 0 : subtotal_cliente * ((descuento_porcentaje || 0) / 100);
         const total_cliente = subtotal_cliente - descuento;
         const ganancia_neta = total_cliente - coste_fabrica_total;
         const comision_empleado = ganancia_neta > 0 ? ganancia_neta * pctComision : 0;
@@ -188,13 +190,19 @@ app.post('/api/facturas', async (req, res) => {
         const sql = `INSERT INTO facturas (usuario_id, cliente, total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje, items_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
         const insertRes = await db.execute({
             sql,
-            args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje || 0, itemsJSON]
+            args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, aplicarFabrica ? 0 : (descuento_porcentaje || 0), itemsJSON]
         });
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
+        // Descontar del almacén (si hay stock disponible de V8 lo descuenta sin bloquear)
         if (v8Necesarios > 0 || v12Necesarios > 0) {
-            await db.execute({ sql: "UPDATE taller_estado SET stock_v8 = stock_v8 - ?, stock_v12 = stock_v12 - ? WHERE id = 1", args: [v8Necesarios, v12Necesarios] });
+            const descuentoV8 = Math.min(estado.stock_v8, v8Necesarios);
+            await db.execute({ 
+                sql: "UPDATE taller_estado SET stock_v8 = stock_v8 - ?, stock_v12 = stock_v12 - ? WHERE id = 1", 
+                args: [descuentoV8, v12Necesarios] 
+            });
+
             await db.execute({
                 sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('despacho_almacen', ?, 0, ?)",
                 args: [`Salida Orden #${facturaId} (Cliente: ${cliente}): ${v8Necesarios > 0 ? v8Necesarios + 'x V8 ' : ''}${v12Necesarios > 0 ? v12Necesarios + 'x V12' : ''}`, user.nombre]
@@ -206,7 +214,8 @@ app.post('/api/facturas', async (req, res) => {
             subtotal: subtotal_cliente,
             total: total_cliente,
             comision: comision_empleado,
-            porcentaje_aplicado: user.comision
+            porcentaje_aplicado: user.comision,
+            es_precio_fabrica: aplicarFabrica
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
