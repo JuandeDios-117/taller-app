@@ -1,4 +1,4 @@
-const { createClient } = require('@libsql/client');
+const { createClient } = require('@libsql/client/http');
 
 let url = (process.env.TURSO_DATABASE_URL || 'file:taller.db').trim();
 if (url.startsWith('libsql://')) {
@@ -34,8 +34,7 @@ async function initDB() {
             descuento_porcentaje REAL DEFAULT 0,
             estado_pago TEXT DEFAULT 'pendiente',
             items_json TEXT,
-            fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+            fecha DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
         await client.execute(`CREATE TABLE IF NOT EXISTS taller_estado (
@@ -58,9 +57,9 @@ async function initDB() {
         if (estado.rows[0].total === 0) {
             await client.execute("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 0, 0, 0)");
         }
-        console.log("Base de datos en la nube conectada con éxito.");
+        console.log("Conectado exitosamente a Turso.");
     } catch (err) {
-        console.error("Error inicializando tablas en Turso:", err);
+        console.error("Detalle inicialización Turso:", err.message);
     }
 }
 
