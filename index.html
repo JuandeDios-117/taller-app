@@ -20,7 +20,6 @@
                 <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-white text-black">
                     🧮 CALCULADORA
                 </button>
-                <!-- BOTÓN EXCLUSIVO ADMIN: ALMACÉN Y CAPITAL -->
                 <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-amber-400 hover:text-amber-300 hidden">
                     🏢 ALMACÉN Y CAPITAL
                 </button>
@@ -33,13 +32,25 @@
                 <button onclick="cambiarPestana('top')" id="tab-top" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white">
                     🏆 TOP TRABAJADORES
                 </button>
-                <!-- BOTÓN EXCLUSIVO ADMIN: PANEL ADMIN -->
                 <button onclick="cambiarPestana('admin')" id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-amber-400 hover:text-amber-300 hidden">
                     👑 PANEL ADMIN
                 </button>
             </div>
 
-            <div id="userInfo" class="text-xs text-zinc-400 flex items-center gap-3"></div>
+            <!-- USUARIOS EN LÍNEA & PERFIL -->
+            <div class="flex items-center gap-4">
+                <div id="badgeOnlineCount" class="text-xs bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span id="txtOnlineCount" class="font-bold text-zinc-300">0 en línea</span>
+                </div>
+                <div id="userInfo" class="text-xs text-zinc-400 flex items-center gap-3"></div>
+            </div>
+        </div>
+
+        <!-- LISTA LATERAL/SUPERIOR DE USUARIOS EN LÍNEA (DISCORD STYLE) -->
+        <div id="barraUsuariosOnline" class="card-bg p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs">
+            <span class="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">🟢 Conectados ahora:</span>
+            <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
         <!-- AUTH (LOGIN / REGISTRO) -->
@@ -80,7 +91,6 @@
                         <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-bg px-4 py-3 rounded-lg font-medium uppercase">
                     </div>
 
-                    <!-- OPCIÓN EXCLUSIVA ADMIN: COBRAR A PRECIO DE FÁBRICA -->
                     <div id="contenedorModoFabrica" class="hidden pt-2 border-t border-zinc-800">
                         <label class="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl cursor-pointer hover:bg-amber-500/20 transition">
                             <input type="checkbox" id="checkPrecioFabrica" onchange="togglePrecioFabrica()" class="w-4 h-4 text-amber-500 rounded bg-zinc-900 border-zinc-700 focus:ring-amber-500 focus:ring-offset-zinc-900">
@@ -134,11 +144,11 @@
                         Cliente: <span id="nombreClienteText" class="text-zinc-200">--</span>
                     </div>
 
-                    <button onclick="realizarOrden()" class="w-full bg-white text-black font-bold py-3 px-4 rounded-xl hover:bg-zinc-200 transition text-center uppercase">
+                    <!-- BOTÓN CON PROTECCIÓN CONTRA DUPLICADOS -->
+                    <button id="btnRealizarOrden" onclick="realizarOrden()" class="w-full bg-white text-black font-bold py-3 px-4 rounded-xl hover:bg-zinc-200 transition text-center uppercase disabled:opacity-50 disabled:cursor-not-allowed">
                         Realizar Orden
                     </button>
 
-                    <!-- SECCIÓN DESCUENTOS: 10%, 15%, 20% -->
                     <div id="seccionDescuentosContenedor" class="border-t border-zinc-800 pt-4 space-y-3">
                         <label class="block text-xs font-bold text-zinc-400 uppercase">Añadir Descuento</label>
                         <div class="grid grid-cols-4 gap-2">
@@ -179,7 +189,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- INGRESAR CAPITAL -->
                 <div class="card-bg p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
                         💵 Ingresar Capital a Caja
@@ -199,7 +208,6 @@
                     </div>
                 </div>
 
-                <!-- COMPRAR MOTORES A FÁBRICA -->
                 <div class="card-bg p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
                         📦 Pedir Motores a Fábrica (Resta Capital)
@@ -225,7 +233,6 @@
                 </div>
             </div>
 
-            <!-- HISTORIAL DE MOVIMIENTOS -->
             <div class="card-bg p-6 rounded-xl space-y-4">
                 <h3 class="text-xs font-bold text-zinc-400 uppercase">HISTORIAL DE CAPITAL Y ALMACÉN</h3>
                 <div id="listaMovimientosAlmacen" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
@@ -296,9 +303,9 @@
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">POR PEDIDO (RENDIMIENTOS)</td>
                             <td class="p-3 text-amber-400 font-semibold">1x Pieza de Rendimiento</td>
-                            <td class="p-3 text-amber-400 font-semibold">4x Piezas Rendimiento (Motor, Frenos, Transmisión, Turbo)</td>
+                            <td class="p-3 text-amber-400 font-semibold">4x Piezas Rendimiento</td>
                             <td class="p-3 text-amber-400 font-semibold">1x Pieza Rendimiento (Turbo)</td>
-                            <td class="p-3 text-amber-400 font-semibold">4x Piezas Rendimiento (Motor, Frenos, Transmisión, Turbo)</td>
+                            <td class="p-3 text-amber-400 font-semibold">4x Piezas Rendimiento</td>
                         </tr>
                     </tbody>
                 </table>
@@ -313,7 +320,7 @@
                     <p class="text-2xl font-black text-white mt-1" id="mTotalVendido">$0</p>
                 </div>
                 <div class="card-bg p-5 rounded-xl border-l-4 border-amber-500">
-                    <p class="text-xs text-zinc-400 font-bold uppercase">Mis Comisiones Ganadas (30%)</p>
+                    <p class="text-xs text-zinc-400 font-bold uppercase">Mis Comisiones Ganadas</p>
                     <p class="text-2xl font-black text-amber-400 mt-1" id="mComisionesPendientes">$0</p>
                 </div>
                 <div class="card-bg p-5 rounded-xl border-l-4 border-green-500">
@@ -338,23 +345,24 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL EXCLUSIVO ADMIN -->
+        <!-- PANEL EXCLUSIVO ADMIN (CON ELIMINAR Y TRANSFERIR) -->
         <div id="seccion-admin" class="space-y-6 hidden">
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div>
-                    <h2 class="text-2xl font-black text-amber-400 uppercase">👑 PANEL DE ADMINISTRADOR</h2>
-                    <p class="text-xs text-zinc-400">Gestiona los permisos y porcentajes de comisión de cada cuenta.</p>
+                    <h2 class="text-2xl font-black text-amber-400 uppercase">👑 GESTIÓN DE CUENTAS DE TRABAJADORES</h2>
+                    <p class="text-xs text-zinc-400">Edita comisiones, permisos o elimina cuentas que ya no trabajen en el taller.</p>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="border-b border-zinc-800 text-zinc-400 uppercase text-xs">
+                                <th class="p-3">Estado</th>
                                 <th class="p-3">Trabajador</th>
                                 <th class="p-3">Usuario</th>
                                 <th class="p-3">Rol / Permisos</th>
                                 <th class="p-3">Comisión (%)</th>
-                                <th class="p-3">Acción</th>
+                                <th class="p-3 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tablaUsuariosAdmin" class="divide-y divide-zinc-800"></tbody>
@@ -365,8 +373,8 @@
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 border-b border-zinc-800 pb-4">
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase">📦 HISTORIAL GLOBAL DE PEDIDOS</h3>
-                        <p class="text-xs text-zinc-400">Revisa los pedidos realizados por cada trabajador.</p>
+                        <h3 class="text-lg font-black text-white uppercase">📦 HISTORIAL GLOBAL Y TRANSFERENCIA DE ÓRDENES</h3>
+                        <p class="text-xs text-zinc-400">Reasigna facturas de una cuenta a otra en caso de error o cambios de personal.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -381,6 +389,22 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- MODAL TRANSFERIR FACTURA -->
+    <div id="modalTransferir" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="card-bg p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl">
+            <h3 class="text-lg font-black text-amber-400 uppercase">🔁 Transferir Orden</h3>
+            <p class="text-xs text-zinc-400" id="txtTransferirDetalle">Selecciona el trabajador que recibirá esta orden y sus comisiones correspondientes.</p>
+            <div>
+                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Nuevo Trabajador</label>
+                <select id="selNuevoTrabajador" class="w-full input-bg px-3 py-2 rounded-lg text-xs font-bold text-white"></select>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="cerrarModalTransferir()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 rounded-xl text-xs uppercase">Cancelar</button>
+                <button onclick="confirmarTransferencia()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 rounded-xl text-xs uppercase">Transferir</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODALES FLOTANTES -->
@@ -441,7 +465,6 @@
 
     <script>
         const catalogo = [
-            // GENERAL
             { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
             { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
             { id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500 },
@@ -450,24 +473,19 @@
             { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
             { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
 
-            // MOTOR
             { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000 },
             { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000 },
 
-            // FRENOS
             { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
 
-            // TRACCIÓN
             { id: 9, categoria: 'TRACCIÓN', nombre: 'Tracción AWD', venta: 12500, costo: 8000 },
             { id: 10, categoria: 'TRACCIÓN', nombre: 'Tracción RWD', venta: 11500, costo: 7000 },
             { id: 11, categoria: 'TRACCIÓN', nombre: 'Tracción FWD', venta: 10500, costo: 8500 },
 
-            // NEUMÁTICOS
             { id: 12, categoria: 'NEUMÁTICOS', nombre: 'Slick', venta: 6000, costo: 4000 },
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
 
-            // COMBOS (PRECIOS FIJOS)
             { id: 18, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING PRO', venta: 140000, costo: 95000 },
             { id: 19, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING', venta: 100000, costo: 67000 },
             { id: 20, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12', venta: 550000, costo: 327000 },
@@ -480,6 +498,10 @@
         let descuentoPorcentaje = 0;
         let modoPrecioFabrica = false;
         let facturasAdminGlobal = [];
+        let usuariosAdminGlobal = [];
+        let facturaIdParaTransferir = null;
+        let heartbeatTimer = null;
+        let usuariosOnlineSet = new Set();
 
         function tieneCombosSinDescuento() {
             const items = Object.values(carrito);
@@ -499,6 +521,54 @@
             document.getElementById('modalAviso').classList.add('hidden');
         }
 
+        // SISTEMA EN LÍNEA (DISCORD LIKE)
+        async function enviarHeartbeat() {
+            if (!usuarioActual) return;
+            try {
+                const res = await fetch('/api/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario_id: usuarioActual.id,
+                        nombre: usuarioActual.nombre,
+                        usuario: usuarioActual.usuario,
+                        rol: usuarioActual.rol
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    actualizarBarraOnline(data.online || []);
+                }
+            } catch (e) {}
+        }
+
+        function actualizarBarraOnline(onlineList) {
+            usuariosOnlineSet = new Set(onlineList.map(u => Number(u.id)));
+            document.getElementById('txtOnlineCount').innerText = `${onlineList.length} en línea`;
+
+            const contenedor = document.getElementById('listaUsuariosOnlineChips');
+            const barra = document.getElementById('barraUsuariosOnline');
+            
+            if (!usuarioActual || onlineList.length === 0) {
+                barra.classList.add('hidden');
+                return;
+            }
+
+            barra.classList.remove('hidden');
+            contenedor.innerHTML = '';
+
+            onlineList.forEach(u => {
+                const esAdmin = u.rol === 'admin';
+                contenedor.innerHTML += `
+                    <div class="flex items-center gap-1.5 bg-zinc-900 px-2.5 py-1 rounded-full border border-zinc-800">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                        <span class="font-bold ${esAdmin ? 'text-amber-400' : 'text-zinc-200'}">${u.nombre}</span>
+                        <span class="text-[10px] text-zinc-500">(@${u.usuario})</span>
+                    </div>
+                `;
+            });
+        }
+
         function togglePrecioFabrica() {
             if (!usuarioActual || usuarioActual.rol !== 'admin') {
                 document.getElementById('checkPrecioFabrica').checked = false;
@@ -507,8 +577,6 @@
             }
 
             modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
-            
-            // Si activa precio de fábrica, desactivar descuentos
             if (modoPrecioFabrica) {
                 descuentoPorcentaje = 0;
                 document.getElementById('inputDescuentoManual').value = '';
@@ -529,8 +597,6 @@
 
             if (usuarioActual) {
                 const esAdmin = usuarioActual.rol === 'admin';
-                
-                // CONTROL DE VISIBILIDAD ESTRICTO ADMIN
                 if (esAdmin) {
                     btnAdmin.classList.remove('hidden');
                     btnAlmacen.classList.remove('hidden');
@@ -549,11 +615,16 @@
                 `;
                 document.getElementById('seccion-auth').classList.add('hidden');
                 cambiarPestana('calculadora');
+
+                enviarHeartbeat();
+                if (!heartbeatTimer) heartbeatTimer = setInterval(enviarHeartbeat, 10000);
             } else {
+                if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
                 btnAdmin.classList.add('hidden');
                 btnAlmacen.classList.add('hidden');
                 contModoFabrica.classList.add('hidden');
                 modoPrecioFabrica = false;
+                document.getElementById('barraUsuariosOnline').classList.add('hidden');
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
                 document.getElementById('seccion-calculadora').classList.add('hidden');
@@ -609,16 +680,21 @@
             toggleModoAuth();
         }
 
-        function cerrarSesion() {
+        async function cerrarSesion() {
+            if (usuarioActual) {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario_id: usuarioActual.id })
+                });
+            }
             usuarioActual = null;
-            modoPrecioFabrica = false;
             actualizarVistaUsuario();
         }
 
         function cambiarPestana(pestana) {
             if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
 
-            // BLOQUEO ESTRICTO DE SEGURIDAD
             if ((pestana === 'admin' || pestana === 'almacen') && usuarioActual.rol !== 'admin') {
                 return mostrarAviso('Acceso Denegado', 'Solo los administradores tienen permiso para acceder a esta sección.', true);
             }
@@ -726,16 +802,23 @@
 
         async function cargarGestionAdmin() {
             const res = await fetch('/api/usuarios');
-            const usuarios = await res.json();
+            usuariosAdminGlobal = await res.json();
             const tbody = document.getElementById('tablaUsuariosAdmin');
             tbody.innerHTML = '';
 
             const selectFiltro = document.getElementById('selectFiltroTrabajador');
             selectFiltro.innerHTML = '<option value="todos">Todos los trabajadores</option>';
 
-            usuarios.forEach(u => {
+            usuariosAdminGlobal.forEach(u => {
+                const estaOnline = usuariosOnlineSet.has(Number(u.id));
                 tbody.innerHTML += `
                     <tr>
+                        <td class="p-3">
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
+                                <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}"></span>
+                                ${estaOnline ? 'En Línea' : 'Desconectado'}
+                            </span>
+                        </td>
                         <td class="p-3 font-bold text-white">${u.nombre}</td>
                         <td class="p-3 text-zinc-400">@${u.usuario}</td>
                         <td class="p-3">
@@ -747,10 +830,15 @@
                         <td class="p-3">
                             <input type="number" id="pct-${u.id}" value="${u.comision_porcentaje}" class="input-bg w-16 px-2 py-1 rounded text-center font-bold text-amber-400 text-xs" min="0" max="100"> %
                         </td>
-                        <td class="p-3">
+                        <td class="p-3 text-right space-x-2">
                             <button onclick="guardarCambiosUsuario(${u.id})" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-3 py-1.5 rounded-lg">
                                 Guardar
                             </button>
+                            ${u.id !== usuarioActual.id ? `
+                                <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-red-500/30 transition">
+                                    🗑️ Eliminar
+                                </button>
+                            ` : ''}
                         </td>
                     </tr>
                 `;
@@ -761,6 +849,58 @@
             const resFacturas = await fetch('/api/admin/todas-facturas');
             facturasAdminGlobal = await resFacturas.json();
             filtrarHistorialAdmin();
+        }
+
+        async function eliminarCuentaUsuario(id, nombre) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente la cuenta de "${nombre}"? Sus órdenes también serán eliminadas.`)) {
+                return;
+            }
+
+            const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                mostrarAviso('Cuenta Eliminada', `La cuenta de ${nombre} fue eliminada con éxito.`);
+                cargarGestionAdmin();
+            } else {
+                mostrarAviso('Error', 'No se pudo eliminar la cuenta.', true);
+            }
+        }
+
+        function abrirModalTransferir(facturaId, cliente, trabajadorActual) {
+            facturaIdParaTransferir = facturaId;
+            document.getElementById('txtTransferirDetalle').innerText = `Transferir Orden #${facturaId} (Cliente: ${cliente}) actualmente asignada a ${trabajadorActual}.`;
+            
+            const sel = document.getElementById('selNuevoTrabajador');
+            sel.innerHTML = '';
+            usuariosAdminGlobal.forEach(u => {
+                sel.innerHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario}) - Comisión: ${u.comision_porcentaje}%</option>`;
+            });
+
+            document.getElementById('modalTransferir').classList.remove('hidden');
+        }
+
+        function cerrarModalTransferir() {
+            document.getElementById('modalTransferir').classList.add('hidden');
+            facturaIdParaTransferir = null;
+        }
+
+        async function confirmarTransferencia() {
+            if (!facturaIdParaTransferir) return;
+            const nuevo_usuario_id = document.getElementById('selNuevoTrabajador').value;
+
+            const res = await fetch(`/api/facturas/${facturaIdParaTransferir}/transferir`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nuevo_usuario_id })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                cerrarModalTransferir();
+                mostrarAviso('Orden Transferida', 'La orden y sus comisiones se reasignaron correctamente.');
+                cargarGestionAdmin();
+            } else {
+                mostrarAviso('Error al transferir', data.error, true);
+            }
         }
 
         function filtrarHistorialAdmin() {
@@ -822,8 +962,15 @@
                             </div>
                         </div>
 
-                        <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
-                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-red-400">Descuento aplicado: <strong>${f.descuento_porcentaje}%</strong></div>` : ''}
+                        <div class="flex flex-wrap justify-between items-center text-xs pt-1">
+                            <div>
+                                <span>Cliente: <strong class="text-zinc-200">${f.cliente}</strong></span>
+                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-red-400">Desc: <strong>${f.descuento_porcentaje}%</strong></span>` : ''}
+                            </div>
+                            <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
+                                🔁 Transferir Orden
+                            </button>
+                        </div>
                         ${itemsHTML}
                     </div>
                 `;
@@ -860,12 +1007,17 @@
 
             lista.forEach((item, index) => {
                 const badge = insignias[index] || `PUESTO #${index + 1}`;
+                const estaOnline = usuariosOnlineSet.has(Number(item.id));
+
                 container.innerHTML += `
                     <div class="flex flex-wrap justify-between items-center bg-zinc-900 p-4 rounded-xl border border-zinc-800 gap-4">
                         <div class="flex items-center gap-4">
                             <span class="text-xs font-black bg-zinc-800 px-3 py-2 rounded-lg text-amber-400 border border-zinc-700">${badge}</span>
                             <div>
-                                <h3 class="font-bold text-white text-lg">👷 TRABAJADOR: ${item.nombre} <span class="text-xs text-zinc-500">(@${item.usuario})</span></h3>
+                                <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500' : 'bg-zinc-600'}"></span>
+                                    👷 TRABAJADOR: ${item.nombre} <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                </h3>
                                 <p class="text-xs text-zinc-400">Ventas hechas: <strong class="text-white">${item.total_facturas}</strong> | Comisión: <strong class="text-amber-400">${item.comision_porcentaje}%</strong></p>
                             </div>
                         </div>
@@ -1121,45 +1273,60 @@
             document.getElementById('nombreClienteText').innerText = e.target.value || '--';
         });
 
+        // FUNCIÓN CON BLOQUEO ANTI-DUPLICADOS
         async function realizarOrden() {
             const items = Object.values(carrito);
             const cliente = document.getElementById('nombreCliente').value.trim();
+            const btn = document.getElementById('btnRealizarOrden');
 
             if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Debes iniciar sesión con tu cuenta de trabajador.');
             if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto para la orden.');
             if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente para el recibo.');
 
-            const res = await fetch('/api/facturas', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    usuario_id: usuarioActual.id, 
-                    cliente, 
-                    items, 
-                    descuento_porcentaje: modoPrecioFabrica ? 0 : descuentoPorcentaje,
-                    es_precio_fabrica: modoPrecioFabrica
-                })
-            });
+            // Deshabilitar botón inmediatamente para evitar clics múltiples o duplicados por lag
+            btn.disabled = true;
+            btn.innerText = 'Procesando orden...';
 
-            const data = await res.json();
-            if (res.ok) {
-                document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
-                document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente} ${data.es_precio_fabrica ? '(A Precio Fábrica)' : ''}`;
-                document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
-                document.getElementById('modalPorcentajeComision').innerText = data.porcentaje_aplicado;
-                document.getElementById('modalComision').innerText = `$${data.comision.toLocaleString()}`;
-                
-                document.getElementById('modalExito').classList.remove('hidden');
+            try {
+                const res = await fetch('/api/facturas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        usuario_id: usuarioActual.id, 
+                        cliente, 
+                        items, 
+                        descuento_porcentaje: modoPrecioFabrica ? 0 : descuentoPorcentaje,
+                        es_precio_fabrica: modoPrecioFabrica
+                    })
+                });
 
-                carrito = {};
-                descuentoPorcentaje = 0;
-                modoPrecioFabrica = false;
-                document.getElementById('checkPrecioFabrica').checked = false;
-                document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
-                document.getElementById('nombreCliente').value = '';
-                document.getElementById('inputDescuentoManual').value = '';
-                aplicarDescuento(0);
-            } else mostrarAviso('Almacén o Datos Insuficientes', data.error, true);
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
+                    document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente} ${data.es_precio_fabrica ? '(A Precio Fábrica)' : ''}`;
+                    document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
+                    document.getElementById('modalPorcentajeComision').innerText = data.porcentaje_aplicado;
+                    document.getElementById('modalComision').innerText = `$${data.comision.toLocaleString()}`;
+                    
+                    document.getElementById('modalExito').classList.remove('hidden');
+
+                    carrito = {};
+                    descuentoPorcentaje = 0;
+                    modoPrecioFabrica = false;
+                    document.getElementById('checkPrecioFabrica').checked = false;
+                    document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
+                    document.getElementById('nombreCliente').value = '';
+                    document.getElementById('inputDescuentoManual').value = '';
+                    aplicarDescuento(0);
+                } else {
+                    mostrarAviso('Almacén o Datos Insuficientes', data.error, true);
+                }
+            } catch (err) {
+                mostrarAviso('Error de Conexión', 'Hubo un error comunicándose con el servidor. Revisa tu conexión.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Realizar Orden';
+            }
         }
 
         function cerrarModal() {

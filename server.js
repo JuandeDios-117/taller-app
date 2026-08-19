@@ -5,18 +5,52 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 
-// Servir archivos estáticos desde la raíz y desde /public
+// Servir archivos estáticos
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Servir la página principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'), (err) => {
         if (err) res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
 });
 
-// 1. REGISTRO DE TRABAJADOR
+// MEMORIA DE USUARIOS EN LÍNEA (TIPO DISCORD)
+const onlineUsers = new Map(); // id -> { nombre, usuario, rol, lastSeen }
+
+// Limpiar usuarios inactivos cada 15 segundos (más de 25s sin ping = desconectado)
+setInterval(() => {
+    const ahora = Date.now();
+    for (const [id, user] of onlineUsers.entries()) {
+        if (ahora - user.lastSeen > 25000) {
+            onlineUsers.delete(id);
+        }
+    }
+}, 15000);
+
+// Heartbeat / Ping de conexión
+app.post('/api/heartbeat', (req, res) => {
+    const { usuario_id, nombre, usuario, rol } = req.body;
+    if (usuario_id) {
+        onlineUsers.set(Number(usuario_id), {
+            id: Number(usuario_id),
+            nombre,
+            usuario,
+            rol,
+            lastSeen: Date.now()
+        });
+    }
+    res.json({ online: Array.from(onlineUsers.values()) });
+});
+
+// Desconexión manual (Logout)
+app.post('/api/logout', (req, res) => {
+    const { usuario_id } = req.body;
+    if (usuario_id) onlineUsers.delete(Number(usuario_id));
+    res.json({ ok: true });
+});
+
+// 1. REGISTRO
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -68,7 +102,7 @@ app.get('/api/almacen/estado', async (req, res) => {
     }
 });
 
-// 4. INGRESAR CAPITAL MANUALMENTE
+// 4. INGRESAR CAPITAL
 app.post('/api/almacen/ingresar-capital', async (req, res) => {
     const { monto, descripcion, usuario_nombre } = req.body;
     const montoNum = parseFloat(monto);
@@ -86,7 +120,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRAR MOTORES A FÁBRICA
+// 5. COMPRAR MOTORES
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -118,7 +152,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// 6. LISTA DE USUARIOS (ADMIN)
+// 6. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios");
@@ -128,7 +162,7 @@ app.get('/api/usuarios', async (req, res) => {
     }
 });
 
-// 7. MODIFICAR USUARIO (ADMIN)
+// 7. MODIFICAR USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -142,7 +176,47 @@ app.put('/api/usuarios/modificar', async (req, res) => {
     }
 });
 
-// 8. REGISTRAR FACTURA / ORDEN
+// 8. ELIMINAR USUARIO (ADMIN)
+app.delete('/api/usuarios/:id', async (req, res) => {
+    const usuario_id = req.params.id;
+    try {
+        await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
+        await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
+        onlineUsers.delete(Number(usuario_id));
+        res.json({ message: "Cuenta eliminada correctamente." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 9. TRANSFERIR FACTURA (ADMIN)
+app.put('/api/facturas/:id/transferir', async (req, res) => {
+    const factura_id = req.params.id;
+    const { nuevo_usuario_id } = req.body;
+
+    try {
+        const userRes = await db.execute({ sql: "SELECT COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [nuevo_usuario_id] });
+        if (userRes.rows.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
+        const pctComision = userRes.rows[0].comision / 100;
+
+        const factRes = await db.execute({ sql: "SELECT ganancia_neta FROM facturas WHERE id = ?", args: [factura_id] });
+        if (factRes.rows.length === 0) return res.status(404).json({ error: "La factura no existe." });
+        
+        const ganancia = factRes.rows[0].ganancia_neta;
+        const nuevaComision = ganancia > 0 ? ganancia * pctComision : 0;
+
+        await db.execute({
+            sql: "UPDATE facturas SET usuario_id = ?, comision_empleado = ? WHERE id = ?",
+            args: [nuevo_usuario_id, nuevaComision, factura_id]
+        });
+
+        res.json({ message: "Factura transferida con éxito." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 10. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -152,7 +226,6 @@ app.post('/api/facturas', async (req, res) => {
         if (userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
         const user = userRes.rows[0];
 
-        // Validar que solo admins puedan aplicar precio de fábrica
         const aplicarFabrica = es_precio_fabrica && user.rol === 'admin';
 
         let v8Necesarios = 0;
@@ -166,7 +239,6 @@ app.post('/api/facturas', async (req, res) => {
         const estadoRes = await db.execute("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1");
         const estado = estadoRes.rows[0] || { stock_v8: 0, stock_v12: 0 };
 
-        // ÚNICA RESTRICCIÓN OBLIGATORIA: Motor V12
         if (v12Necesarios > 0 && estado.stock_v12 < v12Necesarios) {
             return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12 y solo hay ${estado.stock_v12} en stock.` });
         }
@@ -195,7 +267,6 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        // Descontar del almacén (si hay stock disponible de V8 lo descuenta sin bloquear)
         if (v8Necesarios > 0 || v12Necesarios > 0) {
             const descuentoV8 = Math.min(estado.stock_v8, v8Necesarios);
             await db.execute({ 
@@ -222,7 +293,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 9. HISTORIAL PERSONAL
+// 11. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -235,7 +306,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 10. HISTORIAL GLOBAL (ADMIN)
+// 12. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -251,7 +322,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 11. TOP TRABAJADORES
+// 13. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
