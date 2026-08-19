@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taller - Control de Pedidos y Facturación</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CLIENTE SOCKET.IO EN TIEMPO REAL -->
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         body { background-color: #0f0f11; color: #e4e4e7; font-family: system-ui, -apple-system, sans-serif; }
         .card-bg { background-color: #18181b; border: 1px solid #27272a; }
@@ -49,7 +51,7 @@
 
         <!-- LISTA DE USUARIOS EN LÍNEA -->
         <div id="barraUsuariosOnline" class="card-bg p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs">
-            <span class="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">🟢 Conectados ahora:</span>
+            <span class="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">🟢 Conectados en vivo:</span>
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
@@ -144,7 +146,6 @@
                         Cliente: <span id="nombreClienteText" class="text-zinc-200">--</span>
                     </div>
 
-                    <!-- BOTÓN CON PROTECCIÓN CONTRA DUPLICADOS -->
                     <button id="btnRealizarOrden" onclick="realizarOrden()" class="w-full bg-white text-black font-bold py-3 px-4 rounded-xl hover:bg-zinc-200 transition text-center uppercase disabled:opacity-50 disabled:cursor-not-allowed">
                         Realizar Orden
                     </button>
@@ -345,7 +346,7 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL ADMIN (CON ELIMINAR CUENTA, TRANSFERIR Y ELIMINAR FACTURAS) -->
+        <!-- PANEL ADMIN -->
         <div id="seccion-admin" class="space-y-6 hidden">
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div>
@@ -374,7 +375,7 @@
                 <div class="flex flex-wrap justify-between items-center gap-4 border-b border-zinc-800 pb-4">
                     <div>
                         <h3 class="text-lg font-black text-white uppercase">📦 HISTORIAL GLOBAL, TRANSFERENCIA Y ELIMINACIÓN</h3>
-                        <p class="text-xs text-zinc-400">Reasigna o elimina facturas y órdenes duplicadas.</p>
+                        <p class="text-xs text-zinc-400">Reasigna o elimina facturas y órdenes en tiempo real.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -464,6 +465,9 @@
     </div>
 
     <script>
+        // CONEXIÓN SOCKET.IO EN TIEMPO REAL
+        const socket = io();
+
         const catalogo = [
             { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
             { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
@@ -493,6 +497,7 @@
         ];
 
         let usuarioActual = null;
+        let pestanaActiva = 'calculadora';
         let esModoRegistro = false;
         let carrito = {};
         let descuentoPorcentaje = 0;
@@ -500,8 +505,41 @@
         let facturasAdminGlobal = [];
         let usuariosAdminGlobal = [];
         let facturaIdParaTransferir = null;
-        let heartbeatTimer = null;
         let usuariosOnlineSet = new Set();
+
+        // RECEPCIÓN DE EVENTOS EN TIEMPO REAL (SOCKET.IO)
+        socket.on('online_users_update', (onlineList) => {
+            actualizarBarraOnline(onlineList);
+            if (usuarioActual && usuarioActual.rol === 'admin' && pestanaActiva === 'admin') {
+                cargarGestionAdmin();
+            }
+            if (pestanaActiva === 'top') {
+                cargarTop();
+            }
+        });
+
+        socket.on('db_update', (data) => {
+            // Si el admin nos borró la cuenta en vivo
+            if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
+                mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
+                usuarioActual = null;
+                actualizarVistaUsuario();
+                return;
+            }
+
+            // Si el admin modificó nuestro rol o comisión en vivo
+            if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
+                usuarioActual.comision_porcentaje = data.comision_porcentaje;
+                usuarioActual.rol = data.rol;
+                actualizarVistaUsuario();
+            }
+
+            // Recarga automática en segundo plano de la pestaña abierta
+            if (pestanaActiva === 'historial') cargarHistorial();
+            if (pestanaActiva === 'almacen' && usuarioActual && usuarioActual.rol === 'admin') cargarAlmacen();
+            if (pestanaActiva === 'top') cargarTop();
+            if (pestanaActiva === 'admin' && usuarioActual && usuarioActual.rol === 'admin') cargarGestionAdmin();
+        });
 
         function tieneCombosSinDescuento() {
             const items = Object.values(carrito);
@@ -519,26 +557,6 @@
 
         function cerrarModalAviso() {
             document.getElementById('modalAviso').classList.add('hidden');
-        }
-
-        async function enviarHeartbeat() {
-            if (!usuarioActual) return;
-            try {
-                const res = await fetch('/api/heartbeat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        usuario_id: usuarioActual.id,
-                        nombre: usuarioActual.nombre,
-                        usuario: usuarioActual.usuario,
-                        rol: usuarioActual.rol
-                    })
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    actualizarBarraOnline(data.online || []);
-                }
-            } catch (e) {}
         }
 
         function actualizarBarraOnline(onlineList) {
@@ -615,10 +633,9 @@
                 document.getElementById('seccion-auth').classList.add('hidden');
                 cambiarPestana('calculadora');
 
-                enviarHeartbeat();
-                if (!heartbeatTimer) heartbeatTimer = setInterval(enviarHeartbeat, 10000);
+                // Notificar al servidor WebSocket de nuestra conexión
+                socket.emit('user_connected', usuarioActual);
             } else {
-                if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
                 btnAdmin.classList.add('hidden');
                 btnAlmacen.classList.add('hidden');
                 contModoFabrica.classList.add('hidden');
@@ -679,14 +696,9 @@
             toggleModoAuth();
         }
 
-        async function cerrarSesion() {
-            if (usuarioActual) {
-                await fetch('/api/logout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario_id: usuarioActual.id })
-                });
-            }
+        function cerrarSesion() {
+            socket.disconnect();
+            socket.connect();
             usuarioActual = null;
             actualizarVistaUsuario();
         }
@@ -697,6 +709,8 @@
             if ((pestana === 'admin' || pestana === 'almacen') && usuarioActual.rol !== 'admin') {
                 return mostrarAviso('Acceso Denegado', 'Solo los administradores tienen permiso para acceder a esta sección.', true);
             }
+
+            pestanaActiva = pestana;
 
             const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin'];
             tabs.forEach(t => {
@@ -776,7 +790,6 @@
                 mostrarAviso('Capital Agregado', `Se ingresaron $${parseFloat(monto).toLocaleString()} al capital del taller.`);
                 document.getElementById('inpIngresoCapital').value = '';
                 document.getElementById('inpConceptoCapital').value = '';
-                cargarAlmacen();
             } else mostrarAviso('Error', data.error, true);
         }
 
@@ -795,7 +808,6 @@
             const data = await res.json();
             if (res.ok) {
                 mostrarAviso('Compra Exitosa', data.message);
-                cargarAlmacen();
             } else mostrarAviso('Error en Compra', data.error, true);
         }
 
@@ -806,6 +818,7 @@
             tbody.innerHTML = '';
 
             const selectFiltro = document.getElementById('selectFiltroTrabajador');
+            const valorPrevio = selectFiltro.value;
             selectFiltro.innerHTML = '<option value="todos">Todos los trabajadores</option>';
 
             usuariosAdminGlobal.forEach(u => {
@@ -845,6 +858,8 @@
                 selectFiltro.innerHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
             });
 
+            if (valorPrevio) selectFiltro.value = valorPrevio;
+
             const resFacturas = await fetch('/api/admin/todas-facturas');
             facturasAdminGlobal = await resFacturas.json();
             filtrarHistorialAdmin();
@@ -858,7 +873,6 @@
             const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 mostrarAviso('Cuenta Eliminada', `La cuenta de ${nombre} fue eliminada con éxito.`);
-                cargarGestionAdmin();
             } else {
                 mostrarAviso('Error', 'No se pudo eliminar la cuenta.', true);
             }
@@ -896,7 +910,6 @@
             if (res.ok) {
                 cerrarModalTransferir();
                 mostrarAviso('Orden Transferida', 'La orden y sus comisiones se reasignaron correctamente.');
-                cargarGestionAdmin();
             } else {
                 mostrarAviso('Error al transferir', data.error, true);
             }
@@ -910,7 +923,6 @@
             const res = await fetch(`/api/facturas/${facturaId}`, { method: 'DELETE' });
             if (res.ok) {
                 mostrarAviso('Orden Eliminada', `La Orden #${facturaId} ha sido eliminada con éxito.`);
-                cargarGestionAdmin();
             } else {
                 mostrarAviso('Error', 'No se pudo eliminar la factura.', true);
             }
@@ -1007,11 +1019,6 @@
 
             if (res.ok) {
                 mostrarAviso('Éxito', '¡Datos del trabajador actualizados correctamente!');
-                if (usuarioActual && usuarioActual.id === usuario_id) {
-                    usuarioActual.comision_porcentaje = comision_porcentaje;
-                    usuarioActual.rol = rol;
-                    actualizarVistaUsuario();
-                }
             } else mostrarAviso('Error', 'Error al actualizar los datos.', true);
         }
 
@@ -1049,6 +1056,7 @@
         }
 
         async function cargarHistorial() {
+            if (!usuarioActual) return;
             const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
             const facturas = await res.json();
 
@@ -1291,7 +1299,6 @@
             document.getElementById('nombreClienteText').innerText = e.target.value || '--';
         });
 
-        // FUNCIÓN CON BLOQUEO ANTI-DUPLICADOS
         async function realizarOrden() {
             const items = Object.values(carrito);
             const cliente = document.getElementById('nombreCliente').value.trim();
@@ -1301,7 +1308,6 @@
             if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto para la orden.');
             if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente para el recibo.');
 
-            // Deshabilitar botón de inmediato
             btn.disabled = true;
             btn.innerText = 'Procesando orden...';
 

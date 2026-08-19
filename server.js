@@ -1,11 +1,16 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const db = require('./database');
 const path = require('path');
 
 const app = express();
-app.use(express.json());
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: { origin: "*" }
+});
 
-// Servir archivos estáticos
+app.use(express.json());
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -15,39 +20,44 @@ app.get('/', (req, res) => {
     });
 });
 
-// MEMORIA DE USUARIOS EN LÍNEA
-const onlineUsers = new Map();
+// MEMORIA DE USUARIOS EN LÍNEA & WEBSOCKETS
+const onlineSockets = new Map(); // socket.id -> { id, nombre, usuario, rol }
 
-setInterval(() => {
-    const ahora = Date.now();
-    for (const [id, user] of onlineUsers.entries()) {
-        if (ahora - user.lastSeen > 25000) {
-            onlineUsers.delete(id);
+io.on('connection', (socket) => {
+    socket.on('user_connected', (userData) => {
+        if (userData && userData.id) {
+            onlineSockets.set(socket.id, {
+                id: Number(userData.id),
+                nombre: userData.nombre,
+                usuario: userData.usuario,
+                rol: userData.rol
+            });
+            emitirUsuariosOnline();
         }
-    }
-}, 15000);
+    });
 
-// Heartbeat / Ping de conexión
-app.post('/api/heartbeat', (req, res) => {
-    const { usuario_id, nombre, usuario, rol } = req.body;
-    if (usuario_id) {
-        onlineUsers.set(Number(usuario_id), {
-            id: Number(usuario_id),
-            nombre,
-            usuario,
-            rol,
-            lastSeen: Date.now()
-        });
-    }
-    res.json({ online: Array.from(onlineUsers.values()) });
+    socket.on('disconnect', () => {
+        if (onlineSockets.has(socket.id)) {
+            onlineSockets.delete(socket.id);
+            emitirUsuariosOnline();
+        }
+    });
 });
 
-// Logout
-app.post('/api/logout', (req, res) => {
-    const { usuario_id } = req.body;
-    if (usuario_id) onlineUsers.delete(Number(usuario_id));
-    res.json({ ok: true });
-});
+function emitirUsuariosOnline() {
+    // Filtrar duplicados por id de usuario
+    const mapaUnicos = new Map();
+    for (const u of onlineSockets.values()) {
+        mapaUnicos.set(u.id, u);
+    }
+    const lista = Array.from(mapaUnicos.values());
+    io.emit('online_users_update', lista);
+}
+
+// Función auxiliar para notificar cambios en la base de datos a todos los clientes
+function notificarCambioGlobal(evento, data = {}) {
+    io.emit('db_update', { evento, ...data });
+}
 
 // 1. REGISTRO
 app.post('/api/register', async (req, res) => {
@@ -65,6 +75,7 @@ app.post('/api/register', async (req, res) => {
             args: [nombre, usuario.trim().toLowerCase(), password, rolInicial]
         });
 
+        notificarCambioGlobal('nuevo_usuario');
         res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: 30, rol: rolInicial });
     } catch (err) {
         if (err.message && err.message.includes('UNIQUE')) {
@@ -113,6 +124,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
             sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('ingreso_capital', ?, ?, ?)",
             args: [descripcion || 'Inyección de Capital', montoNum, usuario_nombre || 'Admin']
         });
+        notificarCambioGlobal('almacen_actualizado');
         res.json({ message: "Capital ingresado correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -145,6 +157,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
             args: [`compra_${tipo_motor}`, desc, -costoTotal, usuario_nombre || 'Admin']
         });
 
+        notificarCambioGlobal('almacen_actualizado');
         res.json({ message: `Comprados ${cant}x Motores ${tipo_motor.toUpperCase()} con éxito.` });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -169,26 +182,27 @@ app.put('/api/usuarios/modificar', async (req, res) => {
             sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?",
             args: [comision_porcentaje, rol, usuario_id]
         });
+        notificarCambioGlobal('usuario_modificado', { usuario_id, comision_porcentaje, rol });
         res.json({ message: "Usuario actualizado." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 8. ELIMINAR USUARIO (ADMIN)
+// 8. ELIMINAR USUARIO
 app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
-        onlineUsers.delete(Number(usuario_id));
+        notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
         res.json({ message: "Cuenta eliminada correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 9. TRANSFERIR FACTURA (ADMIN)
+// 9. TRANSFERIR FACTURA
 app.put('/api/facturas/:id/transferir', async (req, res) => {
     const factura_id = req.params.id;
     const { nuevo_usuario_id } = req.body;
@@ -209,17 +223,19 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
             args: [nuevo_usuario_id, nuevaComision, factura_id]
         });
 
+        notificarCambioGlobal('factura_transferida');
         res.json({ message: "Factura transferida con éxito." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 10. ELIMINAR FACTURA INDIVIDUAL (ADMIN)
+// 10. ELIMINAR FACTURA
 app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE id = ?", args: [factura_id] });
+        notificarCambioGlobal('factura_eliminada');
         res.json({ message: "Factura eliminada correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -290,6 +306,8 @@ app.post('/api/facturas', async (req, res) => {
             });
         }
 
+        notificarCambioGlobal('nueva_factura');
+
         res.json({
             id: facturaId,
             subtotal: subtotal_cliente,
@@ -354,4 +372,4 @@ app.get('/api/top-trabajadores', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor ejecutándose en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor WebSocket ejecutándose en puerto ${PORT}`));
