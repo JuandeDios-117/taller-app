@@ -47,7 +47,7 @@
             </div>
         </div>
 
-        <!-- LISTA LATERAL/SUPERIOR DE USUARIOS EN LÍNEA (DISCORD STYLE) -->
+        <!-- LISTA DE USUARIOS EN LÍNEA -->
         <div id="barraUsuariosOnline" class="card-bg p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs">
             <span class="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">🟢 Conectados ahora:</span>
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
@@ -345,12 +345,12 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL EXCLUSIVO ADMIN (CON ELIMINAR Y TRANSFERIR) -->
+        <!-- PANEL ADMIN (CON ELIMINAR CUENTA, TRANSFERIR Y ELIMINAR FACTURAS) -->
         <div id="seccion-admin" class="space-y-6 hidden">
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div>
                     <h2 class="text-2xl font-black text-amber-400 uppercase">👑 GESTIÓN DE CUENTAS DE TRABAJADORES</h2>
-                    <p class="text-xs text-zinc-400">Edita comisiones, permisos o elimina cuentas que ya no trabajen en el taller.</p>
+                    <p class="text-xs text-zinc-400">Edita comisiones, permisos o elimina cuentas del taller.</p>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -373,8 +373,8 @@
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 border-b border-zinc-800 pb-4">
                     <div>
-                        <h3 class="text-lg font-black text-white uppercase">📦 HISTORIAL GLOBAL Y TRANSFERENCIA DE ÓRDENES</h3>
-                        <p class="text-xs text-zinc-400">Reasigna facturas de una cuenta a otra en caso de error o cambios de personal.</p>
+                        <h3 class="text-lg font-black text-white uppercase">📦 HISTORIAL GLOBAL, TRANSFERENCIA Y ELIMINACIÓN</h3>
+                        <p class="text-xs text-zinc-400">Reasigna o elimina facturas y órdenes duplicadas.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -395,7 +395,7 @@
     <div id="modalTransferir" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="card-bg p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl">
             <h3 class="text-lg font-black text-amber-400 uppercase">🔁 Transferir Orden</h3>
-            <p class="text-xs text-zinc-400" id="txtTransferirDetalle">Selecciona el trabajador que recibirá esta orden y sus comisiones correspondientes.</p>
+            <p class="text-xs text-zinc-400" id="txtTransferirDetalle">Selecciona el trabajador que recibirá esta orden.</p>
             <div>
                 <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Nuevo Trabajador</label>
                 <select id="selNuevoTrabajador" class="w-full input-bg px-3 py-2 rounded-lg text-xs font-bold text-white"></select>
@@ -521,7 +521,6 @@
             document.getElementById('modalAviso').classList.add('hidden');
         }
 
-        // SISTEMA EN LÍNEA (DISCORD LIKE)
         async function enviarHeartbeat() {
             if (!usuarioActual) return;
             try {
@@ -903,6 +902,20 @@
             }
         }
 
+        async function eliminarFactura(facturaId) {
+            if (!confirm(`¿Estás seguro de eliminar la Orden #${facturaId}? Esta acción no se puede deshacer.`)) {
+                return;
+            }
+
+            const res = await fetch(`/api/facturas/${facturaId}`, { method: 'DELETE' });
+            if (res.ok) {
+                mostrarAviso('Orden Eliminada', `La Orden #${facturaId} ha sido eliminada con éxito.`);
+                cargarGestionAdmin();
+            } else {
+                mostrarAviso('Error', 'No se pudo eliminar la factura.', true);
+            }
+        }
+
         function filtrarHistorialAdmin() {
             const filtroId = document.getElementById('selectFiltroTrabajador').value;
             const container = document.getElementById('historialAdminContenedor');
@@ -962,14 +975,19 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap justify-between items-center text-xs pt-1">
+                        <div class="flex flex-wrap justify-between items-center text-xs pt-1 gap-2">
                             <div>
                                 <span>Cliente: <strong class="text-zinc-200">${f.cliente}</strong></span>
                                 ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-red-400">Desc: <strong>${f.descuento_porcentaje}%</strong></span>` : ''}
                             </div>
-                            <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
-                                🔁 Transferir Orden
-                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
+                                    🔁 Transferir
+                                </button>
+                                <button onclick="eliminarFactura(${f.id})" class="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white font-bold px-3 py-1.5 rounded-lg border border-red-500/30 transition">
+                                    🗑️ Eliminar
+                                </button>
+                            </div>
                         </div>
                         ${itemsHTML}
                     </div>
@@ -1283,7 +1301,7 @@
             if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto para la orden.');
             if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente para el recibo.');
 
-            // Deshabilitar botón inmediatamente para evitar clics múltiples o duplicados por lag
+            // Deshabilitar botón de inmediato
             btn.disabled = true;
             btn.innerText = 'Procesando orden...';
 
@@ -1322,7 +1340,7 @@
                     mostrarAviso('Almacén o Datos Insuficientes', data.error, true);
                 }
             } catch (err) {
-                mostrarAviso('Error de Conexión', 'Hubo un error comunicándose con el servidor. Revisa tu conexión.');
+                mostrarAviso('Error de Conexión', 'Hubo un error comunicándose con el servidor.');
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'Realizar Orden';

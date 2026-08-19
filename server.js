@@ -15,10 +15,9 @@ app.get('/', (req, res) => {
     });
 });
 
-// MEMORIA DE USUARIOS EN LÍNEA (TIPO DISCORD)
-const onlineUsers = new Map(); // id -> { nombre, usuario, rol, lastSeen }
+// MEMORIA DE USUARIOS EN LÍNEA
+const onlineUsers = new Map();
 
-// Limpiar usuarios inactivos cada 15 segundos (más de 25s sin ping = desconectado)
 setInterval(() => {
     const ahora = Date.now();
     for (const [id, user] of onlineUsers.entries()) {
@@ -43,7 +42,7 @@ app.post('/api/heartbeat', (req, res) => {
     res.json({ online: Array.from(onlineUsers.values()) });
 });
 
-// Desconexión manual (Logout)
+// Logout
 app.post('/api/logout', (req, res) => {
     const { usuario_id } = req.body;
     if (usuario_id) onlineUsers.delete(Number(usuario_id));
@@ -120,7 +119,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRAR MOTORES
+// 5. COMPRAR MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -216,7 +215,18 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
     }
 });
 
-// 10. REGISTRAR FACTURA
+// 10. ELIMINAR FACTURA INDIVIDUAL (ADMIN)
+app.delete('/api/facturas/:id', async (req, res) => {
+    const factura_id = req.params.id;
+    try {
+        await db.execute({ sql: "DELETE FROM facturas WHERE id = ?", args: [factura_id] });
+        res.json({ message: "Factura eliminada correctamente." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 11. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -293,7 +303,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 11. HISTORIAL PERSONAL
+// 12. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -306,7 +316,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 12. HISTORIAL GLOBAL
+// 13. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -322,7 +332,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 13. TOP TRABAJADORES
+// 14. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
