@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taller - Control de Pedidos y Facturación</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- CLIENTE SOCKET.IO EN TIEMPO REAL -->
     <script src="/socket.io/socket.io.js"></script>
     <style>
         body { background-color: #0f0f11; color: #e4e4e7; font-family: system-ui, -apple-system, sans-serif; }
@@ -51,7 +50,7 @@
 
         <!-- LISTA DE USUARIOS EN LÍNEA -->
         <div id="barraUsuariosOnline" class="card-bg p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs">
-            <span class="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">🟢 Conectados en vivo:</span>
+            <span class="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">🟢 Conectados:</span>
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
@@ -172,7 +171,7 @@
             </div>
         </div>
 
-        <!-- PESTAÑA: ALMACÉN Y CAPITAL (SOLO ADMIN) -->
+        <!-- PESTAÑA: ALMACÉN Y CAPITAL -->
         <div id="seccion-almacen" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-bg p-5 rounded-xl border-l-4 border-emerald-500">
@@ -465,7 +464,6 @@
     </div>
 
     <script>
-        // CONEXIÓN SOCKET.IO EN TIEMPO REAL
         const socket = io();
 
         const catalogo = [
@@ -506,20 +504,17 @@
         let usuariosAdminGlobal = [];
         let facturaIdParaTransferir = null;
         let usuariosOnlineSet = new Set();
+        let catalogoRenderizado = false;
 
-        // RECEPCIÓN DE EVENTOS EN TIEMPO REAL (SOCKET.IO)
+        // DEBOUNCE PARA ACTUALIZACIONES EN TIEMPO REAL
+        let debounceTimer = null;
         socket.on('online_users_update', (onlineList) => {
             actualizarBarraOnline(onlineList);
-            if (usuarioActual && usuarioActual.rol === 'admin' && pestanaActiva === 'admin') {
-                cargarGestionAdmin();
-            }
-            if (pestanaActiva === 'top') {
-                cargarTop();
-            }
+            if (usuarioActual && usuarioActual.rol === 'admin' && pestanaActiva === 'admin') cargarGestionAdmin();
+            if (pestanaActiva === 'top') cargarTop();
         });
 
         socket.on('db_update', (data) => {
-            // Si el admin nos borró la cuenta en vivo
             if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
                 mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
                 usuarioActual = null;
@@ -527,18 +522,19 @@
                 return;
             }
 
-            // Si el admin modificó nuestro rol o comisión en vivo
             if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
                 usuarioActual.comision_porcentaje = data.comision_porcentaje;
                 usuarioActual.rol = data.rol;
                 actualizarVistaUsuario();
             }
 
-            // Recarga automática en segundo plano de la pestaña abierta
-            if (pestanaActiva === 'historial') cargarHistorial();
-            if (pestanaActiva === 'almacen' && usuarioActual && usuarioActual.rol === 'admin') cargarAlmacen();
-            if (pestanaActiva === 'top') cargarTop();
-            if (pestanaActiva === 'admin' && usuarioActual && usuarioActual.rol === 'admin') cargarGestionAdmin();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                if (pestanaActiva === 'historial') cargarHistorial();
+                if (pestanaActiva === 'almacen' && usuarioActual && usuarioActual.rol === 'admin') cargarAlmacen();
+                if (pestanaActiva === 'top') cargarTop();
+                if (pestanaActiva === 'admin' && usuarioActual && usuarioActual.rol === 'admin') cargarGestionAdmin();
+            }, 250);
         });
 
         function tieneCombosSinDescuento() {
@@ -572,11 +568,10 @@
             }
 
             barra.classList.remove('hidden');
-            contenedor.innerHTML = '';
-
+            let chipsHTML = '';
             onlineList.forEach(u => {
                 const esAdmin = u.rol === 'admin';
-                contenedor.innerHTML += `
+                chipsHTML += `
                     <div class="flex items-center gap-1.5 bg-zinc-900 px-2.5 py-1 rounded-full border border-zinc-800">
                         <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
                         <span class="font-bold ${esAdmin ? 'text-amber-400' : 'text-zinc-200'}">${u.nombre}</span>
@@ -584,6 +579,7 @@
                     </div>
                 `;
             });
+            contenedor.innerHTML = chipsHTML;
         }
 
         function togglePrecioFabrica() {
@@ -633,7 +629,6 @@
                 document.getElementById('seccion-auth').classList.add('hidden');
                 cambiarPestana('calculadora');
 
-                // Notificar al servidor WebSocket de nuestra conexión
                 socket.emit('user_connected', usuarioActual);
             } else {
                 btnAdmin.classList.add('hidden');
@@ -744,18 +739,16 @@
             document.getElementById('almStockV12').innerHTML = `${data.estado.stock_v12 || 0} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
 
             const container = document.getElementById('listaMovimientosAlmacen');
-            container.innerHTML = '';
-
             if (data.movimientos.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-500 italic">No hay movimientos registrados.</p>`;
                 return;
             }
 
+            let html = '';
             data.movimientos.forEach(m => {
                 const fecha = new Date(m.fecha).toLocaleString();
                 const esIngreso = m.tipo === 'ingreso_capital';
-
-                container.innerHTML += `
+                html += `
                     <div class="flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800 text-xs">
                         <div>
                             <div class="font-bold text-white">${m.descripcion}</div>
@@ -771,6 +764,7 @@
                     </div>
                 `;
             });
+            container.innerHTML = html;
         }
 
         async function ejecutarIngresoCapital() {
@@ -815,15 +809,15 @@
             const res = await fetch('/api/usuarios');
             usuariosAdminGlobal = await res.json();
             const tbody = document.getElementById('tablaUsuariosAdmin');
-            tbody.innerHTML = '';
 
             const selectFiltro = document.getElementById('selectFiltroTrabajador');
             const valorPrevio = selectFiltro.value;
-            selectFiltro.innerHTML = '<option value="todos">Todos los trabajadores</option>';
+            let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
+            let rowsHTML = '';
 
             usuariosAdminGlobal.forEach(u => {
                 const estaOnline = usuariosOnlineSet.has(Number(u.id));
-                tbody.innerHTML += `
+                rowsHTML += `
                     <tr>
                         <td class="p-3">
                             <span class="inline-flex items-center gap-1 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
@@ -854,10 +848,11 @@
                         </td>
                     </tr>
                 `;
-
-                selectFiltro.innerHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
+                optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
             });
 
+            tbody.innerHTML = rowsHTML;
+            selectFiltro.innerHTML = optionsHTML;
             if (valorPrevio) selectFiltro.value = valorPrevio;
 
             const resFacturas = await fetch('/api/admin/todas-facturas');
@@ -866,28 +861,22 @@
         }
 
         async function eliminarCuentaUsuario(id, nombre) {
-            if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente la cuenta de "${nombre}"? Sus órdenes también serán eliminadas.`)) {
-                return;
-            }
-
+            if (!confirm(`¿Estás seguro de que deseas eliminar la cuenta de "${nombre}"?`)) return;
             const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                mostrarAviso('Cuenta Eliminada', `La cuenta de ${nombre} fue eliminada con éxito.`);
-            } else {
-                mostrarAviso('Error', 'No se pudo eliminar la cuenta.', true);
-            }
+            if (res.ok) mostrarAviso('Cuenta Eliminada', `La cuenta de ${nombre} fue eliminada.`);
+            else mostrarAviso('Error', 'No se pudo eliminar la cuenta.', true);
         }
 
         function abrirModalTransferir(facturaId, cliente, trabajadorActual) {
             facturaIdParaTransferir = facturaId;
-            document.getElementById('txtTransferirDetalle').innerText = `Transferir Orden #${facturaId} (Cliente: ${cliente}) actualmente asignada a ${trabajadorActual}.`;
+            document.getElementById('txtTransferirDetalle').innerText = `Transferir Orden #${facturaId} (Cliente: ${cliente}) actualmente de ${trabajadorActual}.`;
             
             const sel = document.getElementById('selNuevoTrabajador');
-            sel.innerHTML = '';
+            let opts = '';
             usuariosAdminGlobal.forEach(u => {
-                sel.innerHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario}) - Comisión: ${u.comision_porcentaje}%</option>`;
+                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario}) - Comisión: ${u.comision_porcentaje}%</option>`;
             });
-
+            sel.innerHTML = opts;
             document.getElementById('modalTransferir').classList.remove('hidden');
         }
 
@@ -909,42 +898,33 @@
             const data = await res.json();
             if (res.ok) {
                 cerrarModalTransferir();
-                mostrarAviso('Orden Transferida', 'La orden y sus comisiones se reasignaron correctamente.');
-            } else {
-                mostrarAviso('Error al transferir', data.error, true);
-            }
+                mostrarAviso('Orden Transferida', 'La orden y comisiones se reasignaron.');
+            } else mostrarAviso('Error', data.error, true);
         }
 
         async function eliminarFactura(facturaId) {
-            if (!confirm(`¿Estás seguro de eliminar la Orden #${facturaId}? Esta acción no se puede deshacer.`)) {
-                return;
-            }
-
+            if (!confirm(`¿Eliminar Orden #${facturaId}?`)) return;
             const res = await fetch(`/api/facturas/${facturaId}`, { method: 'DELETE' });
-            if (res.ok) {
-                mostrarAviso('Orden Eliminada', `La Orden #${facturaId} ha sido eliminada con éxito.`);
-            } else {
-                mostrarAviso('Error', 'No se pudo eliminar la factura.', true);
-            }
+            if (res.ok) mostrarAviso('Orden Eliminada', `La Orden #${facturaId} ha sido eliminada.`);
+            else mostrarAviso('Error', 'No se pudo eliminar la factura.', true);
         }
 
         function filtrarHistorialAdmin() {
             const filtroId = document.getElementById('selectFiltroTrabajador').value;
             const container = document.getElementById('historialAdminContenedor');
-            container.innerHTML = '';
 
             const filtradas = filtroId === 'todos' 
                 ? facturasAdminGlobal 
                 : facturasAdminGlobal.filter(f => f.usuario_id == filtroId);
 
             if (filtradas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">No hay órdenes registradas para el filtro seleccionado.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">No hay órdenes registradas para este filtro.</p>`;
                 return;
             }
 
+            let html = '';
             filtradas.forEach(f => {
                 const fecha = new Date(f.fecha).toLocaleString();
-
                 let itemsHTML = '';
                 if (f.items_json) {
                     try {
@@ -963,7 +943,7 @@
                     } catch(e) {}
                 }
 
-                container.innerHTML += `
+                html += `
                     <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
@@ -1005,6 +985,7 @@
                     </div>
                 `;
             });
+            container.innerHTML = html;
         }
 
         async function guardarCambiosUsuario(usuario_id) {
@@ -1017,24 +998,21 @@
                 body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
             });
 
-            if (res.ok) {
-                mostrarAviso('Éxito', '¡Datos del trabajador actualizados correctamente!');
-            } else mostrarAviso('Error', 'Error al actualizar los datos.', true);
+            if (res.ok) mostrarAviso('Éxito', '¡Datos actualizados!');
+            else mostrarAviso('Error', 'Error al actualizar datos.', true);
         }
 
         async function cargarTop() {
             const res = await fetch('/api/top-trabajadores');
             const lista = await res.json();
             const container = document.getElementById('topContenedor');
-            container.innerHTML = '';
-
             const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
 
+            let html = '';
             lista.forEach((item, index) => {
                 const badge = insignias[index] || `PUESTO #${index + 1}`;
                 const estaOnline = usuariosOnlineSet.has(Number(item.id));
-
-                container.innerHTML += `
+                html += `
                     <div class="flex flex-wrap justify-between items-center bg-zinc-900 p-4 rounded-xl border border-zinc-800 gap-4">
                         <div class="flex items-center gap-4">
                             <span class="text-xs font-black bg-zinc-800 px-3 py-2 rounded-lg text-amber-400 border border-zinc-700">${badge}</span>
@@ -1053,6 +1031,7 @@
                     </div>
                 `;
             });
+            container.innerHTML = html;
         }
 
         async function cargarHistorial() {
@@ -1062,20 +1041,18 @@
 
             let totalVendido = 0;
             let totalComision = 0;
-
             const container = document.getElementById('misFacturasLista');
-            container.innerHTML = '';
 
             if (facturas.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-500 italic">Aún no has realizado ventas.</p>`;
             }
 
+            let html = '';
             facturas.forEach(f => {
                 totalVendido += f.total_cliente;
                 if (f.estado_pago === 'pendiente') totalComision += f.comision_empleado;
 
                 const fecha = new Date(f.fecha).toLocaleString();
-
                 let itemsHTML = '';
                 if (f.items_json) {
                     try {
@@ -1094,7 +1071,7 @@
                     } catch(e) {}
                 }
 
-                container.innerHTML += `
+                html += `
                     <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
@@ -1125,28 +1102,29 @@
                 `;
             });
 
+            container.innerHTML = html;
             document.getElementById('mTotalVendido').innerText = `$${totalVendido.toLocaleString()}`;
             document.getElementById('mComisionesPendientes').innerText = `$${totalComision.toLocaleString()}`;
             document.getElementById('mTotalFacturas').innerText = facturas.length;
         }
 
+        // RENDERIZADO EFICIENTE DEL CATÁLOGO (SOLO 1 VEZ)
         function renderCatalogo() {
+            if (catalogoRenderizado) return;
             const container = document.getElementById('listaProductos');
-            container.innerHTML = '';
-
             const categorias = [...new Set(catalogo.map(item => item.categoria))];
 
+            let htmlTotal = '';
             categorias.forEach(cat => {
                 const productosCat = catalogo.filter(p => p.categoria === cat);
-                let htmlCat = `
+                htmlTotal += `
                     <div>
                         <h3 class="text-xs font-black text-amber-500 uppercase tracking-widest mb-3">${cat}</h3>
                         <div class="space-y-2">
                 `;
 
                 productosCat.forEach(p => {
-                    const cant = carrito[p.id] ? carrito[p.id].cantidad : 0;
-                    htmlCat += `
+                    htmlTotal += `
                         <div class="flex items-center justify-between p-3 bg-zinc-900/80 rounded-xl border border-zinc-800">
                             <div>
                                 <h4 class="font-bold text-white text-sm">${p.nombre}</h4>
@@ -1155,24 +1133,33 @@
                                     · Fábrica: <span class="text-amber-400/90 font-semibold">$${p.costo.toLocaleString()}</span>
                                 </p>
                             </div>
-                            <div>
-                                ${cant === 0 ? `
-                                    <button onclick="agregar(${p.id})" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">+ Añadir</button>
-                                ` : `
-                                    <div class="flex items-center gap-2 bg-zinc-800 rounded-lg px-2 py-1">
-                                        <button onclick="restar(${p.id})" class="text-zinc-300 font-bold px-1.5">—</button>
-                                        <span class="text-sm font-bold text-white">${cant}</span>
-                                        <button onclick="agregar(${p.id})" class="text-zinc-300 font-bold px-1.5">+</button>
-                                    </div>
-                                `}
+                            <div id="btn-container-${p.id}">
+                                <button onclick="agregar(${p.id})" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">+ Añadir</button>
                             </div>
                         </div>
                     `;
                 });
-
-                htmlCat += `</div></div>`;
-                container.innerHTML += htmlCat;
+                htmlTotal += `</div></div>`;
             });
+            container.innerHTML = htmlTotal;
+            catalogoRenderizado = true;
+        }
+
+        function sincronizarBotonItem(id) {
+            const cont = document.getElementById(`btn-container-${id}`);
+            if (!cont) return;
+            const cant = carrito[id] ? carrito[id].cantidad : 0;
+            if (cant === 0) {
+                cont.innerHTML = `<button onclick="agregar(${id})" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">+ Añadir</button>`;
+            } else {
+                cont.innerHTML = `
+                    <div class="flex items-center gap-2 bg-zinc-800 rounded-lg px-2 py-1">
+                        <button onclick="restar(${id})" class="text-zinc-300 font-bold px-1.5">—</button>
+                        <span class="text-sm font-bold text-white">${cant}</span>
+                        <button onclick="agregar(${id})" class="text-zinc-300 font-bold px-1.5">+</button>
+                    </div>
+                `;
+            }
         }
 
         function agregar(id) {
@@ -1180,11 +1167,13 @@
             if (!carrito[id]) carrito[id] = { ...p, cantidad: 1 };
             else carrito[id].cantidad++;
 
+            sincronizarBotonItem(id);
+
             if (!modoPrecioFabrica && tieneCombosSinDescuento() && descuentoPorcentaje > 0) {
                 descuentoPorcentaje = 0;
                 document.getElementById('inputDescuentoManual').value = '';
                 document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
-                mostrarAviso('Descuento Desactivado', 'En los combos FULL TUNNING V12 y V12 PRO no aplica ningún tipo de descuento.');
+                mostrarAviso('Descuento Desactivado', 'En FULL TUNNING V12 y V12 PRO no aplica descuento.');
             }
 
             actualizarCarrito();
@@ -1195,52 +1184,43 @@
                 carrito[id].cantidad--;
                 if (carrito[id].cantidad <= 0) delete carrito[id];
             }
+            sincronizarBotonItem(id);
             actualizarCarrito();
         }
 
-        function eliminar(id) { delete carrito[id]; actualizarCarrito(); }
+        function eliminar(id) {
+            delete carrito[id];
+            sincronizarBotonItem(id);
+            actualizarCarrito();
+        }
 
         function aplicarDescuento(porcentaje) {
-            if (modoPrecioFabrica) {
-                return mostrarAviso('No Permitido', 'No se pueden aplicar descuentos adicionales cuando se cobra a precio de fábrica.');
-            }
-
-            if (porcentaje > 0 && tieneCombosSinDescuento()) {
-                return mostrarAviso('Descuento No Permitido', 'En los combos FULL TUNNING V12 y V12 PRO no aplica ningún tipo de descuento.');
-            }
+            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
+            if (porcentaje > 0 && tieneCombosSinDescuento()) return mostrarAviso('No Permitido', 'Sin descuento en V12/V12 PRO.');
 
             descuentoPorcentaje = porcentaje;
             document.getElementById('inputDescuentoManual').value = '';
             document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
-            if(porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
+            if (porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
                 document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-white');
             }
             actualizarCarrito();
         }
 
         function aplicarDescuentoManual() {
-            if (modoPrecioFabrica) {
-                return mostrarAviso('No Permitido', 'No se pueden aplicar descuentos adicionales cuando se cobra a precio de fábrica.');
-            }
-
-            if (tieneCombosSinDescuento()) {
-                return mostrarAviso('Descuento No Permitido', 'En los combos FULL TUNNING V12 y V12 PRO no aplica ningún tipo de descuento.');
-            }
+            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
+            if (tieneCombosSinDescuento()) return mostrarAviso('No Permitido', 'Sin descuento en V12/V12 PRO.');
 
             const val = parseFloat(document.getElementById('inputDescuentoManual').value);
-            if (isNaN(val) || val < 0 || val > 100) {
-                return mostrarAviso('Porcentaje Inválido', 'Por favor ingresa un porcentaje entre 0 y 100.');
-            }
+            if (isNaN(val) || val < 0 || val > 100) return mostrarAviso('Inválido', 'Ingresa entre 0% y 100%.');
+            
             descuentoPorcentaje = val;
             document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
             actualizarCarrito();
         }
 
         function actualizarCarrito() {
-            renderCatalogo();
             const container = document.getElementById('carritoItems');
-            container.innerHTML = '';
-
             const items = Object.values(carrito);
             let subtotal = 0;
             let totalCantidad = 0;
@@ -1248,12 +1228,13 @@
             if (items.length === 0) {
                 container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>';
             } else {
+                let html = '';
                 items.forEach(item => {
                     const precioUnitario = modoPrecioFabrica ? item.costo : item.venta;
                     const itemTotal = precioUnitario * item.cantidad;
                     subtotal += itemTotal;
                     totalCantidad += item.cantidad;
-                    container.innerHTML += `
+                    html += `
                         <div class="flex justify-between items-start text-xs">
                             <div>
                                 <h4 class="font-bold text-white">${item.nombre}</h4>
@@ -1266,11 +1247,10 @@
                         </div>
                     `;
                 });
+                container.innerHTML = html;
             }
 
-            if (modoPrecioFabrica || tieneCombosSinDescuento()) {
-                descuentoPorcentaje = 0;
-            }
+            if (modoPrecioFabrica || tieneCombosSinDescuento()) descuentoPorcentaje = 0;
 
             const montoDescuento = subtotal * (descuentoPorcentaje / 100);
             const totalFinal = subtotal - montoDescuento;
@@ -1304,9 +1284,9 @@
             const cliente = document.getElementById('nombreCliente').value.trim();
             const btn = document.getElementById('btnRealizarOrden');
 
-            if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Debes iniciar sesión con tu cuenta de trabajador.');
-            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto para la orden.');
-            if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente para el recibo.');
+            if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Inicia sesión primero.');
+            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto.');
+            if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente.');
 
             btn.disabled = true;
             btn.innerText = 'Procesando orden...';
@@ -1341,9 +1321,11 @@
                     document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
                     document.getElementById('nombreCliente').value = '';
                     document.getElementById('inputDescuentoManual').value = '';
-                    aplicarDescuento(0);
+                    
+                    catalogo.forEach(p => sincronizarBotonItem(p.id));
+                    actualizarCarrito();
                 } else {
-                    mostrarAviso('Almacén o Datos Insuficientes', data.error, true);
+                    mostrarAviso('Almacén Insuficiente', data.error, true);
                 }
             } catch (err) {
                 mostrarAviso('Error de Conexión', 'Hubo un error comunicándose con el servidor.');

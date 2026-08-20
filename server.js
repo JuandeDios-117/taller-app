@@ -20,8 +20,10 @@ app.get('/', (req, res) => {
     });
 });
 
-// MEMORIA DE USUARIOS EN LÍNEA & WEBSOCKETS
-const onlineSockets = new Map(); // socket.id -> { id, nombre, usuario, rol }
+// Endpoint liviano para ping anti-suspensión (UptimeRobot)
+app.get('/ping', (req, res) => res.status(200).send('OK'));
+
+const onlineSockets = new Map();
 
 io.on('connection', (socket) => {
     socket.on('user_connected', (userData) => {
@@ -45,16 +47,13 @@ io.on('connection', (socket) => {
 });
 
 function emitirUsuariosOnline() {
-    // Filtrar duplicados por id de usuario
     const mapaUnicos = new Map();
     for (const u of onlineSockets.values()) {
         mapaUnicos.set(u.id, u);
     }
-    const lista = Array.from(mapaUnicos.values());
-    io.emit('online_users_update', lista);
+    io.emit('online_users_update', Array.from(mapaUnicos.values()));
 }
 
-// Función auxiliar para notificar cambios en la base de datos a todos los clientes
 function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
@@ -105,7 +104,7 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
-        const movsRes = await db.execute("SELECT * FROM movimientos_capital ORDER BY fecha DESC LIMIT 50");
+        const movsRes = await db.execute("SELECT * FROM movimientos_capital ORDER BY fecha DESC LIMIT 30");
         res.json({ estado: estadoRes.rows[0] || { capital: 0, stock_v8: 0, stock_v12: 0 }, movimientos: movsRes.rows });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -131,7 +130,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRAR MOTORES A FÁBRICA
+// 5. COMPRAR MOTORES
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -167,7 +166,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
 // 6. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios");
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios ORDER BY nombre ASC");
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -321,11 +320,11 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 12. HISTORIAL PERSONAL
+// 12. HISTORIAL PERSONAL (LÍMITE 60)
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
-            sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC",
+            sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60",
             args: [req.params.usuario_id]
         });
         res.json(result.rows);
@@ -334,7 +333,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 13. HISTORIAL GLOBAL
+// 13. HISTORIAL GLOBAL (LÍMITE 80)
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -342,6 +341,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
             FROM facturas f 
             JOIN usuarios u ON f.usuario_id = u.id 
             ORDER BY f.fecha DESC
+            LIMIT 80
         `;
         const result = await db.execute(sql);
         res.json(result.rows);
@@ -372,4 +372,4 @@ app.get('/api/top-trabajadores', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor WebSocket ejecutándose en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor optimizado en puerto ${PORT}`));
