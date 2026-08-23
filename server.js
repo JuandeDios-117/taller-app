@@ -20,7 +20,6 @@ app.get('/', (req, res) => {
     });
 });
 
-// Endpoint liviano para ping anti-suspensión (UptimeRobot)
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
 const onlineSockets = new Map();
@@ -130,7 +129,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRAR MOTORES
+// 5. COMPRAR MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -163,7 +162,36 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// 6. LISTA DE USUARIOS
+// 6. AJUSTE MANUAL DE ALMACÉN Y CAPITAL (SOLO ADMIN)
+app.put('/api/almacen/ajuste-manual', async (req, res) => {
+    const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
+    const capNum = parseFloat(capital);
+    const v8Num = parseInt(stock_v8);
+    const v12Num = parseInt(stock_v12);
+
+    if (isNaN(capNum) || isNaN(v8Num) || isNaN(v12Num) || capNum < 0 || v8Num < 0 || v12Num < 0) {
+        return res.status(400).json({ error: "Ingresa valores numéricos válidos mayores o iguales a 0." });
+    }
+
+    try {
+        await db.execute({
+            sql: "UPDATE taller_estado SET capital = ?, stock_v8 = ?, stock_v12 = ? WHERE id = 1",
+            args: [capNum, v8Num, v12Num]
+        });
+
+        await db.execute({
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('ajuste_manual', ?, 0, ?)",
+            args: [`Ajuste manual de inventario: Cap: $${capNum.toLocaleString()} | V8: ${v8Num} | V12: ${v12Num}`, usuario_nombre || 'Admin']
+        });
+
+        notificarCambioGlobal('almacen_actualizado');
+        res.json({ message: "Inventario y capital ajustados correctamente." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios ORDER BY nombre ASC");
@@ -173,7 +201,7 @@ app.get('/api/usuarios', async (req, res) => {
     }
 });
 
-// 7. MODIFICAR USUARIO
+// 8. MODIFICAR USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -188,7 +216,7 @@ app.put('/api/usuarios/modificar', async (req, res) => {
     }
 });
 
-// 8. ELIMINAR USUARIO
+// 9. ELIMINAR USUARIO
 app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
@@ -201,7 +229,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     }
 });
 
-// 9. TRANSFERIR FACTURA
+// 10. TRANSFERIR FACTURA
 app.put('/api/facturas/:id/transferir', async (req, res) => {
     const factura_id = req.params.id;
     const { nuevo_usuario_id } = req.body;
@@ -229,7 +257,7 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
     }
 });
 
-// 10. ELIMINAR FACTURA
+// 11. ELIMINAR FACTURA INDIVIDUAL
 app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
@@ -241,7 +269,23 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 11. REGISTRAR FACTURA
+// 12. REINICIAR TODAS LAS FACTURAS (CORTE SEMANAL / PAGO)
+app.post('/api/admin/reiniciar-semana', async (req, res) => {
+    const { usuario_nombre } = req.body;
+    try {
+        await db.execute("DELETE FROM facturas");
+        await db.execute({
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: Todas las facturas fueron liquidadas y reiniciadas.', 0, ?)",
+            args: [usuario_nombre || 'Admin']
+        });
+        notificarCambioGlobal('reinicio_semana');
+        res.json({ message: "Semana reiniciada con éxito. Facturas en $0 para todos los trabajadores." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 13. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -320,7 +364,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 12. HISTORIAL PERSONAL (LÍMITE 60)
+// 14. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -333,7 +377,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 13. HISTORIAL GLOBAL (LÍMITE 80)
+// 15. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -350,7 +394,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 14. TOP TRABAJADORES
+// 16. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -372,4 +416,4 @@ app.get('/api/top-trabajadores', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor optimizado en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));

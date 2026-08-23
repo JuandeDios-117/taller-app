@@ -171,7 +171,7 @@
             </div>
         </div>
 
-        <!-- PESTAÑA: ALMACÉN Y CAPITAL -->
+        <!-- PESTAÑA: ALMACÉN Y CAPITAL (SOLO ADMIN) -->
         <div id="seccion-almacen" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-bg p-5 rounded-xl border-l-4 border-emerald-500">
@@ -188,46 +188,73 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- FILA DE ACCIONES DE ALMACÉN -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 1. INGRESAR CAPITAL -->
                 <div class="card-bg p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
                         💵 Ingresar Capital a Caja
                     </h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Monto a Ingresar ($)</label>
+                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Monto ($)</label>
                             <input type="number" id="inpIngresoCapital" placeholder="Ej. 1000000" class="w-full input-bg px-4 py-2.5 rounded-lg text-sm font-bold text-emerald-400">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Concepto / Motivo</label>
-                            <input type="text" id="inpConceptoCapital" placeholder="Ej. Inversión inicial de taller" class="w-full input-bg px-4 py-2.5 rounded-lg text-sm">
+                            <input type="text" id="inpConceptoCapital" placeholder="Ej. Inversión inicial" class="w-full input-bg px-4 py-2.5 rounded-lg text-sm">
                         </div>
                         <button onclick="ejecutarIngresoCapital()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition">
-                            + Añadir Capital a Caja
+                            + Añadir a Caja
                         </button>
                     </div>
                 </div>
 
+                <!-- 2. COMPRAR MOTORES A FÁBRICA -->
                 <div class="card-bg p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
-                        📦 Pedir Motores a Fábrica (Resta Capital)
+                        📦 Pedir a Fábrica (Resta Capital)
                     </h3>
                     <div class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Tipo de Motor</label>
-                                <select id="selTipoMotorCompra" class="w-full input-bg px-3 py-2.5 rounded-lg text-xs font-bold">
-                                    <option value="v8">Motor V8 (Costo: $40,000)</option>
-                                    <option value="v12">Motor V12 (Costo: $300,000)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Cantidad</label>
-                                <input type="number" id="inpCantMotorCompra" value="1" min="1" class="w-full input-bg px-3 py-2 rounded-lg text-sm font-bold text-center">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Tipo de Motor</label>
+                            <select id="selTipoMotorCompra" class="w-full input-bg px-3 py-2.5 rounded-lg text-xs font-bold">
+                                <option value="v8">Motor V8 (Costo: $40,000)</option>
+                                <option value="v12">Motor V12 (Costo: $300,000)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Cantidad</label>
+                            <input type="number" id="inpCantMotorCompra" value="1" min="1" class="w-full input-bg px-3 py-2 rounded-lg text-sm font-bold text-center">
                         </div>
                         <button onclick="ejecutarCompraMotor()" class="w-full bg-white hover:bg-zinc-200 text-black font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition">
-                            Comprar y Guardar en Almacén
+                            Comprar y Guardar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. MODIFICACIÓN MANUAL DE ALMACÉN Y CAPITAL -->
+                <div class="card-bg p-6 rounded-xl space-y-4 border border-amber-500/30">
+                    <h3 class="text-sm font-black text-amber-400 uppercase flex items-center gap-2">
+                        ⚙️ Ajuste Manual Directo
+                    </h3>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-zinc-400 uppercase">Capital en Caja ($)</label>
+                            <input type="number" id="inpManualCapital" class="w-full input-bg px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-400">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-bold text-zinc-400 uppercase">Stock V8</label>
+                                <input type="number" id="inpManualV8" class="w-full input-bg px-3 py-1.5 rounded-lg text-xs font-bold text-white text-center">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-zinc-400 uppercase">Stock V12</label>
+                                <input type="number" id="inpManualV12" class="w-full input-bg px-3 py-1.5 rounded-lg text-xs font-bold text-purple-400 text-center">
+                            </div>
+                        </div>
+                        <button onclick="ejecutarAjusteManualAlmacen()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition mt-2">
+                            💾 Guardar Cantidades
                         </button>
                     </div>
                 </div>
@@ -347,6 +374,21 @@
 
         <!-- PANEL ADMIN -->
         <div id="seccion-admin" class="space-y-6 hidden">
+            <!-- REINICIAR SEMANA / CORTE DE PAGO -->
+            <div class="card-bg p-6 rounded-xl border-2 border-red-500/40 bg-red-950/10 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-black text-red-400 uppercase flex items-center gap-2">
+                        🚨 CORTE SEMANAL Y REINICIO DE FACTURAS
+                    </h3>
+                    <p class="text-xs text-zinc-400 mt-1">
+                        Utiliza esta opción cuando terminen de pagar las comisiones de la semana. Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas de los trabajadores intactas.
+                    </p>
+                </div>
+                <button onclick="ejecutarReinicioSemanal()" class="bg-red-600 hover:bg-red-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">
+                    🔄 Reiniciar Semana / Pagar
+                </button>
+            </div>
+
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div>
                     <h2 class="text-2xl font-black text-amber-400 uppercase">👑 GESTIÓN DE CUENTAS DE TRABAJADORES</h2>
@@ -506,7 +548,6 @@
         let usuariosOnlineSet = new Set();
         let catalogoRenderizado = false;
 
-        // DEBOUNCE PARA ACTUALIZACIONES EN TIEMPO REAL
         let debounceTimer = null;
         socket.on('online_users_update', (onlineList) => {
             actualizarBarraOnline(onlineList);
@@ -734,9 +775,18 @@
             const data = await res.json();
             if (!res.ok) return;
 
-            document.getElementById('almCapital').innerText = `$${(data.estado.capital || 0).toLocaleString()}`;
-            document.getElementById('almStockV8').innerHTML = `${data.estado.stock_v8 || 0} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
-            document.getElementById('almStockV12').innerHTML = `${data.estado.stock_v12 || 0} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
+            const cap = data.estado.capital || 0;
+            const v8 = data.estado.stock_v8 || 0;
+            const v12 = data.estado.stock_v12 || 0;
+
+            document.getElementById('almCapital').innerText = `$${cap.toLocaleString()}`;
+            document.getElementById('almStockV8').innerHTML = `${v8} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
+            document.getElementById('almStockV12').innerHTML = `${v12} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
+
+            // Llenar inputs de ajuste manual con los valores actuales
+            document.getElementById('inpManualCapital').value = cap;
+            document.getElementById('inpManualV8').value = v8;
+            document.getElementById('inpManualV12').value = v12;
 
             const container = document.getElementById('listaMovimientosAlmacen');
             if (data.movimientos.length === 0) {
@@ -759,7 +809,7 @@
                                 <div class="font-black ${esIngreso ? 'text-emerald-400' : 'text-red-400'}">
                                     ${esIngreso ? '+' : ''}$${Math.abs(m.monto).toLocaleString()}
                                 </div>
-                            ` : '<div class="text-zinc-500 font-bold">Despacho Stock</div>'}
+                            ` : '<div class="text-zinc-500 font-bold">Ajuste / Despacho</div>'}
                         </div>
                     </div>
                 `;
@@ -803,6 +853,60 @@
             if (res.ok) {
                 mostrarAviso('Compra Exitosa', data.message);
             } else mostrarAviso('Error en Compra', data.error, true);
+        }
+
+        // FUNCIÓN: AJUSTE MANUAL DIRECTO DE ALMACÉN Y CAPITAL
+        async function ejecutarAjusteManualAlmacen() {
+            const capital = document.getElementById('inpManualCapital').value;
+            const stock_v8 = document.getElementById('inpManualV8').value;
+            const stock_v12 = document.getElementById('inpManualV12').value;
+
+            if (capital === '' || stock_v8 === '' || stock_v12 === '') {
+                return mostrarAviso('Campos Vacíos', 'Por favor llena los 3 campos con números válidos.');
+            }
+
+            const res = await fetch('/api/almacen/ajuste-manual', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capital,
+                    stock_v8,
+                    stock_v12,
+                    usuario_nombre: usuarioActual.nombre
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                mostrarAviso('Almacén Actualizado', 'Los valores de capital y stock han sido actualizados correctamente.');
+                cargarAlmacen();
+            } else {
+                mostrarAviso('Error de Ajuste', data.error, true);
+            }
+        }
+
+        // FUNCIÓN: REINICIO DE SEMANA / CORTE DE FACTURAS
+        async function ejecutarReinicioSemanal() {
+            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas para empezar el nuevo ciclo semanal.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
+            
+            if (confirmacion !== 'REINICIAR') {
+                return mostrarAviso('Acción Cancelada', 'No se realizaron cambios en las facturas.');
+            }
+
+            const res = await fetch('/api/admin/reiniciar-semana', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario_nombre: usuarioActual.nombre })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                mostrarAviso('¡Semana Reiniciada!', 'Todas las facturas se han liquidado. El contador de ventas y comisiones está en $0.');
+                cargarGestionAdmin();
+                cargarTop();
+            } else {
+                mostrarAviso('Error', data.error, true);
+            }
         }
 
         async function cargarGestionAdmin() {
@@ -1108,7 +1212,6 @@
             document.getElementById('mTotalFacturas').innerText = facturas.length;
         }
 
-        // RENDERIZADO EFICIENTE DEL CATÁLOGO (SOLO 1 VEZ)
         function renderCatalogo() {
             if (catalogoRenderizado) return;
             const container = document.getElementById('listaProductos');
