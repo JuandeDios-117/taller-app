@@ -11,11 +11,10 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
-// Optimización: Compresión HTTP
 app.use(compression());
 app.use(express.json());
-app.use(express.static(__dirname, { maxAge: '1d' }));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'), (err) => {
@@ -60,7 +59,7 @@ function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
 
-// 1. REGISTRO (Guarda fecha de ingreso)
+// 1. REGISTRO
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -70,7 +69,7 @@ app.post('/api/register', async (req, res) => {
         const esPrimerUsuario = checkUser.rows[0].total === 0;
         const rolInicial = esPrimerUsuario ? 'admin' : 'empleado';
 
-        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol, created_at) VALUES (?, ?, ?, 30, ?, CURRENT_TIMESTAMP)`;
+        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol) VALUES (?, ?, ?, 30, ?)`;
         const result = await db.execute({
             sql: sql,
             args: [nombre, usuario.trim().toLowerCase(), password, rolInicial]
@@ -86,13 +85,13 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN
+// 2. LOGIN (CONSULTA LIMPIA Y SEGURA)
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, created_at FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
@@ -132,7 +131,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRAR MOTORES A FÁBRICA
+// 5. COMPRAR MOTORES
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -194,13 +193,19 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// 7. LISTA DE USUARIOS (Con fecha de ingreso)
+// 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY created_at ASC");
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        // Compatibilidad por si created_at no responde
+        try {
+            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
+            res.json(fallback.rows);
+        } catch (e2) {
+            res.status(500).json({ error: err.message });
+        }
     }
 });
 
@@ -367,7 +372,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 14. HISTORIAL PERSONAL (LÍMITE 60)
+// 14. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -380,7 +385,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 15. HISTORIAL GLOBAL (LÍMITE 80)
+// 15. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -397,7 +402,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES (Con fecha de ingreso)
+// 16. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -414,9 +419,24 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const result = await db.execute(sql);
         res.json(result.rows);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        try {
+            const fallback = await db.execute(`
+                SELECT u.id, u.nombre, u.usuario, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
+                       COUNT(f.id) as total_facturas,
+                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
+                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
+                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
+                FROM usuarios u
+                LEFT JOIN facturas f ON u.id = f.usuario_id
+                GROUP BY u.id
+                ORDER BY ganancia_generada DESC
+            `);
+            res.json(fallback.rows);
+        } catch (e2) {
+            res.status(500).json({ error: err.message });
+        }
     }
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor optimizado y ligero en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
