@@ -389,12 +389,12 @@
                 </button>
             </div>
 
-            <!-- TABLA DE GESTIÓN Y RANGOS VISUALES -->
+            <!-- TABLA DE GESTIÓN Y RANGOS DIRECTOS -->
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-black text-amber-400 uppercase">👑 GESTIÓN DE RANGOS Y PERMISOS</h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Asigna rangos oficiales y permisos de Subjefe / Administrador.</p>
+                        <h2 class="text-2xl font-black text-amber-400 uppercase">👑 ASIGNACIÓN DE RANGOS DEL TALLER</h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Selecciona el rango de cada integrante. La comisión y permisos se asignan automáticamente.</p>
                     </div>
                     <!-- GUÍA RÁPIDA DE RANGOS -->
                     <div class="flex flex-wrap gap-2 text-[11px] font-bold">
@@ -413,9 +413,7 @@
                                 <th class="p-3">Estado</th>
                                 <th class="p-3">Trabajador</th>
                                 <th class="p-3">Rango Actual</th>
-                                <th class="p-3">Asignar Rango</th>
-                                <th class="p-3">Permisos</th>
-                                <th class="p-3">Comisión (%)</th>
+                                <th class="p-3">Cambiar Rango Oficial</th>
                                 <th class="p-3 text-right">Acciones</th>
                             </tr>
                         </thead>
@@ -560,10 +558,10 @@
         let usuariosOnlineSet = new Set();
         let catalogoRenderizado = false;
 
-        // HELPER PARA BADGES VISUALES DE RANGOS OFICIALES
+        // HELPER PARA BADGES DE RANGOS OFICIALES
         function obtenerBadgeRango(rol, comision) {
             if (rol === 'admin') {
-                return `<span class="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🛡️ Subjefe (0% Capital)</span>`;
+                return `<span class="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🛡️ Subjefe (0%)</span>`;
             }
             if (comision >= 45) {
                 return `<span class="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">👔 Encargado (45%)</span>`;
@@ -938,30 +936,6 @@
             }
         }
 
-        // AUTO-ASIGNACIÓN DE COMISIÓN SEGÚN EL RANGO
-        function actualizarComisionSegunRango(userId) {
-            const selRango = document.getElementById(`rangoPreset-${userId}`).value;
-            const inpPct = document.getElementById(`pct-${userId}`);
-            const selRol = document.getElementById(`rol-${userId}`);
-            
-            if (selRango === 'subjefe') {
-                inpPct.value = 0;
-                selRol.value = 'admin';
-            } else if (selRango === 'encargado') {
-                inpPct.value = 45;
-                selRol.value = 'empleado';
-            } else if (selRango === 'experto') {
-                inpPct.value = 40;
-                selRol.value = 'empleado';
-            } else if (selRango === 'mecanico') {
-                inpPct.value = 35;
-                selRol.value = 'empleado';
-            } else if (selRango === 'pruebas') {
-                inpPct.value = 30;
-                selRol.value = 'empleado';
-            }
-        }
-
         async function cargarGestionAdmin() {
             const res = await fetch('/api/usuarios');
             usuariosAdminGlobal = await res.json();
@@ -976,7 +950,7 @@
                 const estaOnline = usuariosOnlineSet.has(Number(u.id));
                 const comision = u.comision_porcentaje;
                 
-                // Determinar el preset actual del usuario
+                // Determinar el rango actual
                 let presetActual = 'pruebas';
                 if (u.rol === 'admin') presetActual = 'subjefe';
                 else if (comision >= 45) presetActual = 'encargado';
@@ -999,7 +973,7 @@
                             ${obtenerBadgeRango(u.rol, u.comision_porcentaje)}
                         </td>
                         <td class="p-3">
-                            <select id="rangoPreset-${u.id}" onchange="actualizarComisionSegunRango(${u.id})" class="input-bg px-2.5 py-1.5 rounded-lg text-xs font-bold border border-zinc-700">
+                            <select id="rangoPreset-${u.id}" class="input-bg px-3 py-2 rounded-lg text-xs font-bold border border-zinc-700 w-full max-w-xs focus:ring-1 focus:ring-amber-500">
                                 <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0% Comisión + Admin)</option>
                                 <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45% Comisión)</option>
                                 <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ Mecánico Experto (40% Comisión)</option>
@@ -1007,24 +981,12 @@
                                 <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 Mecánico en Pruebas (30% Comisión)</option>
                             </select>
                         </td>
-                        <td class="p-3">
-                            <select id="rol-${u.id}" class="input-bg px-2 py-1 rounded text-xs">
-                                <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
-                                <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Subjefe / Admin</option>
-                            </select>
-                        </td>
-                        <td class="p-3">
-                            <div class="flex items-center gap-1">
-                                <input type="number" id="pct-${u.id}" value="${u.comision_porcentaje}" class="input-bg w-14 px-2 py-1.5 rounded-lg text-center font-black text-amber-400 text-xs" min="0" max="100">
-                                <span class="text-xs text-zinc-500 font-bold">%</span>
-                            </div>
-                        </td>
                         <td class="p-3 text-right space-x-2">
-                            <button onclick="guardarCambiosUsuario(${u.id})" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-3 py-1.5 rounded-lg transition shadow">
-                                Guardar
+                            <button onclick="guardarCambiosUsuario(${u.id})" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-3.5 py-2 rounded-lg transition shadow">
+                                Guardar Rango
                             </button>
                             ${u.id !== usuarioActual.id ? `
-                                <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg border border-red-500/30 transition">
+                                <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white font-bold text-xs px-3 py-2 rounded-lg border border-red-500/30 transition">
                                     🗑️ Eliminar
                                 </button>
                             ` : ''}
@@ -1044,8 +1006,27 @@
         }
 
         async function guardarCambiosUsuario(usuario_id) {
-            const comision_porcentaje = parseFloat(document.getElementById(`pct-${usuario_id}`).value);
-            const rol = document.getElementById(`rol-${usuario_id}`).value;
+            const preset = document.getElementById(`rangoPreset-${usuario_id}`).value;
+            
+            let comision_porcentaje = 30;
+            let rol = 'empleado';
+
+            if (preset === 'subjefe') {
+                comision_porcentaje = 0;
+                rol = 'admin';
+            } else if (preset === 'encargado') {
+                comision_porcentaje = 45;
+                rol = 'empleado';
+            } else if (preset === 'experto') {
+                comision_porcentaje = 40;
+                rol = 'empleado';
+            } else if (preset === 'mecanico') {
+                comision_porcentaje = 35;
+                rol = 'empleado';
+            } else if (preset === 'pruebas') {
+                comision_porcentaje = 30;
+                rol = 'empleado';
+            }
 
             const res = await fetch('/api/usuarios/modificar', {
                 method: 'PUT',
@@ -1053,8 +1034,8 @@
                 body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
             });
 
-            if (res.ok) mostrarAviso('Rango Guardado', '¡Rango, permisos y porcentaje de comisión actualizados con éxito!');
-            else mostrarAviso('Error', 'Error al actualizar los datos.', true);
+            if (res.ok) mostrarAviso('Rango Guardado', `¡Rango asignado correctamente (${comision_porcentaje}% de comisión)!`);
+            else mostrarAviso('Error', 'Error al actualizar el rango.', true);
         }
 
         async function eliminarCuentaUsuario(id, nombre) {
@@ -1071,7 +1052,7 @@
             const sel = document.getElementById('selNuevoTrabajador');
             let opts = '';
             usuariosAdminGlobal.forEach(u => {
-                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario}) - Comisión: ${u.comision_porcentaje}%</option>`;
+                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario}) - ${obtenerBadgeRango(u.rol, u.comision_porcentaje)}</option>`;
             });
             sel.innerHTML = opts;
             document.getElementById('modalTransferir').classList.remove('hidden');
