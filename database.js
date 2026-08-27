@@ -20,15 +20,15 @@ async function initDB() {
             usuario TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             comision_porcentaje REAL DEFAULT 30,
-            rol TEXT DEFAULT 'empleado',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            rol TEXT DEFAULT 'empleado'
         )`);
 
-        // Migración automática por si la tabla ya existía sin created_at
+        // Comprobación y creación automática de la columna created_at
         try {
             await client.execute(`ALTER TABLE usuarios ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`);
+            console.log("Columna created_at agregada con éxito.");
         } catch (e) {
-            // La columna ya existía, continuar normalmente
+            // Ya existía la columna
         }
 
         await client.execute(`CREATE TABLE IF NOT EXISTS facturas (
@@ -62,18 +62,16 @@ async function initDB() {
             fecha DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
-        // Índices para acelerar búsquedas
         await client.execute(`CREATE INDEX IF NOT EXISTS idx_facturas_usuario ON facturas(usuario_id)`);
         await client.execute(`CREATE INDEX IF NOT EXISTS idx_facturas_fecha ON facturas(fecha DESC)`);
-        await client.execute(`CREATE INDEX IF NOT EXISTS idx_movimientos_fecha ON movimientos_capital(fecha DESC)`);
 
         const estado = await client.execute("SELECT COUNT(*) as total FROM taller_estado");
         if (estado.rows[0].total === 0) {
             await client.execute("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 0, 0, 0)");
         }
-        console.log("Base de datos conectada con control de antigüedad e índices activos.");
+        console.log("Base de datos y columnas sincronizadas correctamente.");
     } catch (err) {
-        console.error("Error al inicializar base de datos:", err);
+        console.error("Error al inicializar tablas:", err);
     }
 }
 
