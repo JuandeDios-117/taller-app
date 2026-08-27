@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoExotic - Gestión & Facturación</title>
-    <!-- FAVICON OFICIAL AUTOEXOTIC -->
-    <link rel="icon" type="image/png" href="/logo.png">
-    <link rel="shortcut icon" href="/logo.png">
+    <!-- FAVICON DINÁMICO CIRCULAR -->
+    <link id="dynamic-favicon" rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
     <style>
@@ -61,7 +60,7 @@
         <!-- HEADER PRINCIPAL -->
         <div class="card-header-dark p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
             <div class="flex items-center gap-4 z-10">
-                <div class="relative w-14 h-14 rounded-full p-0.5 bg-zinc-700 logo-glow shrink-0">
+                <div class="relative w-14 h-14 rounded-full p-0.5 bg-zinc-700 logo-glow shrink-0 overflow-hidden">
                     <img src="/logo.png" 
                          onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23ffffff\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%2327272a\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                          alt="AutoExotic Logo" 
@@ -120,7 +119,7 @@
         <!-- LOGIN / REGISTRO -->
         <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-zinc-800">
             <div class="text-center space-y-2">
-                <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-zinc-700 logo-glow">
+                <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-zinc-700 logo-glow overflow-hidden">
                     <img src="/logo.png" 
                          onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23ffffff\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%2327272a\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                          alt="AutoExotic Logo" 
@@ -412,9 +411,8 @@
             </div>
         </div>
 
-        <!-- HISTORIAL PERSONAL (CON ANTIGÜEDAD DE CUENTA) -->
+        <!-- HISTORIAL PERSONAL -->
         <div id="seccion-historial" class="space-y-6 hidden">
-            <!-- BANNER DE PERFIL PERSONAL Y ANTIGÜEDAD -->
             <div class="card-dark p-5 rounded-xl flex flex-wrap justify-between items-center gap-4 border-l-4 border-white">
                 <div>
                     <h3 class="text-lg font-black text-white uppercase flex items-center gap-2">
@@ -459,7 +457,7 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL ADMIN -->
+        <!-- PANEL ADMIN (ORGANIZADO POR RANGOS/SECCIONES + PERMISOS) -->
         <div id="seccion-admin" class="space-y-6 hidden">
             <!-- REINICIAR SEMANA -->
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
@@ -476,37 +474,24 @@
                 </button>
             </div>
 
-            <!-- GESTIÓN DE RANGOS -->
+            <!-- GESTIÓN Y JERARQUÍA DE RANGOS ORGANIZADA -->
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-black text-white uppercase">👑 ASIGNACIÓN DE RANGOS OFICIALES</h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Controla rangos, permisos y consulta la antigüedad de cada integrante.</p>
+                        <h2 class="text-2xl font-black text-white uppercase">👑 JERARQUÍA Y GESTIÓN DE PERSONAL</h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Organizado por rangos oficiales. Puedes alternar rangos y permisos de Administrador a voluntad.</p>
                     </div>
                     <div class="flex flex-wrap gap-2 text-[11px] font-black">
-                        <span class="bg-rose-500/15 border border-rose-500/40 text-rose-400 px-2.5 py-1 rounded-lg">🛡️ Subjefe: 0% + Admin</span>
-                        <span class="bg-yellow-500/15 border border-yellow-500/40 text-yellow-400 px-2.5 py-1 rounded-lg">👔 Encargado: 45%</span>
-                        <span class="bg-purple-500/15 border border-purple-500/40 text-purple-300 px-2.5 py-1 rounded-lg">⭐ M. Experto: 40%</span>
-                        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 px-2.5 py-1 rounded-lg">🔧 Mecánico: 35%</span>
-                        <span class="bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 px-2.5 py-1 rounded-lg">🔰 En Pruebas: 30%</span>
+                        <span class="bg-rose-500/15 border border-rose-500/40 text-rose-400 px-2.5 py-1 rounded-lg">🛡️ Subjefe (0%)</span>
+                        <span class="bg-yellow-500/15 border border-yellow-500/40 text-yellow-400 px-2.5 py-1 rounded-lg">👔 Encargado (45%)</span>
+                        <span class="bg-purple-500/15 border border-purple-500/40 text-purple-300 px-2.5 py-1 rounded-lg">⭐ M. Experto (40%)</span>
+                        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 px-2.5 py-1 rounded-lg">🔧 Mecánico (35%)</span>
+                        <span class="bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 px-2.5 py-1 rounded-lg">🔰 En Pruebas (30%)</span>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="border-b border-zinc-800 text-zinc-400 uppercase text-xs">
-                                <th class="p-3">Estado</th>
-                                <th class="p-3">Trabajador</th>
-                                <th class="p-3">Fecha Ingreso</th>
-                                <th class="p-3">Rango Actual</th>
-                                <th class="p-3">Cambiar Rango</th>
-                                <th class="p-3 text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaUsuariosAdmin" class="divide-y divide-zinc-800/80"></tbody>
-                    </table>
-                </div>
+                <!-- CONTENEDOR DE TABLAS AGRUPADAS POR RANGO -->
+                <div id="contenedorSeccionesRangos" class="space-y-6"></div>
             </div>
 
             <!-- HISTORIAL GLOBAL -->
@@ -604,6 +589,26 @@
     </div>
 
     <script>
+        // GENERADOR DE FAVICON CIRCULAR PARA EL NAVEGADOR
+        function crearFaviconCircular() {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = "/logo.png";
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext("2d");
+                ctx.beginPath();
+                ctx.arc(32, 32, 32, 0, Math.PI * 2, true);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(img, 0, 0, 64, 64);
+                document.getElementById("dynamic-favicon").href = canvas.toDataURL("image/png");
+            };
+        }
+        crearFaviconCircular();
+
         const socket = io();
 
         const catalogo = [
@@ -652,8 +657,16 @@
             return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
+        function obtenerClaveRango(rol, comision) {
+            if (rol === 'admin' || comision == 0) return 'subjefe';
+            if (comision >= 45) return 'encargado';
+            if (comision >= 40) return 'experto';
+            if (comision >= 35) return 'mecanico';
+            return 'pruebas';
+        }
+
         function obtenerBadgeRango(rol, comision) {
-            if (rol === 'admin') {
+            if (rol === 'admin' || comision == 0) {
                 return `<span class="inline-flex items-center gap-1.5 bg-rose-500/15 text-rose-400 border border-rose-500/40 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider">🛡️ Subjefe (0%)</span>`;
             }
             if (comision >= 45) {
@@ -669,7 +682,7 @@
         }
 
         function obtenerClaseColorNombre(rol, comision) {
-            if (rol === 'admin') return 'text-rose-400 font-black';
+            if (rol === 'admin' || comision == 0) return 'text-rose-400 font-black';
             if (comision >= 45) return 'text-yellow-300 font-black';
             if (comision >= 40) return 'text-purple-300 font-bold';
             if (comision >= 35) return 'text-zinc-200 font-bold';
@@ -1037,71 +1050,112 @@
             }
         }
 
+        // CARGA Y AGRUPACIÓN DE TRABAJADORES POR SECCIONES / RANGOS
         async function cargarGestionAdmin() {
             const res = await fetch('/api/usuarios');
             usuariosAdminGlobal = await res.json();
-            const tbody = document.getElementById('tablaUsuariosAdmin');
+            const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
 
             const selectFiltro = document.getElementById('selectFiltroTrabajador');
             const valorPrevio = selectFiltro.value;
             let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
-            let rowsHTML = '';
+
+            const secciones = [
+                { key: 'subjefe', titulo: '🛡️ SUBJEFES (0% COMISIÓN - GANAN DE CAPITAL)', borde: 'border-rose-500/40', texto: 'text-rose-400', bg: 'bg-rose-950/10' },
+                { key: 'encargado', titulo: '👔 ENCARGADOS (45% COMISIÓN)', borde: 'border-yellow-500/40', texto: 'text-yellow-400', bg: 'bg-yellow-950/10' },
+                { key: 'experto', titulo: '⭐ MECÁNICOS EXPERTOS (40% COMISIÓN)', borde: 'border-purple-500/40', texto: 'text-purple-400', bg: 'bg-purple-950/10' },
+                { key: 'mecanico', titulo: '🔧 MECÁNICOS (35% COMISIÓN)', borde: 'border-zinc-700', texto: 'text-zinc-300', bg: 'bg-zinc-900/40' },
+                { key: 'pruebas', titulo: '🔰 MECÁNICOS EN PRUEBAS (30% COMISIÓN)', borde: 'border-emerald-500/40', texto: 'text-emerald-400', bg: 'bg-emerald-950/10' }
+            ];
+
+            let htmlFinal = '';
+
+            secciones.forEach(sec => {
+                const usuariosEnRango = usuariosAdminGlobal.filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
+
+                let filas = '';
+                usuariosEnRango.forEach(u => {
+                    const estaOnline = usuariosOnlineSet.has(Number(u.id));
+                    const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
+                    const presetActual = obtenerClaveRango(u.rol, u.comision_porcentaje);
+                    const esAdmin = u.rol === 'admin';
+
+                    filas += `
+                        <tr class="hover:bg-zinc-900/40 transition">
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
+                                    <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
+                                    ${estaOnline ? 'En Línea' : 'Desconectado'}
+                                </span>
+                            </td>
+                            <td class="p-3">
+                                <div class="${colorClase}">${u.nombre}</div>
+                                <div class="text-xs text-zinc-500">@${u.usuario}</div>
+                            </td>
+                            <td class="p-3">
+                                <span class="text-xs text-zinc-400 font-medium">${formatearFechaIngreso(u.created_at)}</span>
+                            </td>
+                            <td class="p-3">
+                                <select id="rangoPreset-${u.id}" class="input-dark px-3 py-1.5 rounded-xl text-xs font-bold w-full max-w-[210px] focus:ring-1 focus:ring-zinc-400">
+                                    <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0%)</option>
+                                    <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45%)</option>
+                                    <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ M. Experto (40%)</option>
+                                    <option value="mecanico" ${presetActual === 'mecanico' ? 'selected' : ''}>🔧 Mecánico (35%)</option>
+                                    <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 En Pruebas (30%)</option>
+                                </select>
+                            </td>
+                            <td class="p-3">
+                                <select id="permisoAdmin-${u.id}" class="input-dark px-2.5 py-1.5 rounded-xl text-xs font-bold focus:ring-1 focus:ring-zinc-400 ${esAdmin ? 'text-rose-400 border-rose-500/30' : 'text-zinc-300'}">
+                                    <option value="empleado" ${!esAdmin ? 'selected' : ''}>Empleado</option>
+                                    <option value="admin" ${esAdmin ? 'selected' : ''}>👑 Acceso Admin</option>
+                                </select>
+                            </td>
+                            <td class="p-3 text-right space-x-2">
+                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-white text-xs px-3 py-1.5 rounded-xl transition shadow">
+                                    Guardar
+                                </button>
+                                ${u.id !== usuarioActual.id ? `
+                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2.5 py-1.5 rounded-xl border border-rose-500/30 transition">
+                                        🗑️
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                htmlFinal += `
+                    <div class="card-dark rounded-xl overflow-hidden border ${sec.borde}">
+                        <div class="p-3.5 ${sec.bg} border-b border-zinc-800/80 flex justify-between items-center">
+                            <h3 class="text-xs font-black uppercase tracking-wider ${sec.texto}">${sec.titulo}</h3>
+                            <span class="text-xs text-zinc-400 font-bold bg-black/60 px-2.5 py-0.5 rounded-lg border border-zinc-800">${usuariosEnRango.length} miembros</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[11px]">
+                                        <th class="p-3">Estado</th>
+                                        <th class="p-3">Trabajador</th>
+                                        <th class="p-3">Ingreso</th>
+                                        <th class="p-3">Rango Comisión</th>
+                                        <th class="p-3">Permiso Panel</th>
+                                        <th class="p-3 text-right">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-zinc-800/60">
+                                    ${filas || '<tr><td colspan="6" class="p-3 text-xs text-zinc-500 italic text-center">No hay trabajadores en este rango.</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
 
             usuariosAdminGlobal.forEach(u => {
-                const estaOnline = usuariosOnlineSet.has(Number(u.id));
-                const comision = u.comision_porcentaje;
-                
-                let presetActual = 'pruebas';
-                if (u.rol === 'admin') presetActual = 'subjefe';
-                else if (comision >= 45) presetActual = 'encargado';
-                else if (comision >= 40) presetActual = 'experto';
-                else if (comision >= 35) presetActual = 'mecanico';
-
-                const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
-
-                rowsHTML += `
-                    <tr class="hover:bg-zinc-900/40 transition">
-                        <td class="p-3">
-                            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
-                                <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                ${estaOnline ? 'En Línea' : 'Desconectado'}
-                            </span>
-                        </td>
-                        <td class="p-3">
-                            <div class="${colorClase}">${u.nombre}</div>
-                            <div class="text-xs text-zinc-500">@${u.usuario}</div>
-                        </td>
-                        <td class="p-3">
-                            <span class="text-xs text-zinc-400 font-medium">${formatearFechaIngreso(u.created_at)}</span>
-                        </td>
-                        <td class="p-3">
-                            ${obtenerBadgeRango(u.rol, u.comision_porcentaje)}
-                        </td>
-                        <td class="p-3">
-                            <select id="rangoPreset-${u.id}" class="input-dark px-3 py-2 rounded-xl text-xs font-bold w-full max-w-xs focus:ring-1 focus:ring-zinc-400">
-                                <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0% Comisión + Admin)</option>
-                                <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45% Comisión)</option>
-                                <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ Mecánico Experto (40% Comisión)</option>
-                                <option value="mecanico" ${presetActual === 'mecanico' ? 'selected' : ''}>🔧 Mecánico (35% Comisión)</option>
-                                <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 Mecánico en Pruebas (30% Comisión)</option>
-                            </select>
-                        </td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="guardarCambiosUsuario(${u.id})" class="btn-white text-xs px-3.5 py-2 rounded-xl transition">
-                                Guardar
-                            </button>
-                            ${u.id !== usuarioActual.id ? `
-                                <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-3 py-2 rounded-xl border border-rose-500/30 transition">
-                                    🗑️ Eliminar
-                                </button>
-                            ` : ''}
-                        </td>
-                    </tr>
-                `;
                 optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
             });
 
-            tbody.innerHTML = rowsHTML;
+            contenedorSecciones.innerHTML = htmlFinal;
             selectFiltro.innerHTML = optionsHTML;
             if (valorPrevio) selectFiltro.value = valorPrevio;
 
@@ -1112,26 +1166,15 @@
 
         async function guardarCambiosUsuario(usuario_id) {
             const preset = document.getElementById(`rangoPreset-${usuario_id}`).value;
+            const rol = document.getElementById(`permisoAdmin-${usuario_id}`).value;
             
             let comision_porcentaje = 30;
-            let rol = 'empleado';
 
-            if (preset === 'subjefe') {
-                comision_porcentaje = 0;
-                rol = 'admin';
-            } else if (preset === 'encargado') {
-                comision_porcentaje = 45;
-                rol = 'empleado';
-            } else if (preset === 'experto') {
-                comision_porcentaje = 40;
-                rol = 'empleado';
-            } else if (preset === 'mecanico') {
-                comision_porcentaje = 35;
-                rol = 'empleado';
-            } else if (preset === 'pruebas') {
-                comision_porcentaje = 30;
-                rol = 'empleado';
-            }
+            if (preset === 'subjefe') comision_porcentaje = 0;
+            else if (preset === 'encargado') comision_porcentaje = 45;
+            else if (preset === 'experto') comision_porcentaje = 40;
+            else if (preset === 'mecanico') comision_porcentaje = 35;
+            else if (preset === 'pruebas') comision_porcentaje = 30;
 
             const res = await fetch('/api/usuarios/modificar', {
                 method: 'PUT',
@@ -1139,8 +1182,8 @@
                 body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
             });
 
-            if (res.ok) mostrarAviso('Rango Guardado', `¡Rango asignado correctamente (${comision_porcentaje}% de comisión)!`);
-            else mostrarAviso('Error', 'Error al actualizar el rango.', true);
+            if (res.ok) mostrarAviso('Usuario Actualizado', `¡Rango (${comision_porcentaje}%) y permisos guardados con éxito!`);
+            else mostrarAviso('Error', 'Error al actualizar el usuario.', true);
         }
 
         async function eliminarCuentaUsuario(id, nombre) {
@@ -1313,7 +1356,6 @@
         async function cargarHistorial() {
             if (!usuarioActual) return;
 
-            // Actualizar banner personal
             document.getElementById('lblPerfilNombre').innerText = usuarioActual.nombre;
             document.getElementById('lblPerfilUser').innerText = `@${usuarioActual.usuario}`;
             document.getElementById('lblPerfilIngreso').innerText = formatearFechaIngreso(usuarioActual.created_at);
