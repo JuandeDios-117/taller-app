@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const compression = require('compression');
 const { Server } = require('socket.io');
 const db = require('./database');
 const path = require('path');
@@ -10,9 +11,11 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
+// Optimización: Compresión HTTP
+app.use(compression());
 app.use(express.json());
-app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname, { maxAge: '1d' }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'), (err) => {
@@ -57,7 +60,7 @@ function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
 
-// 1. REGISTRO
+// 1. REGISTRO (Guarda fecha de ingreso)
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -67,7 +70,7 @@ app.post('/api/register', async (req, res) => {
         const esPrimerUsuario = checkUser.rows[0].total === 0;
         const rolInicial = esPrimerUsuario ? 'admin' : 'empleado';
 
-        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol) VALUES (?, ?, ?, 30, ?)`;
+        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol, created_at) VALUES (?, ?, ?, 30, ?, CURRENT_TIMESTAMP)`;
         const result = await db.execute({
             sql: sql,
             args: [nombre, usuario.trim().toLowerCase(), password, rolInicial]
@@ -89,7 +92,7 @@ app.post('/api/login', async (req, res) => {
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, created_at FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
@@ -162,7 +165,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// 6. AJUSTE MANUAL DE ALMACÉN Y CAPITAL (SOLO ADMIN)
+// 6. AJUSTE MANUAL DE ALMACÉN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
     const capNum = parseFloat(capital);
@@ -170,7 +173,7 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const v12Num = parseInt(stock_v12);
 
     if (isNaN(capNum) || isNaN(v8Num) || isNaN(v12Num) || capNum < 0 || v8Num < 0 || v12Num < 0) {
-        return res.status(400).json({ error: "Ingresa valores numéricos válidos mayores o iguales a 0." });
+        return res.status(400).json({ error: "Valores numéricos inválidos." });
     }
 
     try {
@@ -181,20 +184,20 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
 
         await db.execute({
             sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('ajuste_manual', ?, 0, ?)",
-            args: [`Ajuste manual de inventario: Cap: $${capNum.toLocaleString()} | V8: ${v8Num} | V12: ${v12Num}`, usuario_nombre || 'Admin']
+            args: [`Ajuste manual: Cap: $${capNum.toLocaleString()} | V8: ${v8Num} | V12: ${v12Num}`, usuario_nombre || 'Admin']
         });
 
         notificarCambioGlobal('almacen_actualizado');
-        res.json({ message: "Inventario y capital ajustados correctamente." });
+        res.json({ message: "Inventario y capital actualizados." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 7. LISTA DE USUARIOS
+// 7. LISTA DE USUARIOS (Con fecha de ingreso)
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios ORDER BY nombre ASC");
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY created_at ASC");
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -257,7 +260,7 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
     }
 });
 
-// 11. ELIMINAR FACTURA INDIVIDUAL
+// 11. ELIMINAR FACTURA
 app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
@@ -269,17 +272,17 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR TODAS LAS FACTURAS (CORTE SEMANAL / PAGO)
+// 12. REINICIAR SEMANA
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
         await db.execute("DELETE FROM facturas");
         await db.execute({
-            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: Todas las facturas fueron liquidadas y reiniciadas.', 0, ?)",
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas.', 0, ?)",
             args: [usuario_nombre || 'Admin']
         });
         notificarCambioGlobal('reinicio_semana');
-        res.json({ message: "Semana reiniciada con éxito. Facturas en $0 para todos los trabajadores." });
+        res.json({ message: "Semana reiniciada correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -364,7 +367,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 14. HISTORIAL PERSONAL
+// 14. HISTORIAL PERSONAL (LÍMITE 60)
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -377,7 +380,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 15. HISTORIAL GLOBAL
+// 15. HISTORIAL GLOBAL (LÍMITE 80)
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -394,11 +397,11 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES
+// 16. TOP TRABAJADORES (Con fecha de ingreso)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje,
+            SELECT u.id, u.nombre, u.usuario, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                    COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -416,4 +419,4 @@ app.get('/api/top-trabajadores', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor optimizado y ligero en puerto ${PORT}`));

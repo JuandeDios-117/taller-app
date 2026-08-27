@@ -3,83 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller - Control de Pedidos y Facturación</title>
+    <title>Motorsport Workshop - Gestión & Facturación</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        body { background-color: #0f0f11; color: #e4e4e7; font-family: system-ui, -apple-system, sans-serif; }
-        .card-bg { background-color: #18181b; border: 1px solid #27272a; }
-        .input-bg { background-color: #09090b; border: 1px solid #27272a; color: white; }
+        body { 
+            background-color: #0b0c10; 
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.04) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+            color: #f4f4f5; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        }
+        .card-bg { 
+            background: rgba(18, 19, 26, 0.85); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        .card-bg-header { 
+            background: linear-gradient(135deg, rgba(24, 25, 35, 0.95), rgba(15, 16, 22, 0.95));
+            border: 1px solid rgba(245, 158, 11, 0.2); 
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+        }
+        .input-bg { 
+            background-color: #0d0e12; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: white; 
+            transition: all 0.2s ease;
+        }
+        .input-bg:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+            outline: none;
+        }
+        .glow-amber {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+        }
     </style>
 </head>
-<body class="p-6">
+<body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-6">
         
-        <!-- BARRA DE NAVEGACIÓN -->
-        <div class="flex flex-wrap justify-between items-center card-bg p-4 rounded-xl gap-4">
-            <div class="flex flex-wrap gap-2">
-                <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-white text-black">
-                    🧮 CALCULADORA
-                </button>
-                <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-amber-400 hover:text-amber-300 hidden">
-                    🏢 ALMACÉN Y CAPITAL
-                </button>
-                <button onclick="cambiarPestana('combos')" id="tab-combos" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white">
-                    📋 COMBOS Y PIEZAS
-                </button>
-                <button onclick="cambiarPestana('historial')" id="tab-hist" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white">
-                    📊 MI HISTORIAL
-                </button>
-                <button onclick="cambiarPestana('top')" id="tab-top" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white">
-                    🏆 TOP TRABAJADORES
-                </button>
-                <button onclick="cambiarPestana('admin')" id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-amber-400 hover:text-amber-300 hidden">
-                    👑 PANEL ADMIN
-                </button>
+        <!-- HEADER PRINCIPAL / BANNER DEL TALLER -->
+        <div class="card-bg-header p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
+            <!-- Detalle estético motorsport -->
+            <div class="absolute -right-8 -top-8 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="flex items-center gap-4 z-10">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/20 font-black text-black">
+                    🏁
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-wider text-white flex items-center gap-2">
+                        MOTORSPORT <span class="text-amber-400">TUNING</span>
+                    </h1>
+                    <p class="text-xs text-zinc-400 font-medium tracking-wide">Sistema Oficial de Almacén, Facturación y Comisiones</p>
+                </div>
             </div>
 
-            <!-- USUARIOS EN LÍNEA & PERFIL -->
-            <div class="flex items-center gap-4">
-                <div id="badgeOnlineCount" class="text-xs bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+            <div class="flex items-center gap-4 z-10">
+                <div id="badgeOnlineCount" class="text-xs bg-zinc-950/80 border border-zinc-800 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
+                    <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_#34d399]"></span>
                     <span id="txtOnlineCount" class="font-bold text-zinc-300">0 en línea</span>
                 </div>
                 <div id="userInfo" class="text-xs text-zinc-400 flex items-center gap-3"></div>
             </div>
         </div>
 
-        <!-- LISTA DE USUARIOS EN LÍNEA -->
-        <div id="barraUsuariosOnline" class="card-bg p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs">
-            <span class="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">🟢 Conectados:</span>
+        <!-- BARRA DE NAVEGACIÓN -->
+        <div class="flex flex-wrap justify-between items-center card-bg p-2.5 rounded-xl gap-2">
+            <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-amber-400 text-black shadow-md shadow-amber-400/20 transition">
+                    🧮 CALCULADORA
+                </button>
+                <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900/80 text-rose-400 hover:text-rose-300 hover:bg-zinc-800 hidden transition border border-rose-500/20">
+                    🏢 ALMACÉN Y CAPITAL
+                </button>
+                <button onclick="cambiarPestana('combos')" id="tab-combos" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900/80 text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+                    📋 COMBOS Y PIEZAS
+                </button>
+                <button onclick="cambiarPestana('historial')" id="tab-hist" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900/80 text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+                    📊 MI HISTORIAL
+                </button>
+                <button onclick="cambiarPestana('top')" id="tab-top" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900/80 text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+                    🏆 TOP TRABAJADORES
+                </button>
+                <button onclick="cambiarPestana('admin')" id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900/80 text-rose-400 hover:text-rose-300 hover:bg-zinc-800 hidden transition border border-rose-500/20">
+                    👑 PANEL ADMIN
+                </button>
+            </div>
+        </div>
+
+        <!-- LISTA DE USUARIOS EN LÍNEA (DISCORD STYLE CON COLORES DE RANGO) -->
+        <div id="barraUsuariosOnline" class="card-bg p-3.5 rounded-xl hidden flex-wrap items-center gap-3 text-xs border-l-4 border-emerald-500">
+            <span class="text-zinc-400 font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+                Conectados en vivo:
+            </span>
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
         <!-- AUTH (LOGIN / REGISTRO) -->
-        <div id="seccion-auth" class="max-w-md mx-auto card-bg p-6 rounded-xl space-y-4">
-            <h2 class="text-xl font-bold text-white text-center" id="authTitle">Iniciar Sesión</h2>
+        <div id="seccion-auth" class="max-w-md mx-auto card-bg p-8 rounded-2xl space-y-5 border border-zinc-800 glow-amber">
+            <div class="text-center space-y-1">
+                <div class="text-4xl mb-2">🏎️</div>
+                <h2 class="text-2xl font-black text-white uppercase tracking-wider" id="authTitle">Acceso al Taller</h2>
+                <p class="text-xs text-zinc-400">Ingresa tus credenciales para registrar ventas.</p>
+            </div>
             
             <div id="campoNombre" class="hidden">
-                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Nombre del Trabajador</label>
-                <input type="text" id="regNombre" placeholder="Ej. Juan Pérez" class="w-full input-bg px-4 py-2 rounded-lg text-sm">
+                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">Nombre del Trabajador</label>
+                <input type="text" id="regNombre" placeholder="Ej. Juan Pérez" class="w-full input-bg px-4 py-2.5 rounded-xl text-sm">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Usuario de Acceso</label>
-                <input type="text" id="authUsuario" placeholder="Ej. kayn" class="w-full input-bg px-4 py-2 rounded-lg text-sm">
+                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">Usuario de Acceso</label>
+                <input type="text" id="authUsuario" placeholder="Ej. kayn" class="w-full input-bg px-4 py-2.5 rounded-xl text-sm">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Contraseña</label>
-                <input type="password" id="authPassword" placeholder="••••••••" class="w-full input-bg px-4 py-2 rounded-lg text-sm">
+                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">Contraseña</label>
+                <input type="password" id="authPassword" placeholder="••••••••" class="w-full input-bg px-4 py-2.5 rounded-xl text-sm">
             </div>
 
-            <button onclick="procesarAuth()" id="btnAuth" class="w-full bg-white text-black font-bold py-2 rounded-lg text-sm uppercase">
-                Ingresar
+            <button onclick="procesarAuth()" id="btnAuth" class="w-full bg-amber-400 hover:bg-amber-300 text-black font-black py-3 rounded-xl text-sm uppercase tracking-wider shadow-lg shadow-amber-400/20 transition">
+                Ingresar al Sistema
             </button>
 
-            <p class="text-center text-xs text-zinc-500">
+            <p class="text-center text-xs text-zinc-500 pt-2">
                 <span id="toggleText">¿No tienes cuenta de trabajador?</span> 
-                <button onclick="toggleModoAuth()" class="text-white underline font-bold" id="toggleBtn">Regístrate</button>
+                <button onclick="toggleModoAuth()" class="text-amber-400 hover:underline font-bold" id="toggleBtn">Regístrate</button>
             </p>
         </div>
 
@@ -89,77 +145,79 @@
                 <div class="card-bg p-5 rounded-xl space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-zinc-400 uppercase mb-2">Nombre del Cliente (Solo para el recibo)</label>
-                        <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-bg px-4 py-3 rounded-lg font-medium uppercase">
+                        <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-bg px-4 py-3 rounded-xl font-bold uppercase text-amber-300">
                     </div>
 
                     <div id="contenedorModoFabrica" class="hidden pt-2 border-t border-zinc-800">
-                        <label class="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl cursor-pointer hover:bg-amber-500/20 transition">
-                            <input type="checkbox" id="checkPrecioFabrica" onchange="togglePrecioFabrica()" class="w-4 h-4 text-amber-500 rounded bg-zinc-900 border-zinc-700 focus:ring-amber-500 focus:ring-offset-zinc-900">
+                        <label class="flex items-center gap-3 p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl cursor-pointer hover:bg-rose-500/20 transition">
+                            <input type="checkbox" id="checkPrecioFabrica" onchange="togglePrecioFabrica()" class="w-4 h-4 text-rose-500 rounded bg-zinc-900 border-zinc-700 focus:ring-rose-500">
                             <div>
-                                <div class="text-xs font-black text-amber-400 uppercase flex items-center gap-1.5">
-                                    👑 Cobrar a Precio de Fábrica (Modo Admin / Subjefe)
+                                <div class="text-xs font-black text-rose-400 uppercase flex items-center gap-1.5">
+                                    🛡️ Cobrar a Precio de Fábrica (Modo Subjefe / Admin)
                                 </div>
-                                <p class="text-[11px] text-zinc-400">Calcula y factura las piezas a su costo directo de fábrica (Sin ganancia ni comisiones).</p>
+                                <p class="text-[11px] text-zinc-400">Factura las piezas a costo directo de almacén (Sin ganancia para taller ni comisiones).</p>
                             </div>
                         </label>
                     </div>
                 </div>
 
                 <div class="card-bg p-5 rounded-xl space-y-4">
-                    <h2 class="text-xs font-bold text-zinc-400 uppercase mb-2">CATÁLOGO DE PRODUCTOS</h2>
+                    <h2 class="text-xs font-black text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <span>📦</span> CATÁLOGO DE PIEZAS Y TUNING
+                    </h2>
                     <div id="listaProductos" class="space-y-6"></div>
                 </div>
             </div>
 
             <div class="space-y-6">
-                <div class="card-bg p-5 rounded-xl space-y-5 sticky top-6">
+                <div class="card-bg p-5 rounded-xl space-y-5 sticky top-6 border-t-2 border-amber-400">
                     <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                        <h2 class="text-xs font-bold text-zinc-400 uppercase flex items-center gap-2">
-                            🛒 RESUMEN (<span id="cantItems">0</span> ITEMS)
+                        <h2 class="text-xs font-black text-zinc-300 uppercase flex items-center gap-2 tracking-wider">
+                            🛒 RESUMEN DEL PEDIDO (<span id="cantItems" class="text-amber-400">0</span>)
                         </h2>
                     </div>
 
-                    <div id="carritoItems" class="space-y-4 max-h-56 overflow-y-auto pr-1">
+                    <div id="carritoItems" class="space-y-3 max-h-56 overflow-y-auto pr-1">
                         <p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>
                     </div>
 
                     <div class="border-t border-zinc-800 pt-4 space-y-2">
                         <div class="flex justify-between text-xs text-zinc-400">
-                            <span id="labelSubtotal">Subtotal (Antes):</span>
+                            <span id="labelSubtotal">Subtotal:</span>
                             <span id="subtotalText" class="font-bold text-zinc-200">$0</span>
                         </div>
-                        <div id="filaDescuento" class="flex justify-between text-xs text-red-400 hidden">
+                        <div id="filaDescuento" class="flex justify-between text-xs text-rose-400 hidden font-semibold">
                             <span>Descuento (<span id="descPorcentajeText">0</span>%):</span>
-                            <span id="descuentoMontoText" class="font-bold">-$0</span>
+                            <span id="descuentoMontoText">-$0</span>
                         </div>
-                        <div class="flex justify-between items-baseline pt-2 border-t border-zinc-800/60">
-                            <span class="text-xs font-bold text-zinc-400 uppercase">TOTAL VENTA</span>
+                        <div class="flex justify-between items-baseline pt-2 border-t border-zinc-800/80">
+                            <span class="text-xs font-black text-zinc-400 uppercase">TOTAL COBRADO</span>
                             <div class="text-right">
                                 <div id="totalAntesTachado" class="text-xs text-zinc-500 line-through hidden">$0</div>
-                                <div class="text-3xl font-black text-white" id="totalVentaText">$0</div>
+                                <div class="text-3xl font-black text-white tracking-tight" id="totalVentaText">$0</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="text-xs text-zinc-400">
-                        Cliente: <span id="nombreClienteText" class="text-zinc-200">--</span>
+                    <div class="text-xs text-zinc-400 bg-zinc-950/60 p-2.5 rounded-lg border border-zinc-800/60">
+                        Cliente: <span id="nombreClienteText" class="text-amber-400 font-bold">--</span>
                     </div>
 
-                    <button id="btnRealizarOrden" onclick="realizarOrden()" class="w-full bg-white text-black font-bold py-3 px-4 rounded-xl hover:bg-zinc-200 transition text-center uppercase disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button id="btnRealizarOrden" onclick="realizarOrden()" class="w-full bg-white hover:bg-zinc-200 text-black font-black py-3 px-4 rounded-xl transition text-center uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
                         Realizar Orden
                     </button>
 
                     <div id="seccionDescuentosContenedor" class="border-t border-zinc-800 pt-4 space-y-3">
-                        <label class="block text-xs font-bold text-zinc-400 uppercase">Añadir Descuento</label>
+                        <label class="block text-[11px] font-bold text-zinc-400 uppercase">Aplicar Descuento</label>
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-700 transition">10%</button>
-                            <button onclick="aplicarDescuento(15)" id="btn-15" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-700 transition">15%</button>
-                            <button onclick="aplicarDescuento(20)" id="btn-20" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-700 transition">20%</button>
-                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-zinc-800 text-xs font-bold py-2 rounded-lg text-red-400 hover:bg-zinc-700 transition">Quitar</button>
+                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-900 border border-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-800 transition">10%</button>
+                            <button onclick="aplicarDescuento(15)" id="btn-15" class="btn-desc bg-zinc-900 border border-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-800 transition">15%</button>
+                            <button onclick="aplicarDescuento(20)" id="btn-20" class="btn-desc bg-zinc-900 border border-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-800 transition">20%</button>
+                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-rose-500/10 border border-rose-500/30 text-xs font-bold py-2 rounded-lg text-rose-400 hover:bg-rose-500/20 transition">Quitar</button>
                         </div>
                         <div class="flex gap-2 items-center pt-1">
                             <div class="relative flex-1">
-                                <input type="number" id="inputDescuentoManual" placeholder="Otro % (ej. 25, 30)" min="0" max="100" class="w-full input-bg px-3 py-2 rounded-lg text-xs font-medium pr-6 focus:outline-none focus:border-zinc-500">
+                                <input type="number" id="inputDescuentoManual" placeholder="Otro % (ej. 25, 30)" min="0" max="100" class="w-full input-bg px-3 py-2 rounded-lg text-xs font-medium pr-6">
                                 <span class="absolute right-3 top-2 text-xs text-zinc-500 font-bold">%</span>
                             </div>
                             <button onclick="aplicarDescuentoManual()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs px-3 py-2 rounded-lg border border-zinc-700 transition">
@@ -176,9 +234,9 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-bg p-5 rounded-xl border-l-4 border-emerald-500">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Capital Disponible en Caja</p>
-                    <p class="text-3xl font-black text-emerald-400 mt-1" id="almCapital">$0</p>
+                    <p class="text-3xl font-black text-emerald-400 mt-1 tracking-tight" id="almCapital">$0</p>
                 </div>
-                <div class="card-bg p-5 rounded-xl border-l-4 border-blue-500">
+                <div class="card-bg p-5 rounded-xl border-l-4 border-sky-500">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Stock Motores V8</p>
                     <p class="text-3xl font-black text-white mt-1" id="almStockV8">0 <span class="text-xs text-zinc-500 font-normal">unidades</span></p>
                 </div>
@@ -198,13 +256,13 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Monto ($)</label>
-                            <input type="number" id="inpIngresoCapital" placeholder="Ej. 1000000" class="w-full input-bg px-4 py-2.5 rounded-lg text-sm font-bold text-emerald-400">
+                            <input type="number" id="inpIngresoCapital" placeholder="Ej. 1000000" class="w-full input-bg px-4 py-2.5 rounded-xl text-sm font-bold text-emerald-400">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Concepto / Motivo</label>
-                            <input type="text" id="inpConceptoCapital" placeholder="Ej. Inversión inicial" class="w-full input-bg px-4 py-2.5 rounded-lg text-sm">
+                            <input type="text" id="inpConceptoCapital" placeholder="Ej. Inversión inicial" class="w-full input-bg px-4 py-2.5 rounded-xl text-sm">
                         </div>
-                        <button onclick="ejecutarIngresoCapital()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition">
+                        <button onclick="ejecutarIngresoCapital()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
                             + Añadir a Caja
                         </button>
                     </div>
@@ -218,24 +276,24 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Tipo de Motor</label>
-                            <select id="selTipoMotorCompra" class="w-full input-bg px-3 py-2.5 rounded-lg text-xs font-bold">
+                            <select id="selTipoMotorCompra" class="w-full input-bg px-3 py-2.5 rounded-xl text-xs font-bold">
                                 <option value="v8">Motor V8 (Costo: $40,000)</option>
                                 <option value="v12">Motor V12 (Costo: $300,000)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Cantidad</label>
-                            <input type="number" id="inpCantMotorCompra" value="1" min="1" class="w-full input-bg px-3 py-2 rounded-lg text-sm font-bold text-center">
+                            <input type="number" id="inpCantMotorCompra" value="1" min="1" class="w-full input-bg px-3 py-2 rounded-xl text-sm font-bold text-center">
                         </div>
-                        <button onclick="ejecutarCompraMotor()" class="w-full bg-white hover:bg-zinc-200 text-black font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition">
+                        <button onclick="ejecutarCompraMotor()" class="w-full bg-white hover:bg-zinc-200 text-black font-black py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow">
                             Comprar y Guardar
                         </button>
                     </div>
                 </div>
 
                 <!-- 3. MODIFICACIÓN MANUAL DE ALMACÉN Y CAPITAL -->
-                <div class="card-bg p-6 rounded-xl space-y-4 border border-amber-500/30">
-                    <h3 class="text-sm font-black text-amber-400 uppercase flex items-center gap-2">
+                <div class="card-bg p-6 rounded-xl space-y-4 border border-rose-500/30">
+                    <h3 class="text-sm font-black text-rose-400 uppercase flex items-center gap-2">
                         ⚙️ Ajuste Manual Directo
                     </h3>
                     <div class="space-y-2">
@@ -253,7 +311,7 @@
                                 <input type="number" id="inpManualV12" class="w-full input-bg px-3 py-1.5 rounded-lg text-xs font-bold text-purple-400 text-center">
                             </div>
                         </div>
-                        <button onclick="ejecutarAjusteManualAlmacen()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition mt-2">
+                        <button onclick="ejecutarAjusteManualAlmacen()" class="w-full bg-rose-500 hover:bg-rose-400 text-black font-black py-2.5 rounded-xl text-xs uppercase tracking-wider transition mt-2 shadow-lg shadow-rose-500/20">
                             💾 Guardar Cantidades
                         </button>
                     </div>
@@ -276,7 +334,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="border-b border-zinc-800 text-amber-500 uppercase text-xs">
+                        <tr class="border-b border-zinc-800 text-amber-400 uppercase text-xs">
                             <th class="p-3">COMPONENTE</th>
                             <th class="p-3">FULL TUNNING</th>
                             <th class="p-3">FULL TUNNING PRO</th>
@@ -284,13 +342,13 @@
                             <th class="p-3">FULL TUNNING V12 PRO</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-800 text-zinc-300">
-                        <tr class="bg-zinc-900/50 font-bold text-white">
+                    <tbody class="divide-y divide-zinc-800/80 text-zinc-300">
+                        <tr class="bg-zinc-900/60 font-bold text-white">
                             <td class="p-3 text-zinc-400 uppercase">PRECIO VENTA</td>
-                            <td class="p-3 text-green-400">$100,000</td>
-                            <td class="p-3 text-green-400">$140,000</td>
-                            <td class="p-3 text-green-400">$550,000</td>
-                            <td class="p-3 text-green-400">$580,000</td>
+                            <td class="p-3 text-emerald-400 font-black">$100,000</td>
+                            <td class="p-3 text-emerald-400 font-black">$140,000</td>
+                            <td class="p-3 text-emerald-400 font-black">$550,000</td>
+                            <td class="p-3 text-emerald-400 font-black">$580,000</td>
                         </tr>
                         <tr class="text-amber-400/80">
                             <td class="p-3 font-bold text-zinc-400 uppercase">COSTO FÁBRICA</td>
@@ -342,7 +400,7 @@
         <!-- HISTORIAL PERSONAL -->
         <div id="seccion-historial" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="card-bg p-5 rounded-xl border-l-4 border-blue-500">
+                <div class="card-bg p-5 rounded-xl border-l-4 border-sky-500">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Total Vendido por Mí</p>
                     <p class="text-2xl font-black text-white mt-1" id="mTotalVendido">$0</p>
                 </div>
@@ -350,7 +408,7 @@
                     <p class="text-xs text-zinc-400 font-bold uppercase">Mis Comisiones Ganadas</p>
                     <p class="text-2xl font-black text-amber-400 mt-1" id="mComisionesPendientes">$0</p>
                 </div>
-                <div class="card-bg p-5 rounded-xl border-l-4 border-green-500">
+                <div class="card-bg p-5 rounded-xl border-l-4 border-emerald-500">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Órdenes Realizadas</p>
                     <p class="text-2xl font-black text-white mt-1" id="mTotalFacturas">0</p>
                 </div>
@@ -362,11 +420,11 @@
             </div>
         </div>
 
-        <!-- TOP TRABAJADORES -->
+        <!-- TOP TRABAJADORES (CON RANGOS COLOREADOS) -->
         <div id="seccion-top" class="card-bg p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES REGISTRADOS</h2>
-                <p class="text-xs text-zinc-400">Ranking de empleados del taller con mejores ventas y rendimiento.</p>
+                <p class="text-xs text-zinc-400">Ranking de empleados del taller con mejores ventas, comisiones y antigüedad.</p>
             </div>
 
             <div id="topContenedor" class="space-y-4"></div>
@@ -375,34 +433,34 @@
         <!-- PANEL ADMIN -->
         <div id="seccion-admin" class="space-y-6 hidden">
             <!-- REINICIAR SEMANA / CORTE DE PAGO -->
-            <div class="card-bg p-6 rounded-xl border-2 border-red-500/40 bg-red-950/10 flex flex-wrap justify-between items-center gap-4">
+            <div class="card-bg p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/10 flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h3 class="text-lg font-black text-red-400 uppercase flex items-center gap-2">
+                    <h3 class="text-lg font-black text-rose-400 uppercase flex items-center gap-2">
                         🚨 CORTE SEMANAL Y REINICIO DE FACTURAS
                     </h3>
                     <p class="text-xs text-zinc-400 mt-1">
-                        Utiliza esta opción cuando terminen de pagar las comisiones de la semana. Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas intactas.
+                        Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas intactas.
                     </p>
                 </div>
-                <button onclick="ejecutarReinicioSemanal()" class="bg-red-600 hover:bg-red-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">
+                <button onclick="ejecutarReinicioSemanal()" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/20">
                     🔄 Reiniciar Semana / Pagar
                 </button>
             </div>
 
-            <!-- TABLA DE GESTIÓN Y RANGOS DIRECTOS -->
+            <!-- TABLA DE GESTIÓN Y RANGOS DISTINTIVOS -->
             <div class="card-bg p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-black text-amber-400 uppercase">👑 ASIGNACIÓN DE RANGOS DEL TALLER</h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Selecciona el rango de cada integrante. La comisión y permisos se asignan automáticamente.</p>
+                        <h2 class="text-2xl font-black text-amber-400 uppercase">👑 ASIGNACIÓN DE RANGOS OFICIALES</h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Controla rangos oficiales, permisos de Subjefe y consulta la fecha exacta de ingreso.</p>
                     </div>
-                    <!-- GUÍA RÁPIDA DE RANGOS -->
-                    <div class="flex flex-wrap gap-2 text-[11px] font-bold">
-                        <span class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg">🛡️ Subjefe: 0% + Admin</span>
-                        <span class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-2.5 py-1 rounded-lg">👔 Encargado: 45%</span>
-                        <span class="bg-purple-500/10 border border-purple-500/30 text-purple-400 px-2.5 py-1 rounded-lg">⭐ M. Experto: 40%</span>
-                        <span class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-2.5 py-1 rounded-lg">🔧 Mecánico: 35%</span>
-                        <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-lg">🔰 En Pruebas: 30%</span>
+                    <!-- GUÍA VISUAL DE RANGOS -->
+                    <div class="flex flex-wrap gap-2 text-[11px] font-black">
+                        <span class="bg-rose-500/15 border border-rose-500/40 text-rose-400 px-2.5 py-1 rounded-lg">🛡️ Subjefe: 0% + Admin</span>
+                        <span class="bg-yellow-500/15 border border-yellow-500/40 text-yellow-400 px-2.5 py-1 rounded-lg">👔 Encargado: 45%</span>
+                        <span class="bg-purple-500/15 border border-purple-500/40 text-purple-300 px-2.5 py-1 rounded-lg">⭐ M. Experto: 40%</span>
+                        <span class="bg-sky-500/15 border border-sky-500/40 text-sky-300 px-2.5 py-1 rounded-lg">🔧 Mecánico: 35%</span>
+                        <span class="bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 px-2.5 py-1 rounded-lg">🔰 En Pruebas: 30%</span>
                     </div>
                 </div>
 
@@ -412,12 +470,13 @@
                             <tr class="border-b border-zinc-800 text-zinc-400 uppercase text-xs">
                                 <th class="p-3">Estado</th>
                                 <th class="p-3">Trabajador</th>
+                                <th class="p-3">Fecha de Ingreso</th>
                                 <th class="p-3">Rango Actual</th>
-                                <th class="p-3">Cambiar Rango Oficial</th>
+                                <th class="p-3">Cambiar Rango</th>
                                 <th class="p-3 text-right">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaUsuariosAdmin" class="divide-y divide-zinc-800"></tbody>
+                        <tbody id="tablaUsuariosAdmin" class="divide-y divide-zinc-800/80"></tbody>
                     </table>
                 </div>
             </div>
@@ -454,7 +513,7 @@
             </div>
             <div class="flex gap-2 pt-2">
                 <button onclick="cerrarModalTransferir()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 rounded-xl text-xs uppercase">Cancelar</button>
-                <button onclick="confirmarTransferencia()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 rounded-xl text-xs uppercase">Transferir</button>
+                <button onclick="confirmarTransferencia()" class="flex-1 bg-amber-400 hover:bg-amber-300 text-black font-black py-2 rounded-xl text-xs uppercase">Transferir</button>
             </div>
         </div>
     </div>
@@ -492,21 +551,21 @@
 
     <div id="modalExito" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="card-bg p-6 rounded-2xl max-w-sm w-full space-y-5 border border-zinc-700 shadow-2xl text-center">
-            <div class="w-12 h-12 bg-green-500/10 text-green-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold border border-green-500/20">
+            <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold border border-emerald-500/20">
                 ✓
             </div>
             <div>
                 <h3 class="text-lg font-black text-white uppercase" id="modalTitulo">¡Orden Realizada!</h3>
                 <p class="text-xs text-zinc-400 mt-1" id="modalSubtitulo">El registro se completó correctamente.</p>
             </div>
-            <div class="bg-zinc-900 p-4 rounded-xl space-y-2 border border-zinc-800/80 text-left text-xs">
+            <div class="bg-zinc-950 p-4 rounded-xl space-y-2 border border-zinc-800/80 text-left text-xs">
                 <div class="flex justify-between text-zinc-400">
                     <span>Total Cobrado:</span>
                     <strong class="text-white text-sm" id="modalTotal">$0</strong>
                 </div>
                 <div class="flex justify-between text-zinc-400 border-t border-zinc-800/80 pt-2">
                     <span>Tu Comisión (<span id="modalPorcentajeComision">30</span>%):</span>
-                    <strong class="text-purple-400 text-sm" id="modalComision">$0</strong>
+                    <strong class="text-amber-400 text-sm" id="modalComision">$0</strong>
                 </div>
             </div>
             <button onclick="cerrarModal()" class="w-full bg-white hover:bg-zinc-200 text-black font-bold py-2.5 rounded-xl transition text-sm uppercase">
@@ -558,21 +617,36 @@
         let usuariosOnlineSet = new Set();
         let catalogoRenderizado = false;
 
-        // HELPER PARA BADGES DE RANGOS OFICIALES
+        function formatearFechaIngreso(fechaStr) {
+            if (!fechaStr) return 'Reciente';
+            const d = new Date(fechaStr);
+            return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        // BADGES VISUALES ULTRA-DISTINTIVOS CON COLORES DE RANGO
         function obtenerBadgeRango(rol, comision) {
             if (rol === 'admin') {
-                return `<span class="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🛡️ Subjefe (0%)</span>`;
+                return `<span class="inline-flex items-center gap-1.5 bg-rose-500/15 text-rose-400 border border-rose-500/40 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm shadow-rose-500/10">🛡️ Subjefe (0%)</span>`;
             }
             if (comision >= 45) {
-                return `<span class="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">👔 Encargado (45%)</span>`;
+                return `<span class="inline-flex items-center gap-1.5 bg-yellow-500/15 text-yellow-300 border border-yellow-500/40 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm shadow-yellow-500/10">👔 Encargado (45%)</span>`;
             }
             if (comision >= 40) {
-                return `<span class="inline-flex items-center gap-1 bg-purple-500/10 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">⭐ M. Experto (40%)</span>`;
+                return `<span class="inline-flex items-center gap-1.5 bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm shadow-purple-500/10">⭐ M. Experto (40%)</span>`;
             }
             if (comision >= 35) {
-                return `<span class="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🔧 Mecánico (35%)</span>`;
+                return `<span class="inline-flex items-center gap-1.5 bg-sky-500/15 text-sky-300 border border-sky-500/40 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm shadow-sky-500/10">🔧 Mecánico (35%)</span>`;
             }
-            return `<span class="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🔰 En Pruebas (30%)</span>`;
+            return `<span class="inline-flex items-center gap-1.5 bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm shadow-emerald-500/10">🔰 En Pruebas (30%)</span>`;
+        }
+
+        // COLOR DEL NOMBRE SEGÚN EL RANGO
+        function obtenerClaseColorNombre(rol, comision) {
+            if (rol === 'admin') return 'text-rose-400 font-black';
+            if (comision >= 45) return 'text-yellow-300 font-black';
+            if (comision >= 40) return 'text-purple-300 font-bold';
+            if (comision >= 35) return 'text-sky-300 font-bold';
+            return 'text-emerald-300 font-bold';
         }
 
         let debounceTimer = null;
@@ -615,7 +689,7 @@
             document.getElementById('modalAvisoMensaje').innerText = mensaje;
             const icono = document.getElementById('modalAvisoIcono');
             icono.innerText = esError ? '❌' : '⚠️';
-            icono.className = `w-12 h-12 ${esError ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'} rounded-full flex items-center justify-center mx-auto text-2xl font-bold border`;
+            icono.className = `w-12 h-12 ${esError ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'} rounded-full flex items-center justify-center mx-auto text-2xl font-bold border`;
             document.getElementById('modalAviso').classList.remove('hidden');
         }
 
@@ -638,11 +712,11 @@
             barra.classList.remove('hidden');
             let chipsHTML = '';
             onlineList.forEach(u => {
-                const esAdmin = u.rol === 'admin';
+                const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje || (u.rol === 'admin' ? 0 : 30));
                 chipsHTML += `
-                    <div class="flex items-center gap-1.5 bg-zinc-900 px-2.5 py-1 rounded-full border border-zinc-800">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                        <span class="font-bold ${esAdmin ? 'text-amber-400' : 'text-zinc-200'}">${u.nombre}</span>
+                    <div class="flex items-center gap-1.5 bg-zinc-950/80 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_6px_#34d399]"></span>
+                        <span class="${colorClase}">${u.nombre}</span>
                         <span class="text-[10px] text-zinc-500">(@${u.usuario})</span>
                     </div>
                 `;
@@ -692,10 +766,10 @@
 
                 container.innerHTML = `
                     <div class="flex items-center gap-2">
-                        <span>👷 <strong>${usuarioActual.nombre}</strong></span>
+                        <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
                         ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
                     </div>
-                    <button onclick="cerrarSesion()" class="text-red-400 underline font-bold ml-2">Salir</button>
+                    <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
                 `;
                 document.getElementById('seccion-auth').classList.add('hidden');
                 cambiarPestana('calculadora');
@@ -721,8 +795,8 @@
         function toggleModoAuth() {
             esModoRegistro = !esModoRegistro;
             document.getElementById('campoNombre').classList.toggle('hidden', !esModoRegistro);
-            document.getElementById('authTitle').innerText = esModoRegistro ? 'Crear Cuenta de Trabajador' : 'Iniciar Sesión';
-            document.getElementById('btnAuth').innerText = esModoRegistro ? 'Registrar Trabajador' : 'Ingresar';
+            document.getElementById('authTitle').innerText = esModoRegistro ? 'Crear Cuenta' : 'Acceso al Taller';
+            document.getElementById('btnAuth').innerText = esModoRegistro ? 'Registrar Trabajador' : 'Ingresar al Sistema';
             document.getElementById('toggleText').innerText = esModoRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta de trabajador?';
             document.getElementById('toggleBtn').innerText = esModoRegistro ? 'Ingresa aquí' : 'Regístrate';
         }
@@ -781,11 +855,11 @@
             const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
-                if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-800 text-zinc-400 hover:text-white';
+                if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900/80 text-zinc-400 hover:text-white hover:bg-zinc-800 transition';
             });
 
             const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
-            if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-white text-black';
+            if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-amber-400 text-black shadow-md shadow-amber-400/20 transition';
 
             document.getElementById('seccion-calculadora').classList.toggle('hidden', pestana !== 'calculadora');
             document.getElementById('seccion-almacen').classList.toggle('hidden', pestana !== 'almacen');
@@ -828,14 +902,14 @@
                 const fecha = new Date(m.fecha).toLocaleString();
                 const esIngreso = m.tipo === 'ingreso_capital';
                 html += `
-                    <div class="flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800 text-xs">
+                    <div class="flex justify-between items-center bg-zinc-950/70 p-3.5 rounded-xl border border-zinc-800 text-xs">
                         <div>
                             <div class="font-bold text-white">${m.descripcion}</div>
-                            <div class="text-[10px] text-zinc-500">Por: <strong>${m.usuario_nombre}</strong> · ${fecha}</div>
+                            <div class="text-[10px] text-zinc-500 mt-0.5">Por: <strong>${m.usuario_nombre}</strong> · ${fecha}</div>
                         </div>
                         <div class="text-right">
                             ${m.monto !== 0 ? `
-                                <div class="font-black ${esIngreso ? 'text-emerald-400' : 'text-red-400'}">
+                                <div class="font-black text-sm ${esIngreso ? 'text-emerald-400' : 'text-rose-400'}">
                                     ${esIngreso ? '+' : ''}$${Math.abs(m.monto).toLocaleString()}
                                 </div>
                             ` : '<div class="text-zinc-500 font-bold">Ajuste / Despacho</div>'}
@@ -950,30 +1024,34 @@
                 const estaOnline = usuariosOnlineSet.has(Number(u.id));
                 const comision = u.comision_porcentaje;
                 
-                // Determinar el rango actual
                 let presetActual = 'pruebas';
                 if (u.rol === 'admin') presetActual = 'subjefe';
                 else if (comision >= 45) presetActual = 'encargado';
                 else if (comision >= 40) presetActual = 'experto';
                 else if (comision >= 35) presetActual = 'mecanico';
 
+                const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
+
                 rowsHTML += `
-                    <tr>
+                    <tr class="hover:bg-zinc-900/40 transition">
                         <td class="p-3">
-                            <span class="inline-flex items-center gap-1 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
-                                <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}"></span>
+                            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
+                                <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
                                 ${estaOnline ? 'En Línea' : 'Desconectado'}
                             </span>
                         </td>
                         <td class="p-3">
-                            <div class="font-bold text-white">${u.nombre}</div>
-                            <div class="text-xs text-zinc-400">@${u.usuario}</div>
+                            <div class="${colorClase}">${u.nombre}</div>
+                            <div class="text-xs text-zinc-500">@${u.usuario}</div>
+                        </td>
+                        <td class="p-3">
+                            <span class="text-xs text-zinc-400 font-medium">${formatearFechaIngreso(u.created_at)}</span>
                         </td>
                         <td class="p-3">
                             ${obtenerBadgeRango(u.rol, u.comision_porcentaje)}
                         </td>
                         <td class="p-3">
-                            <select id="rangoPreset-${u.id}" class="input-bg px-3 py-2 rounded-lg text-xs font-bold border border-zinc-700 w-full max-w-xs focus:ring-1 focus:ring-amber-500">
+                            <select id="rangoPreset-${u.id}" class="input-bg px-3 py-2 rounded-xl text-xs font-bold border border-zinc-700 w-full max-w-xs focus:ring-1 focus:ring-amber-500">
                                 <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0% Comisión + Admin)</option>
                                 <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45% Comisión)</option>
                                 <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ Mecánico Experto (40% Comisión)</option>
@@ -982,11 +1060,11 @@
                             </select>
                         </td>
                         <td class="p-3 text-right space-x-2">
-                            <button onclick="guardarCambiosUsuario(${u.id})" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-3.5 py-2 rounded-lg transition shadow">
+                            <button onclick="guardarCambiosUsuario(${u.id})" class="bg-amber-400 hover:bg-amber-300 text-black font-black text-xs px-3.5 py-2 rounded-xl transition shadow shadow-amber-400/10">
                                 Guardar Rango
                             </button>
                             ${u.id !== usuarioActual.id ? `
-                                <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white font-bold text-xs px-3 py-2 rounded-lg border border-red-500/30 transition">
+                                <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-3 py-2 rounded-xl border border-rose-500/30 transition">
                                     🗑️ Eliminar
                                 </button>
                             ` : ''}
@@ -1052,7 +1130,7 @@
             const sel = document.getElementById('selNuevoTrabajador');
             let opts = '';
             usuariosAdminGlobal.forEach(u => {
-                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario}) - ${obtenerBadgeRango(u.rol, u.comision_porcentaje)}</option>`;
+                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
             });
             sel.innerHTML = opts;
             document.getElementById('modalTransferir').classList.remove('hidden');
@@ -1107,8 +1185,8 @@
                 if (f.items_json) {
                     try {
                         const parsedItems = JSON.parse(f.items_json);
-                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800/80 space-y-1">';
-                        itemsHTML += '<p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
+                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800/80 space-y-1.5">';
+                        itemsHTML += '<p class="text-[10px] font-black text-zinc-500 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
                         parsedItems.forEach(item => {
                             itemsHTML += `
                                 <div class="flex justify-between items-center text-xs">
@@ -1122,7 +1200,7 @@
                 }
 
                 html += `
-                    <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 space-y-3">
+                    <div class="bg-zinc-950/70 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
                                 <span class="font-bold text-amber-400 text-sm">👷 Trabajador: ${f.trabajador_nombre}</span>
@@ -1134,27 +1212,27 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-lg border border-zinc-800/60 text-xs">
+                        <div class="grid grid-cols-2 gap-3 bg-zinc-900/60 p-3 rounded-xl border border-zinc-800/60 text-xs">
                             <div>
                                 <span class="text-zinc-500 font-medium">Ganancia Taller:</span>
-                                <div class="text-sm font-bold text-green-400">$${f.ganancia_neta.toLocaleString()}</div>
+                                <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
                             </div>
                             <div>
                                 <span class="text-zinc-500 font-medium">Comisión Trabajador:</span>
-                                <div class="text-sm font-bold text-purple-400">+$${f.comision_empleado.toLocaleString()}</div>
+                                <div class="text-sm font-bold text-amber-400">+$${f.comision_empleado.toLocaleString()}</div>
                             </div>
                         </div>
 
                         <div class="flex flex-wrap justify-between items-center text-xs pt-1 gap-2">
                             <div>
                                 <span>Cliente: <strong class="text-zinc-200">${f.cliente}</strong></span>
-                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-red-400">Desc: <strong>${f.descuento_porcentaje}%</strong></span>` : ''}
+                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-rose-400 font-bold">Desc: ${f.descuento_porcentaje}%</span>` : ''}
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
                                     🔁 Transferir
                                 </button>
-                                <button onclick="eliminarFactura(${f.id})" class="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white font-bold px-3 py-1.5 rounded-lg border border-red-500/30 transition">
+                                <button onclick="eliminarFactura(${f.id})" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 transition">
                                     🗑️ Eliminar
                                 </button>
                             </div>
@@ -1176,22 +1254,28 @@
             lista.forEach((item, index) => {
                 const badge = insignias[index] || `PUESTO #${index + 1}`;
                 const estaOnline = usuariosOnlineSet.has(Number(item.id));
+                const colorClase = obtenerClaseColorNombre('', item.comision_porcentaje);
+
                 html += `
-                    <div class="flex flex-wrap justify-between items-center bg-zinc-900 p-4 rounded-xl border border-zinc-800 gap-4">
+                    <div class="flex flex-wrap justify-between items-center bg-zinc-950/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
                         <div class="flex items-center gap-4">
-                            <span class="text-xs font-black bg-zinc-800 px-3 py-2 rounded-lg text-amber-400 border border-zinc-700">${badge}</span>
+                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-amber-400 border border-zinc-700">${badge}</span>
                             <div>
                                 <h3 class="font-bold text-white text-lg flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500' : 'bg-zinc-600'}"></span>
-                                    👷 ${item.nombre} <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
+                                    <span class="${colorClase}">${item.nombre}</span> <span class="text-xs text-zinc-500 font-normal">(@${item.usuario})</span>
                                     ${obtenerBadgeRango('', item.comision_porcentaje)}
                                 </h3>
-                                <p class="text-xs text-zinc-400">Ventas hechas: <strong class="text-white">${item.total_facturas}</strong> | Comisión: <strong class="text-amber-400">${item.comision_porcentaje}%</strong></p>
+                                <p class="text-xs text-zinc-400 mt-1">
+                                    Ingresó: <strong class="text-zinc-300 font-semibold">${formatearFechaIngreso(item.created_at)}</strong> · 
+                                    Ventas: <strong class="text-white font-bold">${item.total_facturas}</strong> · 
+                                    Comisión: <strong class="text-amber-400 font-bold">${item.comision_porcentaje}%</strong>
+                                </p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xs text-purple-400 font-bold">Comisiones Ganadas: $${item.comision_ganada.toLocaleString()}</div>
-                            <div class="text-xl font-black text-green-400">Ganancia para Taller: $${item.ganancia_generada.toLocaleString()}</div>
+                            <div class="text-xs text-amber-400 font-black">Comisiones: $${item.comision_ganada.toLocaleString()}</div>
+                            <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${item.ganancia_generada.toLocaleString()}</div>
                         </div>
                     </div>
                 `;
@@ -1222,8 +1306,8 @@
                 if (f.items_json) {
                     try {
                         const parsedItems = JSON.parse(f.items_json);
-                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800/80 space-y-1">';
-                        itemsHTML += '<p class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
+                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800/80 space-y-1.5">';
+                        itemsHTML += '<p class="text-[10px] font-black text-zinc-500 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
                         parsedItems.forEach(item => {
                             itemsHTML += `
                                 <div class="flex justify-between items-center text-xs">
@@ -1237,7 +1321,7 @@
                 }
 
                 html += `
-                    <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 space-y-3">
+                    <div class="bg-zinc-950/70 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
                                 <span class="font-bold text-white text-sm">Trabajador: ${usuarioActual.nombre}</span>
@@ -1249,19 +1333,19 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-lg border border-zinc-800/60 text-xs">
+                        <div class="grid grid-cols-2 gap-3 bg-zinc-900/60 p-3 rounded-xl border border-zinc-800/60 text-xs">
                             <div>
                                 <span class="text-zinc-500 font-medium">Ganancia Neta Taller:</span>
-                                <div class="text-sm font-bold text-green-400">$${f.ganancia_neta.toLocaleString()}</div>
+                                <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
                             </div>
                             <div>
                                 <span class="text-zinc-500 font-medium">Mi Comisión:</span>
-                                <div class="text-sm font-bold text-purple-400">+$${f.comision_empleado.toLocaleString()}</div>
+                                <div class="text-sm font-bold text-amber-400">+$${f.comision_empleado.toLocaleString()}</div>
                             </div>
                         </div>
 
                         <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
-                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-red-400">Descuento aplicado: <strong>${f.descuento_porcentaje}%</strong></div>` : ''}
+                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado: ${f.descuento_porcentaje}%</div>` : ''}
                         ${itemsHTML}
                     </div>
                 `;
@@ -1283,22 +1367,25 @@
                 const productosCat = catalogo.filter(p => p.categoria === cat);
                 htmlTotal += `
                     <div>
-                        <h3 class="text-xs font-black text-amber-500 uppercase tracking-widest mb-3">${cat}</h3>
-                        <div class="space-y-2">
+                        <h3 class="text-xs font-black text-amber-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
+                            ${cat}
+                        </h3>
+                        <div class="space-y-2.5">
                 `;
 
                 productosCat.forEach(p => {
                     htmlTotal += `
-                        <div class="flex items-center justify-between p-3 bg-zinc-900/80 rounded-xl border border-zinc-800">
+                        <div class="flex items-center justify-between p-3.5 bg-zinc-950/70 rounded-xl border border-zinc-800/90 hover:border-zinc-700 transition">
                             <div>
                                 <h4 class="font-bold text-white text-sm">${p.nombre}</h4>
-                                <p class="text-xs text-zinc-500">
+                                <p class="text-xs text-zinc-500 mt-0.5">
                                     Venta: <span class="text-zinc-200 font-semibold">$${p.venta.toLocaleString()}</span> 
                                     · Fábrica: <span class="text-amber-400/90 font-semibold">$${p.costo.toLocaleString()}</span>
                                 </p>
                             </div>
                             <div id="btn-container-${p.id}">
-                                <button onclick="agregar(${p.id})" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">+ Añadir</button>
+                                <button onclick="agregar(${p.id})" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition border border-zinc-700">+ Añadir</button>
                             </div>
                         </div>
                     `;
@@ -1314,13 +1401,13 @@
             if (!cont) return;
             const cant = carrito[id] ? carrito[id].cantidad : 0;
             if (cant === 0) {
-                cont.innerHTML = `<button onclick="agregar(${id})" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">+ Añadir</button>`;
+                cont.innerHTML = `<button onclick="agregar(${id})" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition border border-zinc-700">+ Añadir</button>`;
             } else {
                 cont.innerHTML = `
-                    <div class="flex items-center gap-2 bg-zinc-800 rounded-lg px-2 py-1">
-                        <button onclick="restar(${id})" class="text-zinc-300 font-bold px-1.5">—</button>
-                        <span class="text-sm font-bold text-white">${cant}</span>
-                        <button onclick="agregar(${id})" class="text-zinc-300 font-bold px-1.5">+</button>
+                    <div class="flex items-center gap-2 bg-amber-400 text-black font-black rounded-lg px-2.5 py-1 shadow">
+                        <button onclick="restar(${id})" class="px-1 hover:opacity-75">—</button>
+                        <span class="text-sm">${cant}</span>
+                        <button onclick="agregar(${id})" class="px-1 hover:opacity-75">+</button>
                     </div>
                 `;
             }
@@ -1364,9 +1451,9 @@
 
             descuentoPorcentaje = porcentaje;
             document.getElementById('inputDescuentoManual').value = '';
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-amber-400'));
             if (porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
-                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-white');
+                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-amber-400');
             }
             actualizarCarrito();
         }
@@ -1379,7 +1466,7 @@
             if (isNaN(val) || val < 0 || val > 100) return mostrarAviso('Inválido', 'Ingresa entre 0% y 100%.');
             
             descuentoPorcentaje = val;
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-amber-400'));
             actualizarCarrito();
         }
 
@@ -1399,14 +1486,14 @@
                     subtotal += itemTotal;
                     totalCantidad += item.cantidad;
                     html += `
-                        <div class="flex justify-between items-start text-xs">
+                        <div class="flex justify-between items-start text-xs bg-zinc-950/60 p-2 rounded-lg border border-zinc-800/60">
                             <div>
                                 <h4 class="font-bold text-white">${item.nombre}</h4>
-                                <p class="text-zinc-500">${item.cantidad} × $${precioUnitario.toLocaleString()} ${modoPrecioFabrica ? '<span class="text-amber-400 font-bold">(Fábrica)</span>' : ''}</p>
+                                <p class="text-zinc-400">${item.cantidad} × $${precioUnitario.toLocaleString()} ${modoPrecioFabrica ? '<span class="text-rose-400 font-bold">(Fábrica)</span>' : ''}</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="font-bold text-white">$${itemTotal.toLocaleString()}</span>
-                                <button onclick="eliminar(${item.id})" class="text-zinc-600 hover:text-red-400">🗑️</button>
+                                <span class="font-black text-amber-400">$${itemTotal.toLocaleString()}</span>
+                                <button onclick="eliminar(${item.id})" class="text-zinc-600 hover:text-rose-400 transition">🗑️</button>
                             </div>
                         </div>
                     `;
