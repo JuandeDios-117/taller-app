@@ -97,7 +97,7 @@
                             <input type="checkbox" id="checkPrecioFabrica" onchange="togglePrecioFabrica()" class="w-4 h-4 text-amber-500 rounded bg-zinc-900 border-zinc-700 focus:ring-amber-500 focus:ring-offset-zinc-900">
                             <div>
                                 <div class="text-xs font-black text-amber-400 uppercase flex items-center gap-1.5">
-                                    👑 Cobrar a Precio de Fábrica (Modo Admin)
+                                    👑 Cobrar a Precio de Fábrica (Modo Admin / Subjefe)
                                 </div>
                                 <p class="text-[11px] text-zinc-400">Calcula y factura las piezas a su costo directo de fábrica (Sin ganancia ni comisiones).</p>
                             </div>
@@ -171,7 +171,7 @@
             </div>
         </div>
 
-        <!-- PESTAÑA: ALMACÉN Y CAPITAL (SOLO ADMIN) -->
+        <!-- PESTAÑA: ALMACÉN Y CAPITAL (SOLO ADMIN / SUBJEFES) -->
         <div id="seccion-almacen" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-bg p-5 rounded-xl border-l-4 border-emerald-500">
@@ -381,7 +381,7 @@
                         🚨 CORTE SEMANAL Y REINICIO DE FACTURAS
                     </h3>
                     <p class="text-xs text-zinc-400 mt-1">
-                        Utiliza esta opción cuando terminen de pagar las comisiones de la semana. Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas de los trabajadores intactas.
+                        Utiliza esta opción cuando terminen de pagar las comisiones de la semana. Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas intactas.
                     </p>
                 </div>
                 <button onclick="ejecutarReinicioSemanal()" class="bg-red-600 hover:bg-red-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">
@@ -389,10 +389,21 @@
                 </button>
             </div>
 
+            <!-- TABLA DE GESTIÓN Y RANGOS VISUALES -->
             <div class="card-bg p-6 rounded-xl space-y-6">
-                <div>
-                    <h2 class="text-2xl font-black text-amber-400 uppercase">👑 GESTIÓN DE CUENTAS DE TRABAJADORES</h2>
-                    <p class="text-xs text-zinc-400">Edita comisiones, permisos o elimina cuentas del taller.</p>
+                <div class="flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-amber-400 uppercase">👑 GESTIÓN DE RANGOS Y PERMISOS</h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Asigna rangos oficiales y permisos de Subjefe / Administrador.</p>
+                    </div>
+                    <!-- GUÍA RÁPIDA DE RANGOS -->
+                    <div class="flex flex-wrap gap-2 text-[11px] font-bold">
+                        <span class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg">🛡️ Subjefe: 0% + Admin</span>
+                        <span class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-2.5 py-1 rounded-lg">👔 Encargado: 45%</span>
+                        <span class="bg-purple-500/10 border border-purple-500/30 text-purple-400 px-2.5 py-1 rounded-lg">⭐ M. Experto: 40%</span>
+                        <span class="bg-blue-500/10 border border-blue-500/30 text-blue-400 px-2.5 py-1 rounded-lg">🔧 Mecánico: 35%</span>
+                        <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-lg">🔰 En Pruebas: 30%</span>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -401,8 +412,9 @@
                             <tr class="border-b border-zinc-800 text-zinc-400 uppercase text-xs">
                                 <th class="p-3">Estado</th>
                                 <th class="p-3">Trabajador</th>
-                                <th class="p-3">Usuario</th>
-                                <th class="p-3">Rol / Permisos</th>
+                                <th class="p-3">Rango Actual</th>
+                                <th class="p-3">Asignar Rango</th>
+                                <th class="p-3">Permisos</th>
                                 <th class="p-3">Comisión (%)</th>
                                 <th class="p-3 text-right">Acciones</th>
                             </tr>
@@ -548,6 +560,23 @@
         let usuariosOnlineSet = new Set();
         let catalogoRenderizado = false;
 
+        // HELPER PARA BADGES VISUALES DE RANGOS OFICIALES
+        function obtenerBadgeRango(rol, comision) {
+            if (rol === 'admin') {
+                return `<span class="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🛡️ Subjefe (0% Capital)</span>`;
+            }
+            if (comision >= 45) {
+                return `<span class="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">👔 Encargado (45%)</span>`;
+            }
+            if (comision >= 40) {
+                return `<span class="inline-flex items-center gap-1 bg-purple-500/10 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">⭐ M. Experto (40%)</span>`;
+            }
+            if (comision >= 35) {
+                return `<span class="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🔧 Mecánico (35%)</span>`;
+            }
+            return `<span class="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase">🔰 En Pruebas (30%)</span>`;
+        }
+
         let debounceTimer = null;
         socket.on('online_users_update', (onlineList) => {
             actualizarBarraOnline(onlineList);
@@ -627,7 +656,7 @@
             if (!usuarioActual || usuarioActual.rol !== 'admin') {
                 document.getElementById('checkPrecioFabrica').checked = false;
                 modoPrecioFabrica = false;
-                return mostrarAviso('Acceso Restringido', 'Solo los administradores pueden cobrar a precio de fábrica.', true);
+                return mostrarAviso('Acceso Restringido', 'Solo los administradores / subjefes pueden cobrar a precio de fábrica.', true);
             }
 
             modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
@@ -664,8 +693,11 @@
                 }
 
                 container.innerHTML = `
-                    <span>👷 Trabajador: <strong>${usuarioActual.nombre}</strong> <span class="text-xs bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 font-bold ${esAdmin ? 'text-amber-400' : 'text-zinc-300'}">${usuarioActual.rol.toUpperCase()}</span></span>
-                    <button onclick="cerrarSesion()" class="text-red-400 underline font-bold">Salir</button>
+                    <div class="flex items-center gap-2">
+                        <span>👷 <strong>${usuarioActual.nombre}</strong></span>
+                        ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
+                    </div>
+                    <button onclick="cerrarSesion()" class="text-red-400 underline font-bold ml-2">Salir</button>
                 `;
                 document.getElementById('seccion-auth').classList.add('hidden');
                 cambiarPestana('calculadora');
@@ -743,7 +775,7 @@
             if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
 
             if ((pestana === 'admin' || pestana === 'almacen') && usuarioActual.rol !== 'admin') {
-                return mostrarAviso('Acceso Denegado', 'Solo los administradores tienen permiso para acceder a esta sección.', true);
+                return mostrarAviso('Acceso Denegado', 'Solo los administradores / subjefes tienen permiso para acceder a esta sección.', true);
             }
 
             pestanaActiva = pestana;
@@ -783,7 +815,6 @@
             document.getElementById('almStockV8').innerHTML = `${v8} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
             document.getElementById('almStockV12').innerHTML = `${v12} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
 
-            // Llenar inputs de ajuste manual con los valores actuales
             document.getElementById('inpManualCapital').value = cap;
             document.getElementById('inpManualV8').value = v8;
             document.getElementById('inpManualV12').value = v12;
@@ -855,7 +886,6 @@
             } else mostrarAviso('Error en Compra', data.error, true);
         }
 
-        // FUNCIÓN: AJUSTE MANUAL DIRECTO DE ALMACÉN Y CAPITAL
         async function ejecutarAjusteManualAlmacen() {
             const capital = document.getElementById('inpManualCapital').value;
             const stock_v8 = document.getElementById('inpManualV8').value;
@@ -885,7 +915,6 @@
             }
         }
 
-        // FUNCIÓN: REINICIO DE SEMANA / CORTE DE FACTURAS
         async function ejecutarReinicioSemanal() {
             const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas para empezar el nuevo ciclo semanal.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
             
@@ -909,6 +938,30 @@
             }
         }
 
+        // AUTO-ASIGNACIÓN DE COMISIÓN SEGÚN EL RANGO
+        function actualizarComisionSegunRango(userId) {
+            const selRango = document.getElementById(`rangoPreset-${userId}`).value;
+            const inpPct = document.getElementById(`pct-${userId}`);
+            const selRol = document.getElementById(`rol-${userId}`);
+            
+            if (selRango === 'subjefe') {
+                inpPct.value = 0;
+                selRol.value = 'admin';
+            } else if (selRango === 'encargado') {
+                inpPct.value = 45;
+                selRol.value = 'empleado';
+            } else if (selRango === 'experto') {
+                inpPct.value = 40;
+                selRol.value = 'empleado';
+            } else if (selRango === 'mecanico') {
+                inpPct.value = 35;
+                selRol.value = 'empleado';
+            } else if (selRango === 'pruebas') {
+                inpPct.value = 30;
+                selRol.value = 'empleado';
+            }
+        }
+
         async function cargarGestionAdmin() {
             const res = await fetch('/api/usuarios');
             usuariosAdminGlobal = await res.json();
@@ -921,6 +974,15 @@
 
             usuariosAdminGlobal.forEach(u => {
                 const estaOnline = usuariosOnlineSet.has(Number(u.id));
+                const comision = u.comision_porcentaje;
+                
+                // Determinar el preset actual del usuario
+                let presetActual = 'pruebas';
+                if (u.rol === 'admin') presetActual = 'subjefe';
+                else if (comision >= 45) presetActual = 'encargado';
+                else if (comision >= 40) presetActual = 'experto';
+                else if (comision >= 35) presetActual = 'mecanico';
+
                 rowsHTML += `
                     <tr>
                         <td class="p-3">
@@ -929,19 +991,36 @@
                                 ${estaOnline ? 'En Línea' : 'Desconectado'}
                             </span>
                         </td>
-                        <td class="p-3 font-bold text-white">${u.nombre}</td>
-                        <td class="p-3 text-zinc-400">@${u.usuario}</td>
                         <td class="p-3">
-                            <select id="rol-${u.id}" class="input-bg px-2 py-1 rounded text-xs">
-                                <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
-                                <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador (Jefe)</option>
+                            <div class="font-bold text-white">${u.nombre}</div>
+                            <div class="text-xs text-zinc-400">@${u.usuario}</div>
+                        </td>
+                        <td class="p-3">
+                            ${obtenerBadgeRango(u.rol, u.comision_porcentaje)}
+                        </td>
+                        <td class="p-3">
+                            <select id="rangoPreset-${u.id}" onchange="actualizarComisionSegunRango(${u.id})" class="input-bg px-2.5 py-1.5 rounded-lg text-xs font-bold border border-zinc-700">
+                                <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0% Comisión + Admin)</option>
+                                <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45% Comisión)</option>
+                                <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ Mecánico Experto (40% Comisión)</option>
+                                <option value="mecanico" ${presetActual === 'mecanico' ? 'selected' : ''}>🔧 Mecánico (35% Comisión)</option>
+                                <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 Mecánico en Pruebas (30% Comisión)</option>
                             </select>
                         </td>
                         <td class="p-3">
-                            <input type="number" id="pct-${u.id}" value="${u.comision_porcentaje}" class="input-bg w-16 px-2 py-1 rounded text-center font-bold text-amber-400 text-xs" min="0" max="100"> %
+                            <select id="rol-${u.id}" class="input-bg px-2 py-1 rounded text-xs">
+                                <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
+                                <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Subjefe / Admin</option>
+                            </select>
+                        </td>
+                        <td class="p-3">
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="pct-${u.id}" value="${u.comision_porcentaje}" class="input-bg w-14 px-2 py-1.5 rounded-lg text-center font-black text-amber-400 text-xs" min="0" max="100">
+                                <span class="text-xs text-zinc-500 font-bold">%</span>
+                            </div>
                         </td>
                         <td class="p-3 text-right space-x-2">
-                            <button onclick="guardarCambiosUsuario(${u.id})" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-3 py-1.5 rounded-lg">
+                            <button onclick="guardarCambiosUsuario(${u.id})" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs px-3 py-1.5 rounded-lg transition shadow">
                                 Guardar
                             </button>
                             ${u.id !== usuarioActual.id ? `
@@ -962,6 +1041,20 @@
             const resFacturas = await fetch('/api/admin/todas-facturas');
             facturasAdminGlobal = await resFacturas.json();
             filtrarHistorialAdmin();
+        }
+
+        async function guardarCambiosUsuario(usuario_id) {
+            const comision_porcentaje = parseFloat(document.getElementById(`pct-${usuario_id}`).value);
+            const rol = document.getElementById(`rol-${usuario_id}`).value;
+
+            const res = await fetch('/api/usuarios/modificar', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
+            });
+
+            if (res.ok) mostrarAviso('Rango Guardado', '¡Rango, permisos y porcentaje de comisión actualizados con éxito!');
+            else mostrarAviso('Error', 'Error al actualizar los datos.', true);
         }
 
         async function eliminarCuentaUsuario(id, nombre) {
@@ -1092,20 +1185,6 @@
             container.innerHTML = html;
         }
 
-        async function guardarCambiosUsuario(usuario_id) {
-            const comision_porcentaje = parseFloat(document.getElementById(`pct-${usuario_id}`).value);
-            const rol = document.getElementById(`rol-${usuario_id}`).value;
-
-            const res = await fetch('/api/usuarios/modificar', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
-            });
-
-            if (res.ok) mostrarAviso('Éxito', '¡Datos actualizados!');
-            else mostrarAviso('Error', 'Error al actualizar datos.', true);
-        }
-
         async function cargarTop() {
             const res = await fetch('/api/top-trabajadores');
             const lista = await res.json();
@@ -1123,7 +1202,8 @@
                             <div>
                                 <h3 class="font-bold text-white text-lg flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500' : 'bg-zinc-600'}"></span>
-                                    👷 TRABAJADOR: ${item.nombre} <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                    👷 ${item.nombre} <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                    ${obtenerBadgeRango('', item.comision_porcentaje)}
                                 </h3>
                                 <p class="text-xs text-zinc-400">Ventas hechas: <strong class="text-white">${item.total_facturas}</strong> | Comisión: <strong class="text-amber-400">${item.comision_porcentaje}%</strong></p>
                             </div>
@@ -1148,7 +1228,7 @@
             const container = document.getElementById('misFacturasLista');
 
             if (facturas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Aún no has realizado ventas.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Aún no has realizado ventas en esta semana.</p>`;
             }
 
             let html = '';
