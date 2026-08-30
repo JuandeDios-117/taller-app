@@ -12,7 +12,7 @@
         body { 
             background-color: #040507; 
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 60%),
+                radial-gradient(circle at 50% 0%, rgba(0, 160, 255, 0.07) 0%, transparent 60%),
                 linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
             background-size: 100% 100%, 32px 32px, 32px 32px;
@@ -37,26 +37,38 @@
         }
 
         .card-dark { 
-            background: #0b0c10; 
-            border: 1px solid #1a1c24; 
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            background: #0b0c12; 
+            border: 1px solid #1a1e2a; 
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .card-header-dark { 
-            background: linear-gradient(180deg, #13151f 0%, #090a0e 100%);
-            border: 1px solid #232734; 
+            background: linear-gradient(180deg, #131724 0%, #08090e 100%);
+            border: 1px solid #232a3d; 
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
         }
         .input-dark { 
-            background-color: #06070a; 
-            border: 1px solid #202430; 
+            background-color: #06070b; 
+            border: 1px solid #1f2535; 
             color: #ffffff; 
             transition: all 0.2s ease;
         }
         .input-dark:focus {
-            border-color: #52525b;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+            border-color: #38bdf8;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
             outline: none;
+        }
+        .btn-ae-action {
+            background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+            color: #ffffff;
+            font-weight: 800;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 18px rgba(6, 182, 212, 0.3);
+        }
+        .btn-ae-action:hover {
+            background: linear-gradient(135deg, #0369a1 0%, #0891b2 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45);
         }
         .btn-white {
             background: #ffffff;
@@ -69,11 +81,8 @@
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
         }
-        .btn-white:active {
-            transform: translateY(0);
-        }
         .logo-glow {
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.35));
         }
     </style>
 </head>
@@ -83,23 +92,23 @@
         <!-- HEADER PRINCIPAL -->
         <div class="card-header-dark p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
             <div class="flex items-center gap-4 z-10">
-                <div class="relative w-14 h-14 rounded-full p-0.5 bg-zinc-700 logo-glow shrink-0 overflow-hidden">
+                <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-700 logo-glow shrink-0 overflow-hidden">
                     <img src="/logo.png" 
-                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23ffffff\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%2327272a\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
+                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                          alt="AutoExotic Logo" 
                          class="w-full h-full object-cover rounded-full">
                 </div>
                 <div>
                     <h1 class="text-xl md:text-2xl font-black uppercase tracking-wider text-white">
-                        AUTO<span class="text-zinc-400">EXOTIC</span>
+                        AUTO<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">EXOTIC</span>
                     </h1>
-                    <p class="text-xs text-zinc-400 font-semibold tracking-wider uppercase">Taller & Performance · Sistema Oficial</p>
+                    <p class="text-xs text-cyan-200/60 font-semibold tracking-wider uppercase">Taller & Performance · Sistema Oficial</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-4 z-10">
-                <div id="badgeOnlineCount" class="text-xs bg-black/90 border border-zinc-800 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span>
+                <div id="badgeOnlineCount" class="text-xs bg-black/90 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl flex items-center gap-2 shadow-[0_0_12px_rgba(16,185,129,0.1)]">
+                    <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span>
                     <span id="txtOnlineCount" class="font-bold text-emerald-400">0 en línea</span>
                 </div>
                 <div id="userInfo" class="text-xs text-zinc-400 flex items-center gap-3"></div>
@@ -109,19 +118,19 @@
         <!-- NAVEGACIÓN -->
         <div class="flex flex-wrap justify-between items-center card-dark p-2 rounded-xl gap-2">
             <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-white transition">
+                <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition">
                     🧮 CALCULADORA
                 </button>
                 <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-rose-400 hover:text-rose-300 hover:bg-zinc-800 hidden transition border border-rose-500/20">
                     🏢 ALMACÉN Y CAPITAL
                 </button>
-                <button onclick="cambiarPestana('combos')" id="tab-combos" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition">
+                <button onclick="cambiarPestana('combos')" id="tab-combos" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-amber-300 hover:text-white hover:bg-zinc-800 transition border border-amber-500/20">
                     📋 COMBOS Y PIEZAS
                 </button>
                 <button onclick="cambiarPestana('historial')" id="tab-hist" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition">
                     📊 MI HISTORIAL
                 </button>
-                <button onclick="cambiarPestana('top')" id="tab-top" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition">
+                <button onclick="cambiarPestana('top')" id="tab-top" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-yellow-400 hover:text-yellow-300 hover:bg-zinc-800 transition border border-yellow-500/20">
                     🏆 TOP TRABAJADORES
                 </button>
                 <button onclick="cambiarPestana('admin')" id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-rose-400 hover:text-rose-300 hover:bg-zinc-800 hidden transition border border-rose-500/20">
@@ -132,62 +141,65 @@
 
         <!-- CONECTADOS EN LÍNEA -->
         <div id="barraUsuariosOnline" class="card-dark p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs border-l-4 border-emerald-500">
-            <span class="text-zinc-400 font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+            <span class="text-emerald-400 font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
                 Equipo en Línea:
             </span>
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
         <!-- LOGIN / REGISTRO -->
-        <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-zinc-800 tab-content-anim">
+        <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-cyan-500/20 tab-content-anim">
             <div class="text-center space-y-2">
-                <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-zinc-700 logo-glow overflow-hidden">
+                <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 to-blue-600 logo-glow overflow-hidden">
                     <img src="/logo.png" 
-                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23ffffff\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%2327272a\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
+                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                          alt="AutoExotic Logo" 
                          class="w-full h-full object-cover rounded-full">
                 </div>
                 <h2 class="text-2xl font-black text-white uppercase tracking-wider" id="authTitle">Acceso AutoExotic</h2>
-                <p class="text-xs text-zinc-400">Portal de facturación y control de órdenes.</p>
+                <p class="text-xs text-cyan-200/60">Portal de facturación y control de órdenes.</p>
             </div>
             
             <div id="campoNombre" class="hidden">
-                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">Nombre del Trabajador</label>
+                <label class="block text-xs font-bold text-zinc-300 uppercase mb-1.5">Nombre del Trabajador</label>
                 <input type="text" id="regNombre" placeholder="Ej. Juan Pérez" class="w-full input-dark px-4 py-2.5 rounded-xl text-sm">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">Usuario</label>
+                <label class="block text-xs font-bold text-zinc-300 uppercase mb-1.5">Usuario</label>
                 <input type="text" id="authUsuario" placeholder="Ej. kayn" class="w-full input-dark px-4 py-2.5 rounded-xl text-sm">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-zinc-400 uppercase mb-1.5">Contraseña</label>
+                <label class="block text-xs font-bold text-zinc-300 uppercase mb-1.5">Contraseña</label>
                 <input type="password" id="authPassword" placeholder="••••••••" class="w-full input-dark px-4 py-2.5 rounded-xl text-sm">
             </div>
 
-            <button onclick="procesarAuth()" id="btnAuth" class="w-full btn-white py-3 rounded-xl text-sm uppercase tracking-wider transition">
+            <button onclick="procesarAuth()" id="btnAuth" class="w-full btn-ae-action py-3 rounded-xl text-sm uppercase tracking-wider transition">
                 Ingresar al Sistema
             </button>
 
             <p class="text-center text-xs text-zinc-400 pt-2">
                 <span id="toggleText">¿No tienes cuenta?</span> 
-                <button onclick="toggleModoAuth()" class="text-white underline font-bold" id="toggleBtn">Regístrate</button>
+                <button onclick="toggleModoAuth()" class="text-cyan-400 hover:underline font-bold" id="toggleBtn">Regístrate</button>
             </p>
         </div>
 
-        <!-- CALCULADORA -->
+        <!-- CALCULADORA (REDiseño con color) -->
         <div id="seccion-calculadora" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
             <div class="lg:col-span-2 space-y-6">
-                <div class="card-dark p-5 rounded-xl space-y-4">
+                <!-- PANEL CLIENTE -->
+                <div class="card-dark p-5 rounded-2xl space-y-4 border-l-4 border-cyan-500">
                     <div>
-                        <label class="block text-xs font-bold text-zinc-400 uppercase mb-2">Nombre del Cliente</label>
-                        <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-dark px-4 py-3 rounded-xl font-bold uppercase text-white">
+                        <label class="block text-xs font-black text-cyan-300 uppercase mb-2 tracking-wider flex items-center gap-1.5">
+                            <span>👤</span> Nombre del Cliente (Para la factura)
+                        </label>
+                        <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-dark px-4 py-3 rounded-xl font-bold uppercase text-cyan-300 placeholder:text-zinc-600 focus:border-cyan-400">
                     </div>
 
-                    <div id="contenedorModoFabrica" class="hidden pt-2 border-t border-zinc-800">
-                        <label class="flex items-center gap-3 p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl cursor-pointer hover:bg-rose-500/15 transition">
+                    <div id="contenedorModoFabrica" class="hidden pt-2 border-t border-zinc-800/80">
+                        <label class="flex items-center gap-3 p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl cursor-pointer hover:bg-rose-500/20 transition">
                             <input type="checkbox" id="checkPrecioFabrica" onchange="togglePrecioFabrica()" class="w-4 h-4 text-rose-500 rounded bg-black border-zinc-700 focus:ring-rose-500">
                             <div>
                                 <div class="text-xs font-black text-rose-400 uppercase flex items-center gap-1.5">
@@ -199,68 +211,73 @@
                     </div>
                 </div>
 
-                <div class="card-dark p-5 rounded-xl space-y-4">
-                    <h2 class="text-xs font-black text-zinc-300 uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <span>⚡</span> CATÁLOGO DE PIEZAS & RENDIMIENTO
-                    </h2>
+                <!-- CATÁLOGO -->
+                <div class="card-dark p-6 rounded-2xl space-y-6">
+                    <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                        <h2 class="text-xs font-black text-cyan-400 uppercase tracking-widest flex items-center gap-2">
+                            <span>⚡</span> CATÁLOGO DE PIEZAS & RENDIMIENTO
+                        </h2>
+                        <span class="text-[11px] font-bold text-zinc-500">AutoExotic Tuner</span>
+                    </div>
                     <div id="listaProductos" class="space-y-6"></div>
                 </div>
             </div>
 
-            <!-- CONTENEDOR DE RESUMEN DESGLOSADO (SIN SCROLLBAR RESTRINGIDA) -->
+            <!-- RESUMEN / ORDEN ACTUAL -->
             <div class="space-y-6">
-                <div class="card-dark p-5 rounded-xl space-y-5 sticky top-6 border-t-2 border-zinc-400">
-                    <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                        <h2 class="text-xs font-black text-zinc-200 uppercase flex items-center gap-2 tracking-wider">
-                            🛒 RESUMEN (<span id="cantItems" class="text-white">0</span>)
+                <div class="card-dark p-6 rounded-2xl space-y-5 sticky top-6 border-t-4 border-cyan-400">
+                    <div class="flex justify-between items-center border-b border-zinc-800/80 pb-3">
+                        <h2 class="text-xs font-black text-cyan-300 uppercase flex items-center gap-2 tracking-wider">
+                            🛒 RESUMEN (<span id="cantItems" class="text-cyan-400 font-extrabold">0</span> ITEMS)
                         </h2>
                     </div>
 
-                    <!-- Desglose fluido de los pedidos -->
+                    <!-- DESGLOSE TOTAL DE PRODUCTOS -->
                     <div id="carritoItems" class="space-y-2.5">
                         <p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>
                     </div>
 
-                    <div class="border-t border-zinc-800 pt-4 space-y-2">
+                    <div class="border-t border-zinc-800/80 pt-4 space-y-2.5">
                         <div class="flex justify-between text-xs text-zinc-400">
                             <span id="labelSubtotal">Subtotal:</span>
                             <span id="subtotalText" class="font-bold text-zinc-200">$0</span>
                         </div>
-                        <div id="filaDescuento" class="flex justify-between text-xs text-rose-400 hidden font-semibold">
+                        <div id="filaDescuento" class="flex justify-between text-xs text-rose-400 font-bold hidden">
                             <span>Descuento (<span id="descPorcentajeText">0</span>%):</span>
                             <span id="descuentoMontoText">-$0</span>
                         </div>
-                        <div class="flex justify-between items-baseline pt-2 border-t border-zinc-800">
-                            <span class="text-xs font-black text-zinc-400 uppercase">TOTAL COBRADO</span>
+                        <div class="flex justify-between items-baseline pt-3 border-t border-zinc-800">
+                            <span class="text-xs font-black text-zinc-300 uppercase tracking-wider">TOTAL COBRADO</span>
                             <div class="text-right">
                                 <div id="totalAntesTachado" class="text-xs text-zinc-500 line-through hidden">$0</div>
-                                <div class="text-3xl font-black text-white tracking-tight" id="totalVentaText">$0</div>
+                                <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 tracking-tight" id="totalVentaText">$0</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="text-xs text-zinc-400 bg-black/60 p-2.5 rounded-lg border border-zinc-800">
-                        Cliente: <span id="nombreClienteText" class="text-white font-bold">--</span>
+                    <div class="text-xs text-zinc-300 bg-cyan-950/20 p-3 rounded-xl border border-cyan-500/20">
+                        Cliente: <span id="nombreClienteText" class="text-cyan-300 font-bold uppercase">--</span>
                     </div>
 
-                    <button id="btnRealizarOrden" onclick="realizarOrden()" class="w-full btn-white py-3 px-4 rounded-xl transition text-center uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button id="btnRealizarOrden" onclick="realizarOrden()" class="w-full btn-ae-action py-3.5 px-4 rounded-xl transition text-center uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed">
                         Completar Orden
                     </button>
 
-                    <div id="seccionDescuentosContenedor" class="border-t border-zinc-800 pt-4 space-y-3">
-                        <label class="block text-[11px] font-bold text-zinc-400 uppercase">Aplicar Descuento</label>
+                    <!-- SECCIÓN DE DESCUENTOS -->
+                    <div id="seccionDescuentosContenedor" class="border-t border-zinc-800/80 pt-4 space-y-3">
+                        <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-wider">Aplicar Descuento</label>
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-black border border-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-900 transition">10%</button>
-                            <button onclick="aplicarDescuento(15)" id="btn-15" class="btn-desc bg-black border border-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-900 transition">15%</button>
-                            <button onclick="aplicarDescuento(20)" id="btn-20" class="btn-desc bg-black border border-zinc-800 text-xs font-bold py-2 rounded-lg text-white hover:bg-zinc-900 transition">20%</button>
-                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-rose-500/10 border border-rose-500/30 text-xs font-bold py-2 rounded-lg text-rose-400 hover:bg-rose-500/20 transition">Quitar</button>
+                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">10%</button>
+                            <button onclick="aplicarDescuento(15)" id="btn-15" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">15%</button>
+                            <button onclick="aplicarDescuento(20)" id="btn-20" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">20%</button>
+                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-rose-950/30 border border-rose-500/40 text-xs font-black py-2 rounded-xl text-rose-400 hover:bg-rose-900/50 transition">Quitar</button>
                         </div>
                         <div class="flex gap-2 items-center pt-1">
                             <div class="relative flex-1">
-                                <input type="number" id="inputDescuentoManual" placeholder="Otro % (ej. 25, 30)" min="0" max="100" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-medium pr-6">
+                                <input type="number" id="inputDescuentoManual" placeholder="Otro % (ej. 25, 30)" min="0" max="100" class="w-full input-dark px-3 py-2 rounded-xl text-xs font-medium pr-6">
                                 <span class="absolute right-3 top-2 text-xs text-zinc-500 font-bold">%</span>
                             </div>
-                            <button onclick="aplicarDescuentoManual()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold text-xs px-3 py-2 rounded-lg border border-zinc-700 transition">
+                            <button onclick="aplicarDescuentoManual()" class="bg-zinc-800 hover:bg-zinc-700 text-cyan-300 font-black text-xs px-3 py-2 rounded-xl border border-zinc-700 transition">
                                 Aplicar
                             </button>
                         </div>
@@ -276,7 +293,7 @@
                     <p class="text-xs text-zinc-400 font-bold uppercase">Capital en Caja</p>
                     <p class="text-3xl font-black text-emerald-400 mt-1 tracking-tight" id="almCapital">$0</p>
                 </div>
-                <div class="card-dark p-5 rounded-xl border-l-4 border-zinc-400">
+                <div class="card-dark p-5 rounded-xl border-l-4 border-blue-400">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Stock Motores V8</p>
                     <p class="text-3xl font-black text-white mt-1" id="almStockV8">0 <span class="text-xs text-zinc-500 font-normal">unidades</span></p>
                 </div>
@@ -324,7 +341,7 @@
                             <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Cantidad</label>
                             <input type="number" id="inpCantMotorCompra" value="1" min="1" class="w-full input-dark px-3 py-2 rounded-xl text-sm font-bold text-center">
                         </div>
-                        <button onclick="ejecutarCompraMotor()" class="w-full btn-white py-2.5 rounded-xl text-xs uppercase tracking-wider transition">
+                        <button onclick="ejecutarCompraMotor()" class="w-full btn-ae-action py-2.5 rounded-xl text-xs uppercase tracking-wider transition">
                             Comprar Stock
                         </button>
                     </div>
@@ -366,7 +383,7 @@
         <!-- COMBOS Y PIEZAS -->
         <div id="seccion-combos" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
-                <h2 class="text-2xl font-black text-white uppercase">🛠️ COMPONENTES POR COMBO (PRECIOS FIJOS)</h2>
+                <h2 class="text-2xl font-black text-cyan-400 uppercase">🛠️ COMPONENTES POR COMBO (PRECIOS FIJOS)</h2>
                 <p class="text-xs text-zinc-400">Tabla de rendimiento oficial AutoExotic.</p>
             </div>
 
@@ -398,8 +415,8 @@
                         </tr>
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">MOTOR</td>
-                            <td class="p-3 text-zinc-200 font-bold">Motor V8</td>
-                            <td class="p-3 text-zinc-200 font-bold">Motor V8</td>
+                            <td class="p-3 text-blue-300 font-bold">Motor V8</td>
+                            <td class="p-3 text-blue-300 font-bold">Motor V8</td>
                             <td class="p-3 text-purple-300 font-bold">Motor V12</td>
                             <td class="p-3 text-purple-300 font-bold">Motor V12</td>
                         </tr>
@@ -426,10 +443,10 @@
                         </tr>
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">POR PEDIDO (RENDIMIENTOS)</td>
-                            <td class="p-3 text-zinc-200 font-semibold">1x Pieza Rendimiento</td>
-                            <td class="p-3 text-zinc-200 font-semibold">4x Piezas Rendimiento</td>
-                            <td class="p-3 text-zinc-200 font-semibold">1x Pieza (Turbo)</td>
-                            <td class="p-3 text-zinc-200 font-semibold">4x Piezas Rendimiento</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza Rendimiento</td>
+                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza (Turbo)</td>
+                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
                         </tr>
                     </tbody>
                 </table>
@@ -452,7 +469,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="card-dark p-5 rounded-xl border-l-4 border-zinc-400">
+                <div class="card-dark p-5 rounded-xl border-l-4 border-cyan-400">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Total Vendido por Mí</p>
                     <p class="text-2xl font-black text-white mt-1" id="mTotalVendido">$0</p>
                 </div>
@@ -482,7 +499,7 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL ADMIN (ORGANIZADO POR RANGOS/SECCIONES + PERMISOS) -->
+        <!-- PANEL ADMIN -->
         <div id="seccion-admin" class="space-y-6 hidden">
             <!-- REINICIAR SEMANA -->
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
@@ -499,7 +516,7 @@
                 </button>
             </div>
 
-            <!-- GESTIÓN Y JERARQUÍA DE RANGOS ORGANIZADA -->
+            <!-- GESTIÓN Y JERARQUÍA -->
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
@@ -515,7 +532,6 @@
                     </div>
                 </div>
 
-                <!-- CONTENEDOR DE TABLAS AGRUPADAS POR RANGO -->
                 <div id="contenedorSeccionesRangos" class="space-y-6"></div>
             </div>
 
@@ -544,7 +560,7 @@
     <!-- MODAL TRANSFERIR FACTURA -->
     <div id="modalTransferir" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl">
-            <h3 class="text-lg font-black text-white uppercase">🔁 Transferir Orden</h3>
+            <h3 class="text-lg font-black text-cyan-400 uppercase">🔁 Transferir Orden</h3>
             <p class="text-xs text-zinc-400" id="txtTransferirDetalle">Selecciona el trabajador que recibirá esta orden.</p>
             <div>
                 <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Nuevo Trabajador</label>
@@ -552,7 +568,7 @@
             </div>
             <div class="flex gap-2 pt-2">
                 <button onclick="cerrarModalTransferir()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 rounded-xl text-xs uppercase">Cancelar</button>
-                <button onclick="confirmarTransferencia()" class="flex-1 btn-white py-2 rounded-xl text-xs uppercase">Transferir</button>
+                <button onclick="confirmarTransferencia()" class="flex-1 btn-ae-action py-2 rounded-xl text-xs uppercase">Transferir</button>
             </div>
         </div>
     </div>
@@ -560,14 +576,14 @@
     <!-- MODALES DE ALERTA -->
     <div id="modalAviso" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl text-center">
-            <div id="modalAvisoIcono" class="w-12 h-12 bg-zinc-800 text-white border border-zinc-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+            <div id="modalAvisoIcono" class="w-12 h-12 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
                 ⚠️
             </div>
             <div>
                 <h3 class="text-lg font-black text-white uppercase" id="modalAvisoTitulo">Atención</h3>
                 <p class="text-xs text-zinc-400 mt-1" id="modalAvisoMensaje">Mensaje de aviso.</p>
             </div>
-            <button onclick="cerrarModalAviso()" class="w-full btn-white py-2.5 rounded-xl transition text-sm uppercase">
+            <button onclick="cerrarModalAviso()" class="w-full btn-ae-action py-2.5 rounded-xl transition text-sm uppercase">
                 Aceptar
             </button>
         </div>
@@ -575,14 +591,14 @@
 
     <div id="modalRegistro" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl text-center">
-            <div class="w-12 h-12 bg-zinc-800 text-white border border-zinc-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+            <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
                 👷
             </div>
             <div>
                 <h3 class="text-lg font-black text-white uppercase">¡Cuenta Registrada!</h3>
                 <p class="text-xs text-zinc-400 mt-1" id="modalRegistroMensaje">El trabajador fue registrado correctamente.</p>
             </div>
-            <button onclick="cerrarModalRegistro()" class="w-full btn-white py-2.5 rounded-xl transition text-sm uppercase">
+            <button onclick="cerrarModalRegistro()" class="w-full btn-ae-action py-2.5 rounded-xl transition text-sm uppercase">
                 Iniciar Sesión Ahora
             </button>
         </div>
@@ -607,14 +623,13 @@
                     <strong class="text-emerald-400 text-sm" id="modalComision">$0</strong>
                 </div>
             </div>
-            <button onclick="cerrarModal()" class="w-full btn-white py-2.5 rounded-xl transition text-sm uppercase">
+            <button onclick="cerrarModal()" class="w-full btn-ae-action py-2.5 rounded-xl transition text-sm uppercase">
                 Entendido
             </button>
         </div>
     </div>
 
     <script>
-        // GENERADOR DE FAVICON CIRCULAR PARA EL NAVEGADOR
         function crearFaviconCircular() {
             const img = new Image();
             img.crossOrigin = "anonymous";
@@ -636,7 +651,74 @@
 
         const socket = io();
 
-        // CATÁLOGO ORDENADO: COMBOS Y PAQUETES PRIMERO
+        // MAPA DE ESTILOS CROMÁTICOS POR CATEGORÍA
+        const categoriaConfig = {
+            'COMBOS (PRECIOS FIJOS)': {
+                colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+                bordeCard: 'border-amber-500/30 hover:border-amber-400/60',
+                bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '👑',
+                colorVenta: 'text-amber-300',
+                colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black'
+            },
+            'PAQUETES ESPECIALES': {
+                colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30',
+                bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60',
+                bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '🔥',
+                colorVenta: 'text-fuchsia-300',
+                colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black'
+            },
+            'DRIFT Y NITRO': {
+                colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+                bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60',
+                bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '💨',
+                colorVenta: 'text-cyan-300',
+                colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black'
+            },
+            'MOTOR': {
+                colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+                bordeCard: 'border-blue-500/30 hover:border-blue-400/60',
+                bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '⚙️',
+                colorVenta: 'text-blue-300',
+                colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black'
+            },
+            'FRENOS': {
+                colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+                bordeCard: 'border-rose-500/30 hover:border-rose-400/60',
+                bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '🛑',
+                colorVenta: 'text-rose-300',
+                colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black'
+            },
+            'TRACCIÓN': {
+                colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+                bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60',
+                bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '⚡',
+                colorVenta: 'text-emerald-300',
+                colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black'
+            },
+            'NEUMÁTICOS': {
+                colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
+                bordeCard: 'border-teal-500/30 hover:border-teal-400/60',
+                bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '🛞',
+                colorVenta: 'text-teal-300',
+                colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black'
+            },
+            'GENERAL': {
+                colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+                bordeCard: 'border-purple-500/30 hover:border-purple-400/60',
+                bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70',
+                icon: '🛠️',
+                colorVenta: 'text-purple-300',
+                colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black'
+            }
+        };
+
         const catalogo = [
             // 1. COMBOS PRINCIPALES (ARRIBA)
             { id: 18, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V8 PRO', venta: 140000, costo: 95000 },
@@ -644,11 +726,11 @@
             { id: 20, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12', venta: 550000, costo: 327000 },
             { id: 21, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12 PRO (RENDIMIENTOS)', venta: 580000, costo: 348000 },
 
-            // 2. PAQUETES ESPECIALES DRIFT & NITRO (ARRIBA)
+            // 2. PAQUETES ESPECIALES DRIFT & NITRO
             { id: 22, categoria: 'PAQUETES ESPECIALES', nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', venta: 1350000, costo: 600000 },
             { id: 23, categoria: 'PAQUETES ESPECIALES', nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', venta: 2900000, costo: 1800000 },
 
-            // 3. PIEZAS DE DRIFT Y NITRO (INDIVIDUALES)
+            // 3. PIEZAS DE DRIFT Y NITRO
             { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
@@ -728,7 +810,7 @@
             if (comision == 0) return 'text-rose-400 font-black';
             if (comision >= 45) return 'text-yellow-300 font-black';
             if (comision >= 40) return 'text-purple-300 font-bold';
-            if (comision >= 35) return 'text-zinc-200 font-bold';
+            if (comision >= 35) return 'text-cyan-300 font-bold';
             return 'text-emerald-300 font-bold';
         }
 
@@ -772,7 +854,7 @@
             document.getElementById('modalAvisoMensaje').innerText = mensaje;
             const icono = document.getElementById('modalAvisoIcono');
             icono.innerText = esError ? '❌' : '⚠️';
-            icono.className = `w-12 h-12 ${esError ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-zinc-800 text-white border-zinc-700'} rounded-full flex items-center justify-center mx-auto text-2xl font-bold border`;
+            icono.className = `w-12 h-12 ${esError ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'} rounded-full flex items-center justify-center mx-auto text-2xl font-bold border`;
             document.getElementById('modalAviso').classList.remove('hidden');
         }
 
@@ -820,7 +902,7 @@
             if (modoPrecioFabrica) {
                 descuentoPorcentaje = 0;
                 document.getElementById('inputDescuentoManual').value = '';
-                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
             }
 
             document.getElementById('seccionDescuentosContenedor').classList.toggle('opacity-40', modoPrecioFabrica);
@@ -944,7 +1026,7 @@
             });
 
             const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
-            if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-white transition';
+            if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
 
             const secciones = ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'];
             secciones.forEach(s => {
@@ -1166,7 +1248,7 @@
                                 </select>
                             </td>
                             <td class="p-3 text-right space-x-2">
-                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-white text-xs px-3 py-1.5 rounded-xl transition shadow">
+                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-ae-action text-xs px-3.5 py-1.5 rounded-xl transition shadow">
                                     Guardar
                                 </button>
                                 ${u.id !== usuarioActual.id ? `
@@ -1311,7 +1393,7 @@
                     try {
                         const parsedItems = JSON.parse(f.items_json);
                         itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
-                        itemsHTML += '<p class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
+                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
                         parsedItems.forEach(item => {
                             itemsHTML += `
                                 <div class="flex justify-between items-center text-xs">
@@ -1328,7 +1410,7 @@
                     <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
-                                <span class="font-bold text-white text-sm">👷 Trabajador: ${f.trabajador_nombre}</span>
+                                <span class="font-bold text-cyan-300 text-sm">👷 Trabajador: ${f.trabajador_nombre}</span>
                                 <span class="text-xs text-zinc-500 ml-2">(@${f.trabajador_usuario}) · ${fecha}</span>
                             </div>
                             <div class="text-right">
@@ -1344,7 +1426,7 @@
                             </div>
                             <div>
                                 <span class="text-zinc-400 font-medium">Comisión Trabajador:</span>
-                                <div class="text-sm font-bold text-yellow-400">+$${f.comision_empleado.toLocaleString()}</div>
+                                <div class="text-sm font-bold text-cyan-400">+$${f.comision_empleado.toLocaleString()}</div>
                             </div>
                         </div>
 
@@ -1354,7 +1436,7 @@
                                 ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-rose-400 font-bold">Desc: ${f.descuento_porcentaje}%</span>` : ''}
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
+                                <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-900 hover:bg-zinc-800 text-cyan-300 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
                                     🔁 Transferir
                                 </button>
                                 <button onclick="eliminarFactura(${f.id})" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 transition">
@@ -1384,7 +1466,7 @@
                 html += `
                     <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
                         <div class="flex items-center gap-4">
-                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-zinc-300 border border-zinc-700">${badge}</span>
+                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
                             <div>
                                 <h3 class="font-bold text-white text-lg flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
@@ -1394,12 +1476,12 @@
                                 <p class="text-xs text-zinc-400 mt-1">
                                     Ingresó: <strong class="text-zinc-300 font-semibold">${formatearFechaIngreso(item.created_at)}</strong> · 
                                     Ventas: <strong class="text-white font-bold">${item.total_facturas}</strong> · 
-                                    Comisión: <strong class="text-yellow-400 font-bold">${item.comision_porcentaje}%</strong>
+                                    Comisión: <strong class="text-cyan-400 font-bold">${item.comision_porcentaje}%</strong>
                                 </p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xs text-yellow-400 font-black">Comisiones: $${item.comision_ganada.toLocaleString()}</div>
+                            <div class="text-xs text-cyan-300 font-black">Comisiones: $${item.comision_ganada.toLocaleString()}</div>
                             <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${item.ganancia_generada.toLocaleString()}</div>
                         </div>
                     </div>
@@ -1438,7 +1520,7 @@
                     try {
                         const parsedItems = JSON.parse(f.items_json);
                         itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
-                        itemsHTML += '<p class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
+                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
                         parsedItems.forEach(item => {
                             itemsHTML += `
                                 <div class="flex justify-between items-center text-xs">
@@ -1471,7 +1553,7 @@
                             </div>
                             <div>
                                 <span class="text-zinc-400 font-medium">Mi Comisión:</span>
-                                <div class="text-sm font-bold text-yellow-400">+$${f.comision_empleado.toLocaleString()}</div>
+                                <div class="text-sm font-bold text-cyan-300">+$${f.comision_empleado.toLocaleString()}</div>
                             </div>
                         </div>
 
@@ -1488,6 +1570,7 @@
             document.getElementById('mTotalFacturas').innerText = facturas.length;
         }
 
+        // RENDERIZADO VISUAL DEL CATÁLOGO CON COLORES POR CATEGORÍA
         function renderCatalogo() {
             if (catalogoRenderizado) return;
             const container = document.getElementById('listaProductos');
@@ -1495,28 +1578,38 @@
 
             let htmlTotal = '';
             categorias.forEach(cat => {
+                const conf = categoriaConfig[cat] || {
+                    colorBadge: 'bg-zinc-800 text-zinc-300 border-zinc-700',
+                    bordeCard: 'border-zinc-800',
+                    bgCard: 'bg-zinc-950/60',
+                    icon: '📦',
+                    colorVenta: 'text-zinc-200',
+                    colorBtn: 'bg-zinc-800 hover:bg-zinc-700 text-white'
+                };
+
                 const productosCat = catalogo.filter(p => p.categoria === cat);
                 htmlTotal += `
                     <div>
-                        <h3 class="text-xs font-black text-zinc-300 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 bg-zinc-400 rounded-full"></span>
-                            ${cat}
-                        </h3>
-                        <div class="space-y-2.5">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-black uppercase tracking-wider ${conf.colorBadge}">
+                                <span>${conf.icon}</span> ${cat}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 `;
 
                 productosCat.forEach(p => {
                     htmlTotal += `
-                        <div class="flex items-center justify-between p-3.5 bg-black/60 rounded-xl border border-zinc-800 hover:border-zinc-700 transition">
-                            <div>
-                                <h4 class="font-bold text-white text-sm">${p.nombre}</h4>
-                                <p class="text-xs text-zinc-400 mt-0.5">
-                                    Venta: <span class="text-white font-semibold">$${p.venta.toLocaleString()}</span> 
-                                    · Fábrica: <span class="text-zinc-400 font-semibold">$${p.costo.toLocaleString()}</span>
+                        <div class="flex items-center justify-between p-3.5 rounded-xl border ${conf.bordeCard} ${conf.bgCard} transition shadow-sm">
+                            <div class="pr-2">
+                                <h4 class="font-black text-white text-sm leading-tight">${p.nombre}</h4>
+                                <p class="text-xs text-zinc-400 mt-1">
+                                    Venta: <span class="${conf.colorVenta} font-black text-sm">$${p.venta.toLocaleString()}</span> 
+                                    · <span class="text-zinc-500 font-medium">Costo: $${p.costo.toLocaleString()}</span>
                                 </p>
                             </div>
-                            <div id="btn-container-${p.id}">
-                                <button onclick="agregar(${p.id})" class="bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition border border-zinc-700">+ Añadir</button>
+                            <div id="btn-container-${p.id}" class="shrink-0">
+                                <button onclick="agregar(${p.id})" class="${conf.colorBtn} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">+ Añadir</button>
                             </div>
                         </div>
                     `;
@@ -1530,15 +1623,18 @@
         function sincronizarBotonItem(id) {
             const cont = document.getElementById(`btn-container-${id}`);
             if (!cont) return;
+            const p = catalogo.find(x => x.id === id);
+            const conf = categoriaConfig[p.categoria] || {};
             const cant = carrito[id] ? carrito[id].cantidad : 0;
+
             if (cant === 0) {
-                cont.innerHTML = `<button onclick="agregar(${id})" class="bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition border border-zinc-700">+ Añadir</button>`;
+                cont.innerHTML = `<button onclick="agregar(${id})" class="${conf.colorBtn || 'btn-white'} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">+ Añadir</button>`;
             } else {
                 cont.innerHTML = `
-                    <div class="flex items-center gap-2 btn-white rounded-lg px-2.5 py-1">
-                        <button onclick="restar(${id})" class="px-1 hover:opacity-75">—</button>
-                        <span class="text-sm">${cant}</span>
-                        <button onclick="agregar(${id})" class="px-1 hover:opacity-75">+</button>
+                    <div class="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black rounded-xl px-2.5 py-1.5 shadow-lg shadow-cyan-500/20">
+                        <button onclick="restar(${id})" class="px-1.5 text-black hover:opacity-75 transition font-black text-sm">—</button>
+                        <span class="text-sm font-black text-black px-1">${cant}</span>
+                        <button onclick="agregar(${id})" class="px-1.5 text-black hover:opacity-75 transition font-black text-sm">+</button>
                     </div>
                 `;
             }
@@ -1554,7 +1650,7 @@
             if (!modoPrecioFabrica && tieneCombosSinDescuento() && descuentoPorcentaje > 0) {
                 descuentoPorcentaje = 0;
                 document.getElementById('inputDescuentoManual').value = '';
-                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
                 mostrarAviso('Descuento Desactivado', 'En FULL TUNNING V12 y V12 PRO no aplica descuento.');
             }
 
@@ -1582,9 +1678,9 @@
 
             descuentoPorcentaje = porcentaje;
             document.getElementById('inputDescuentoManual').value = '';
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
             if (porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
-                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-white');
+                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-cyan-400');
             }
             actualizarCarrito();
         }
@@ -1597,7 +1693,7 @@
             if (isNaN(val) || val < 0 || val > 100) return mostrarAviso('Inválido', 'Ingresa entre 0% y 100%.');
             
             descuentoPorcentaje = val;
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
             actualizarCarrito();
         }
 
@@ -1612,19 +1708,20 @@
             } else {
                 let html = '';
                 items.forEach(item => {
+                    const conf = categoriaConfig[item.categoria] || {};
                     const precioUnitario = modoPrecioFabrica ? item.costo : item.venta;
                     const itemTotal = precioUnitario * item.cantidad;
                     subtotal += itemTotal;
                     totalCantidad += item.cantidad;
                     html += `
-                        <div class="flex justify-between items-start text-xs bg-black/60 p-2.5 rounded-lg border border-zinc-800">
+                        <div class="flex justify-between items-center text-xs bg-zinc-950 p-2.5 rounded-xl border border-zinc-800/80">
                             <div>
-                                <h4 class="font-bold text-white">${item.nombre}</h4>
+                                <h4 class="font-black text-white text-xs">${item.nombre}</h4>
                                 <p class="text-zinc-400 mt-0.5">${item.cantidad} × $${precioUnitario.toLocaleString()} ${modoPrecioFabrica ? '<span class="text-rose-400 font-bold">(Fábrica)</span>' : ''}</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="font-black text-white">$${itemTotal.toLocaleString()}</span>
-                                <button onclick="eliminar(${item.id})" class="text-zinc-500 hover:text-rose-400 transition ml-1">🗑️</button>
+                                <span class="font-black ${conf.colorVenta || 'text-cyan-400'} text-xs">$${itemTotal.toLocaleString()}</span>
+                                <button onclick="eliminar(${item.id})" class="text-zinc-600 hover:text-rose-400 transition ml-1 text-sm">🗑️</button>
                             </div>
                         </div>
                     `;
