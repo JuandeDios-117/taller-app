@@ -232,7 +232,6 @@
                         </h2>
                     </div>
 
-                    <!-- DESGLOSE TOTAL DE PRODUCTOS -->
                     <div id="carritoItems" class="space-y-2.5">
                         <p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>
                     </div>
@@ -521,9 +520,10 @@
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <h2 class="text-2xl font-black text-white uppercase">👑 JERARQUÍA Y GESTIÓN DE PERSONAL</h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Organizado por comisiones. Puedes mantener su rango y alternar permisos de Administrador a voluntad.</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">Organizado por comisiones y rango jerárquico. Puedes alternar permisos de Administrador a voluntad.</p>
                     </div>
                     <div class="flex flex-wrap gap-2 text-[11px] font-black">
+                        <span class="bg-amber-500/15 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg">👑 Jefe: 0%</span>
                         <span class="bg-rose-500/15 border border-rose-500/40 text-rose-400 px-2.5 py-1 rounded-lg">🛡️ Subjefe: 0%</span>
                         <span class="bg-yellow-500/15 border border-yellow-500/40 text-yellow-400 px-2.5 py-1 rounded-lg">👔 Encargado: 45%</span>
                         <span class="bg-purple-500/15 border border-purple-500/40 text-purple-300 px-2.5 py-1 rounded-lg">⭐ M. Experto: 40%</span>
@@ -718,7 +718,6 @@
             }
         };
 
-        // CATÁLOGO ORDENADO: GENERAL PRIMERO, COMBOS Y PAQUETES AL FINAL
         const catalogo = [
             // 1. GENERAL (ARRIBA DE PRIMERAS)
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
@@ -781,7 +780,9 @@
             return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        function obtenerClaveRango(comision) {
+        // Determina la clave de sección considerando el rol y la comisión
+        function obtenerClaveRango(rol, comision) {
+            if (rol === 'jefe' || comision == -1) return 'jefe';
             if (comision == 0) return 'subjefe';
             if (comision >= 45) return 'encargado';
             if (comision >= 40) return 'experto';
@@ -792,6 +793,9 @@
         function obtenerBadgeRango(rol, comision) {
             let badgeAdmin = rol === 'admin' ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/40 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ml-1">👑 Admin</span>' : '';
 
+            if (rol === 'jefe' || comision == -1) {
+                return `<span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/50 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-[0_0_10px_rgba(245,158,11,0.2)]">👑 Jefe (0%)</span>`;
+            }
             if (comision == 0) {
                 return `<span class="inline-flex items-center gap-1 bg-rose-500/15 text-rose-400 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🛡️ Subjefe (0%)${badgeAdmin}</span>`;
             }
@@ -807,7 +811,8 @@
             return `<span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔰 En Pruebas (30%)${badgeAdmin}</span>`;
         }
 
-        function obtenerClaseColorNombre(comision) {
+        function obtenerClaseColorNombre(rol, comision) {
+            if (rol === 'jefe' || comision == -1) return 'text-amber-300 font-black';
             if (comision == 0) return 'text-rose-400 font-black';
             if (comision >= 45) return 'text-yellow-300 font-black';
             if (comision >= 40) return 'text-purple-300 font-bold';
@@ -818,7 +823,7 @@
         let debounceTimer = null;
         socket.on('online_users_update', (onlineList) => {
             actualizarBarraOnline(onlineList);
-            if (usuarioActual && usuarioActual.rol === 'admin' && pestanaActiva === 'admin') cargarGestionAdmin();
+            if (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe') && pestanaActiva === 'admin') cargarGestionAdmin();
             if (pestanaActiva === 'top') cargarTop();
         });
 
@@ -839,19 +844,18 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 if (pestanaActiva === 'historial') cargarHistorial();
-                if (pestanaActiva === 'almacen' && usuarioActual && usuarioActual.rol === 'admin') cargarAlmacen();
+                if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
                 if (pestanaActiva === 'top') cargarTop();
-                if (pestanaActiva === 'admin' && usuarioActual && usuarioActual.rol === 'admin') cargarGestionAdmin();
+                if (pestanaActiva === 'admin' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarGestionAdmin();
             }, 250);
         });
 
-        // BLOQUEO DE DESCUENTOS EN COMBOS, PAQUETES Y V12 SOLA
         function tieneProductosSinDescuento() {
             const items = Object.values(carrito);
             return items.some(item => 
                 item.categoria === 'COMBOS (PRECIOS FIJOS)' || 
                 item.categoria === 'PAQUETES ESPECIALES' || 
-                item.id === 7 // Motor V12 solo
+                item.id === 7
             );
         }
 
@@ -883,13 +887,13 @@
             barra.classList.remove('hidden');
             let chipsHTML = '';
             onlineList.forEach(u => {
-                const colorClase = obtenerClaseColorNombre(u.comision_porcentaje ?? (u.rol === 'admin' ? 0 : 30));
-                const esAdmin = u.rol === 'admin';
+                const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje ?? (u.rol === 'admin' ? 0 : 30));
+                const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
                 chipsHTML += `
                     <div class="flex items-center gap-1.5 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
                         <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
                         <span class="${colorClase}">${u.nombre}</span>
-                        ${esAdmin ? '<span class="text-[9px] text-rose-400 font-bold">👑</span>' : ''}
+                        ${esAdminOJefe ? '<span class="text-[9px] text-amber-400 font-bold">👑</span>' : ''}
                         <span class="text-[10px] text-zinc-500">(@${u.usuario})</span>
                     </div>
                 `;
@@ -898,10 +902,11 @@
         }
 
         function togglePrecioFabrica() {
-            if (!usuarioActual || usuarioActual.rol !== 'admin') {
+            const esAdminOJefe = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
+            if (!esAdminOJefe) {
                 document.getElementById('checkPrecioFabrica').checked = false;
                 modoPrecioFabrica = false;
-                return mostrarAviso('Acceso Restringido', 'Solo los administradores pueden cobrar a precio de fábrica.', true);
+                return mostrarAviso('Acceso Restringido', 'Solo los administradores y jefes pueden cobrar a precio de fábrica.', true);
             }
 
             modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
@@ -924,8 +929,8 @@
             const contModoFabrica = document.getElementById('contenedorModoFabrica');
 
             if (usuarioActual) {
-                const esAdmin = usuarioActual.rol === 'admin';
-                if (esAdmin) {
+                const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
+                if (esAdminOJefe) {
                     btnAdmin.classList.remove('hidden');
                     btnAlmacen.classList.remove('hidden');
                     contModoFabrica.classList.remove('hidden');
@@ -939,7 +944,7 @@
 
                 container.innerHTML = `
                     <div class="flex items-center gap-2">
-                        <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
+                        <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
                         ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
                     </div>
                     <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
@@ -1019,8 +1024,9 @@
         function cambiarPestana(pestana) {
             if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
 
-            if ((pestana === 'admin' || pestana === 'almacen') && usuarioActual.rol !== 'admin') {
-                return mostrarAviso('Acceso Denegado', 'Solo los administradores tienen permiso para acceder a esta sección.', true);
+            const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
+            if ((pestana === 'admin' || pestana === 'almacen') && !esAdminOJefe) {
+                return mostrarAviso('Acceso Denegado', 'Solo los administradores y jefes tienen permiso para acceder a esta sección.', true);
             }
 
             pestanaActiva = pestana;
@@ -1049,10 +1055,10 @@
                 }
             });
 
-            if (pestana === 'almacen' && usuarioActual.rol === 'admin') cargarAlmacen();
+            if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
             if (pestana === 'historial') cargarHistorial();
             if (pestana === 'top') cargarTop();
-            if (pestana === 'admin' && usuarioActual.rol === 'admin') cargarGestionAdmin();
+            if (pestana === 'admin' && esAdminOJefe) cargarGestionAdmin();
         }
 
         async function cargarAlmacen() {
@@ -1201,6 +1207,7 @@
             let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
 
             const secciones = [
+                { key: 'jefe', titulo: '👑 JEFES (0% COMISIÓN - DIRECCIÓN GENERAL)', borde: 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]', texto: 'text-amber-300', bg: 'bg-amber-950/20' },
                 { key: 'subjefe', titulo: '🛡️ SUBJEFES (0% COMISIÓN - GANAN DE CAPITAL)', borde: 'border-rose-500/40', texto: 'text-rose-400', bg: 'bg-rose-950/10' },
                 { key: 'encargado', titulo: '👔 ENCARGADOS (45% COMISIÓN)', borde: 'border-yellow-500/40', texto: 'text-yellow-400', bg: 'bg-yellow-950/10' },
                 { key: 'experto', titulo: '⭐ MECÁNICOS EXPERTOS (40% COMISIÓN)', borde: 'border-purple-500/40', texto: 'text-purple-400', bg: 'bg-purple-950/10' },
@@ -1211,14 +1218,14 @@
             let htmlFinal = '';
 
             secciones.forEach(sec => {
-                const usuariosEnRango = usuariosAdminGlobal.filter(u => obtenerClaveRango(u.comision_porcentaje) === sec.key);
+                const usuariosEnRango = usuariosAdminGlobal.filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
 
                 let filas = '';
                 usuariosEnRango.forEach(u => {
                     const estaOnline = usuariosOnlineSet.has(Number(u.id));
-                    const colorClase = obtenerClaseColorNombre(u.comision_porcentaje);
-                    const presetActual = obtenerClaveRango(u.comision_porcentaje);
-                    const esAdmin = u.rol === 'admin';
+                    const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
+                    const presetActual = obtenerClaveRango(u.rol, u.comision_porcentaje);
+                    const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
 
                     filas += `
                         <tr class="hover:bg-zinc-900/40 transition">
@@ -1231,7 +1238,7 @@
                             <td class="p-3">
                                 <div class="flex items-center gap-1.5">
                                     <span class="${colorClase}">${u.nombre}</span>
-                                    ${esAdmin ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
+                                    ${esAdminOJefe ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
                                 </div>
                                 <div class="text-xs text-zinc-500">@${u.usuario}</div>
                             </td>
@@ -1240,6 +1247,7 @@
                             </td>
                             <td class="p-3">
                                 <select id="rangoPreset-${u.id}" class="input-dark px-3 py-1.5 rounded-xl text-xs font-bold w-full max-w-[210px] focus:ring-1 focus:ring-zinc-400">
+                                    <option value="jefe" ${presetActual === 'jefe' ? 'selected' : ''}>👑 Jefe (0%)</option>
                                     <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0%)</option>
                                     <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45%)</option>
                                     <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ M. Experto (40%)</option>
@@ -1248,9 +1256,10 @@
                                 </select>
                             </td>
                             <td class="p-3">
-                                <select id="permisoAdmin-${u.id}" class="input-dark px-2.5 py-1.5 rounded-xl text-xs font-bold focus:ring-1 focus:ring-zinc-400 ${esAdmin ? 'text-rose-400 border-rose-500/30 font-black' : 'text-zinc-300'}">
-                                    <option value="empleado" ${!esAdmin ? 'selected' : ''}>Empleado</option>
-                                    <option value="admin" ${esAdmin ? 'selected' : ''}>👑 Acceso Admin</option>
+                                <select id="permisoAdmin-${u.id}" class="input-dark px-2.5 py-1.5 rounded-xl text-xs font-bold focus:ring-1 focus:ring-zinc-400 ${esAdminOJefe ? 'text-amber-400 border-amber-500/40 font-black' : 'text-zinc-300'}">
+                                    <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
+                                    <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>👑 Acceso Admin</option>
+                                    <option value="jefe" ${u.rol === 'jefe' ? 'selected' : ''}>👑 Acceso Jefe</option>
                                 </select>
                             </td>
                             <td class="p-3 text-right space-x-2">
@@ -1286,7 +1295,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-800/60">
-                                    ${filas || '<tr><td colspan="6" class="p-3 text-xs text-zinc-500 italic text-center">No hay trabajadores en este rango.</td></tr>'}
+                                    ${filas || '<tr><td colspan="6" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -1309,15 +1318,24 @@
 
         async function guardarCambiosUsuario(usuario_id) {
             const preset = document.getElementById(`rangoPreset-${usuario_id}`).value;
-            const rol = document.getElementById(`permisoAdmin-${usuario_id}`).value;
+            let rol = document.getElementById(`permisoAdmin-${usuario_id}`).value;
             
             let comision_porcentaje = 30;
 
-            if (preset === 'subjefe') comision_porcentaje = 0;
-            else if (preset === 'encargado') comision_porcentaje = 45;
-            else if (preset === 'experto') comision_porcentaje = 40;
-            else if (preset === 'mecanico') comision_porcentaje = 35;
-            else if (preset === 'pruebas') comision_porcentaje = 30;
+            if (preset === 'jefe') {
+                comision_porcentaje = 0;
+                if (rol === 'empleado') rol = 'jefe';
+            } else if (preset === 'subjefe') {
+                comision_porcentaje = 0;
+            } else if (preset === 'encargado') {
+                comision_porcentaje = 45;
+            } else if (preset === 'experto') {
+                comision_porcentaje = 40;
+            } else if (preset === 'mecanico') {
+                comision_porcentaje = 35;
+            } else if (preset === 'pruebas') {
+                comision_porcentaje = 30;
+            }
 
             const res = await fetch('/api/usuarios/modificar', {
                 method: 'PUT',
@@ -1325,7 +1343,7 @@
                 body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
             });
 
-            if (res.ok) mostrarAviso('Usuario Actualizado', `¡Rango (${comision_porcentaje}%) y permisos guardados con éxito!`);
+            if (res.ok) mostrarAviso('Usuario Actualizado', `¡Rango (${preset.toUpperCase()}) y permisos guardados con éxito!`);
             else mostrarAviso('Error', 'Error al actualizar el usuario.', true);
         }
 
@@ -1467,7 +1485,7 @@
             lista.forEach((item, index) => {
                 const badge = insignias[index] || `PUESTO #${index + 1}`;
                 const estaOnline = usuariosOnlineSet.has(Number(item.id));
-                const colorClase = obtenerClaseColorNombre(item.comision_porcentaje);
+                const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
 
                 html += `
                     <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
@@ -1576,7 +1594,6 @@
             document.getElementById('mTotalFacturas').innerText = facturas.length;
         }
 
-        // RENDER DEL CATÁLOGO
         function renderCatalogo() {
             if (catalogoRenderizado) return;
             const container = document.getElementById('listaProductos');
