@@ -83,15 +83,88 @@
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
         }
-        .logo-glow {
-            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.35));
+
+        /* MARCOS RANKED LEAGUE OF LEGENDS */
+        .border-ranked-iron {
+            border: 2px solid #5a5757 !important;
+            box-shadow: 0 0 8px rgba(90, 87, 87, 0.5);
+        }
+        .border-ranked-bronze {
+            border: 2px solid #8c5230 !important;
+            box-shadow: 0 0 10px rgba(140, 82, 48, 0.6);
+        }
+        .border-ranked-silver {
+            border: 2px solid #a0b2c6 !important;
+            box-shadow: 0 0 12px rgba(160, 178, 198, 0.7);
+        }
+        .border-ranked-gold {
+            border: 2.5px solid #f59e0b !important;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.8), inset 0 0 6px rgba(245, 158, 11, 0.4);
+        }
+        .border-ranked-platinum {
+            border: 2.5px solid #2dd4bf !important;
+            box-shadow: 0 0 16px rgba(45, 212, 191, 0.85), inset 0 0 8px rgba(45, 212, 191, 0.5);
+        }
+        .border-ranked-diamond {
+            border: 3px solid #38bdf8 !important;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.9), inset 0 0 10px rgba(56, 189, 248, 0.6);
+        }
+        .border-ranked-challenger {
+            border: 3px solid #e11d48 !important;
+            box-shadow: 0 0 22px rgba(225, 29, 72, 1), inset 0 0 12px rgba(244, 63, 94, 0.7);
+            animation: pulseRanked 2s infinite alternate;
+        }
+
+        @keyframes pulseRanked {
+            0% { filter: drop-shadow(0 0 6px rgba(225, 29, 72, 0.6)); }
+            100% { filter: drop-shadow(0 0 16px rgba(244, 63, 94, 1)); }
+        }
+
+        /* PASADOR DE MEDALLAS TIPO MARINA */
+        .ribbon-bar {
+            display: inline-flex;
+            gap: 2px;
+            padding: 2px 4px;
+            background: #000000;
+            border: 1px solid #27272a;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+        }
+        .ribbon-chip {
+            width: 20px;
+            height: 10px;
+            border-radius: 1.5px;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: inline-block;
         }
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-4">
         
-        <!-- BANNER GLOBAL DE VENTAS EN VIVO -->
+        <!-- BARRA SUPERIOR DE RELOJES INTERNACIONALES MULTI-ZONA -->
+        <div class="card-dark px-4 py-2 rounded-xl flex flex-wrap justify-between items-center text-xs border-b border-zinc-800 gap-3">
+            <div class="flex items-center gap-2">
+                <span class="text-sm">🕒</span>
+                <span class="font-black text-zinc-400 uppercase tracking-wider text-[11px]">HORARIOS DE REGISTRO EN VIVO:</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 text-xs font-mono">
+                <div class="flex items-center gap-1.5 bg-black/60 px-3 py-1 rounded-lg border border-emerald-500/30">
+                    <span class="font-bold text-emerald-400">🇲🇽 México:</span>
+                    <span id="relojMexico" class="text-white font-black tracking-wider">--:--:--</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-black/60 px-3 py-1 rounded-lg border border-yellow-500/30">
+                    <span class="font-bold text-yellow-400">🇪🇸 España:</span>
+                    <span id="relojEspana" class="text-white font-black tracking-wider">--:--:--</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-black/60 px-3 py-1 rounded-lg border border-cyan-500/30">
+                    <span class="font-bold text-cyan-400">🇦🇷 Argentina:</span>
+                    <span id="relojArgentina" class="text-white font-black tracking-wider">--:--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP) -->
         <div id="liveFeedVentas" class="card-dark p-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 hidden flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-pulse">
             <div class="flex items-center gap-2.5 text-xs">
                 <span class="text-base">🔥</span>
@@ -103,7 +176,7 @@
         <!-- HEADER PRINCIPAL -->
         <div class="card-header-dark p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
             <div class="flex items-center gap-4 z-10">
-                <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-700 logo-glow shrink-0 overflow-hidden cursor-pointer" onclick="cambiarPestana('historial')" title="Ver mi perfil">
+                <div id="headerAvatarContainer" class="relative w-14 h-14 rounded-full p-0.5 border-ranked-iron shrink-0 overflow-hidden cursor-pointer" onclick="cambiarPestana('historial')" title="Ver mi perfil">
                     <img id="headerUserAvatar" src="/logo.png" 
                          onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                          alt="Avatar" 
@@ -180,7 +253,7 @@
         <!-- LOGIN / REGISTRO -->
         <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-cyan-500/20 tab-content-anim">
             <div class="text-center space-y-2">
-                <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 to-blue-600 logo-glow overflow-hidden">
+                <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 to-blue-600 border-ranked-diamond overflow-hidden">
                     <img src="/logo.png" 
                          onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                          alt="AutoExotic Logo" 
@@ -487,7 +560,7 @@
             <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-6 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/20 via-zinc-950 to-zinc-950">
                 <div class="flex flex-wrap items-center gap-5">
                     <div class="relative group">
-                        <div class="w-20 h-20 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-500 to-indigo-500 shadow-lg">
+                        <div id="profileAvatarContainer" class="w-20 h-20 rounded-full overflow-hidden p-0.5 border-ranked-iron shadow-lg">
                             <img id="profileUserAvatar" src="/logo.png" 
                                  onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                                  alt="Avatar" class="w-full h-full object-cover rounded-full">
@@ -528,11 +601,14 @@
                 </div>
             </div>
 
-            <!-- MEDALLAS -->
-            <div class="card-dark p-5 rounded-2xl space-y-3">
-                <h3 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                    <span>🏆</span> MEDALLAS Y LOGROS DESBLOQUEABLES
-                </h3>
+            <!-- PASADOR DE MEDALLAS / LOGROS DESBLOQUEABLES (TIPO MARINA) -->
+            <div class="card-dark p-5 rounded-2xl space-y-4">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <h3 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                        <span>🎖️</span> CONDECORACIONES & MEDALLAS OFICIALES (PÚBLICAS)
+                    </h3>
+                    <div id="perfilRibbonBar" class="ribbon-bar"></div>
+                </div>
                 <div id="contenedorMedallasPerfil" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
             </div>
 
@@ -561,7 +637,7 @@
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
-                <p class="text-xs text-zinc-400">Ranking oficial de ventas, niveles y medallas.</p>
+                <p class="text-xs text-zinc-400">Ranking oficial con rangos LoL, niveles y pasadores de medallas.</p>
             </div>
 
             <div id="topContenedor" class="space-y-4"></div>
@@ -718,7 +794,35 @@
         }
         crearFaviconCircular();
 
-        // SONIDOS CARACTERÍSTICOS POR MONTO Y TIPO DE PIEZA (WEB AUDIO API)
+        // RELOJES EN TIEMPO REAL (MÉXICO, ESPAÑA Y ARGENTINA)
+        function actualizarRelojesMultiZona() {
+            const ahora = new Date();
+            
+            const opciones = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            
+            const horaMx = ahora.toLocaleTimeString('es-MX', { ...opciones, timeZone: 'America/Mexico_City' });
+            const horaEs = ahora.toLocaleTimeString('es-ES', { ...opciones, timeZone: 'Europe/Madrid' });
+            const horaAr = ahora.toLocaleTimeString('es-AR', { ...opciones, timeZone: 'America/Argentina/Buenos_Aires' });
+
+            document.getElementById('relojMexico').innerText = horaMx;
+            document.getElementById('relojEspana').innerText = horaEs;
+            document.getElementById('relojArgentina').innerText = horaAr;
+        }
+        setInterval(actualizarRelojesMultiZona, 1000);
+        actualizarRelojesMultiZona();
+
+        // OBTENER CLASE DE MARCO RANKED LEAGUE OF LEGENDS SEGÚN NIVEL
+        function obtenerClaseMarcoRanked(nivel) {
+            if (nivel >= 75) return 'border-ranked-challenger';
+            if (nivel >= 50) return 'border-ranked-diamond';
+            if (nivel >= 30) return 'border-ranked-platinum';
+            if (nivel >= 15) return 'border-ranked-gold';
+            if (nivel >= 5) return 'border-ranked-silver';
+            if (nivel >= 2) return 'border-ranked-bronze';
+            return 'border-ranked-iron';
+        }
+
+        // REPRODUCTOR DE SONIDOS SINTETIZADOS
         function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -738,17 +842,13 @@
                 };
 
                 if (total >= 1000000) {
-                    // FANFARRIA ÉPICA ($1,000,000+)
                     [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => emitirTono(f, i * 0.12, 0.5, 'sine', 0.25));
                 } else if (total >= 500000 || tieneV12) {
-                    // RUGIDO V12 / ACORDE POTENTE ($500K+)
                     [220, 329.63, 440, 554.37, 659.25].forEach((f) => emitirTono(f, 0, 0.8, 'sawtooth', 0.12));
                 } else if (total >= 100000) {
-                    // SONIDO METÁLICO ($100K+)
                     emitirTono(880, 0, 0.15, 'triangle', 0.2);
                     emitirTono(1318.51, 0.12, 0.4, 'triangle', 0.2);
                 } else {
-                    // DING ESTÁNDAR
                     emitirTono(659.25, 0, 0.1, 'sine', 0.15);
                     emitirTono(880, 0.08, 0.25, 'sine', 0.15);
                 }
@@ -782,7 +882,6 @@
             return localStorage.getItem(`ae_avatar_${usuarioId}`) || '/logo.png';
         }
 
-        // SUBIDA DE FOTO CON COMPRESIÓN CANVAS HASTA 15MB
         function subirFotoPerfilTrabajador(event) {
             if (!usuarioActual) return;
             const file = event.target.files[0];
@@ -823,6 +922,8 @@
                     localStorage.setItem(`ae_avatar_${usuarioActual.id}`, base64Optimizado);
                     document.getElementById('headerUserAvatar').src = base64Optimizado;
                     document.getElementById('profileUserAvatar').src = base64Optimizado;
+                    
+                    socket.emit('db_update', { evento: 'avatar_actualizado' });
                     mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
                 };
                 img.src = e.target.result;
@@ -846,16 +947,18 @@
             const xpActualNivel = xpTotal % xpPorNivel;
             const porcentaje = Math.min(100, Math.floor((xpActualNivel / xpPorNivel) * 100));
 
-            let titulo = 'Novato';
-            if (nivel >= 50) titulo = 'Leyenda AutoExotic';
-            else if (nivel >= 30) titulo = 'Maestro V12';
-            else if (nivel >= 15) titulo = 'Afinador Callejero';
-            else if (nivel >= 5) titulo = 'Aprendiz del Dyno';
+            let titulo = 'Novato (Hierro)';
+            if (nivel >= 75) titulo = 'Challenger AutoExotic';
+            else if (nivel >= 50) titulo = 'Diamante del Dyno';
+            else if (nivel >= 30) titulo = 'Platino V12';
+            else if (nivel >= 15) titulo = 'Afinador de Oro';
+            else if (nivel >= 5) titulo = 'Mecánico de Plata';
+            else if (nivel >= 2) titulo = 'Mecánico de Bronce';
 
             return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo, xpTotal };
         }
 
-        // 8 MEDALLAS DESBLOQUEABLES
+        // GENERACIÓN DE MEDALLAS CON CONDECORACIONES TIPO MARINA
         function generarMedallas(facturas, totalVendido, usuarioId) {
             let totalV12 = 0;
             let totalV8 = 0;
@@ -883,15 +986,26 @@
             const overrides = JSON.parse(localStorage.getItem(`ae_custom_badges_${usuarioId}`)) || {};
 
             return [
-                { id: 'm1', titulo: 'Rey del V12', icon: '👑', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : (totalV12 >= 3) },
-                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : (totalNitro >= 5) },
-                { id: 'm3', titulo: 'Rey del Drift', icon: '🏎️', desc: 'Instala Kits de Drift', activa: overrides.m3 !== undefined ? overrides.m3 : (totalDrift >= 2) },
-                { id: 'm4', titulo: 'Mente V8', icon: '⚙️', desc: 'Instala 5+ Motores V8', activa: overrides.m4 !== undefined ? overrides.m4 : (totalV8 >= 5) },
-                { id: 'm5', titulo: 'Detallador Pro', icon: '🧼', desc: '10+ Kits de Limpieza', activa: overrides.m5 !== undefined ? overrides.m5 : (totalLimpieza >= 10) },
-                { id: 'm6', titulo: 'Gran Negocio', icon: '⚡', desc: 'Factura de $1,000,000+', activa: overrides.m6 !== undefined ? overrides.m6 : (facturasGrandes >= 1) },
-                { id: 'm7', titulo: 'Medio Millón', icon: '💎', desc: 'Vende $500,000+', activa: overrides.m7 !== undefined ? overrides.m7 : (totalVendido >= 500000) },
-                { id: 'm8', titulo: 'Millonario', icon: '💰', desc: 'Factura $5,000,000+', activa: overrides.m8 !== undefined ? overrides.m8 : (totalVendido >= 5000000) }
+                { id: 'm1', titulo: 'Rey del V12', icon: '👑', colorRibbon: 'bg-amber-500', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : (totalV12 >= 3) },
+                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', colorRibbon: 'bg-cyan-500', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : (totalNitro >= 5) },
+                { id: 'm3', titulo: 'Rey del Drift', icon: '🏎️', colorRibbon: 'bg-fuchsia-500', desc: 'Instala Kits de Drift', activa: overrides.m3 !== undefined ? overrides.m3 : (totalDrift >= 2) },
+                { id: 'm4', titulo: 'Mente V8', icon: '⚙️', colorRibbon: 'bg-blue-500', desc: 'Instala 5+ Motores V8', activa: overrides.m4 !== undefined ? overrides.m4 : (totalV8 >= 5) },
+                { id: 'm5', titulo: 'Detallador Pro', icon: '🧼', colorRibbon: 'bg-emerald-500', desc: '10+ Kits de Limpieza', activa: overrides.m5 !== undefined ? overrides.m5 : (totalLimpieza >= 10) },
+                { id: 'm6', titulo: 'Gran Negocio', icon: '⚡', colorRibbon: 'bg-yellow-400', desc: 'Factura de $1,000,000+', activa: overrides.m6 !== undefined ? overrides.m6 : (facturasGrandes >= 1) },
+                { id: 'm7', titulo: 'Medio Millón', icon: '💎', colorRibbon: 'bg-teal-400', desc: 'Vende $500,000+', activa: overrides.m7 !== undefined ? overrides.m7 : (totalVendido >= 500000) },
+                { id: 'm8', titulo: 'Millonario', icon: '💰', colorRibbon: 'bg-rose-500', desc: 'Factura $5,000,000+', activa: overrides.m8 !== undefined ? overrides.m8 : (totalVendido >= 5000000) }
             ];
+        }
+
+        function generarRibbonBarHTML(medallas) {
+            let html = '<div class="ribbon-bar" title="Pasador de Medallas">';
+            medallas.forEach(m => {
+                if (m.activa) {
+                    html += `<span class="ribbon-chip ${m.colorRibbon}" title="${m.titulo}: ${m.desc}"></span>`;
+                }
+            });
+            html += '</div>';
+            return html;
         }
 
         const categoriaConfig = {
@@ -962,7 +1076,6 @@
         };
 
         const catalogo = [
-            // 1. GENERAL (ARRIBA)
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
             { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
             { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
@@ -971,36 +1084,22 @@
             { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
             { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
             { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
-
-            // 2. DRIFT Y NITRO
             { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
-
-            // 3. MOTORES
             { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000 },
             { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000 },
-
-            // 4. FRENOS
             { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
-
-            // 5. TRACCIÓN
             { id: 9, categoria: 'TRACCIÓN', nombre: 'Tracción AWD', venta: 12500, costo: 8000 },
             { id: 10, categoria: 'TRACCIÓN', nombre: 'Tracción RWD', venta: 11500, costo: 7000 },
             { id: 11, categoria: 'TRACCIÓN', nombre: 'Tracción FWD', venta: 10500, costo: 8500 },
-
-            // 6. NEUMÁTICOS
             { id: 12, categoria: 'NEUMÁTICOS', nombre: 'Slick', venta: 6000, costo: 4000 },
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
-
-            // 7. COMBOS (ABAJO)
             { id: 18, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V8 PRO', venta: 140000, costo: 95000 },
             { id: 19, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V8', venta: 100000, costo: 67000 },
             { id: 20, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12', venta: 550000, costo: 327000 },
             { id: 21, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12 PRO (RENDIMIENTOS)', venta: 580000, costo: 348000 },
-
-            // 8. PAQUETES ESPECIALES (ABAJO)
             { id: 22, categoria: 'PAQUETES ESPECIALES', nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', venta: 1350000, costo: 600000 },
             { id: 23, categoria: 'PAQUETES ESPECIALES', nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', venta: 2900000, costo: 1800000 }
         ];
@@ -1069,7 +1168,6 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
-        // NOTIFICACIONES GLOBALES EN TIEMPO REAL CON SONIDO Y ALERTAS
         socket.on('db_update', (data) => {
             if (data.evento === 'nueva_factura' && data.total) {
                 let tieneV12 = false;
@@ -1136,6 +1234,10 @@
                 document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
                 document.getElementById('txtTituloNivelHeader').innerText = stats.titulo;
                 document.getElementById('barraProgresoXPHeader').style.width = `${stats.porcentaje}%`;
+
+                const marcoClase = obtenerClaseMarcoRanked(stats.nivel);
+                const headerCont = document.getElementById('headerAvatarContainer');
+                headerCont.className = `relative w-14 h-14 rounded-full p-0.5 ${marcoClase} shrink-0 overflow-hidden cursor-pointer`;
 
                 const racha = calcularRachaDiaria(usuarioActual.id);
                 document.getElementById('badgeRachaHeader').classList.remove('hidden');
@@ -1569,20 +1671,22 @@
                                     <option value="jefe" ${u.rol === 'jefe' ? 'selected' : ''}>👑 Acceso Jefe</option>
                                 </select>
                             </td>
-                            <!-- MODIFICAR NIVEL / XP MANUAL -->
                             <td class="p-3">
                                 <div class="flex items-center gap-1">
-                                    <input type="number" id="inputCustomLvl-${u.id}" value="${customLvl}" placeholder="Auto" min="1" max="100" class="w-16 input-dark px-2 py-1 rounded-lg text-xs font-bold text-center text-cyan-300" title="Escribe un nivel (1-100) o déjalo vacío para cálculo automático" />
+                                    <input type="number" id="inputCustomLvl-${u.id}" value="${customLvl}" placeholder="Auto" min="1" max="100" class="w-16 input-dark px-2 py-1 rounded-lg text-xs font-bold text-center text-cyan-300" title="Nivel (1-100)" />
                                     <span class="text-[10px] text-zinc-500">Lvl</span>
                                 </div>
                             </td>
-                            <!-- MEDALLAS MANUALES -->
                             <td class="p-3">
-                                <div class="flex items-center gap-1.5 text-xs">
-                                    <label title="Rey V12" class="cursor-pointer"><input type="checkbox" id="badge_m1_${u.id}" ${customBadges.m1 ? 'checked' : ''} class="w-3.5 h-3.5 text-amber-500 rounded bg-black border-zinc-700"> 👑</label>
-                                    <label title="Nitro" class="cursor-pointer"><input type="checkbox" id="badge_m2_${u.id}" ${customBadges.m2 ? 'checked' : ''} class="w-3.5 h-3.5 text-cyan-500 rounded bg-black border-zinc-700"> 💨</label>
-                                    <label title="Millonario" class="cursor-pointer"><input type="checkbox" id="badge_m3_${u.id}" ${customBadges.m3 ? 'checked' : ''} class="w-3.5 h-3.5 text-yellow-500 rounded bg-black border-zinc-700"> 💰</label>
-                                    <label title="Gran Negocio" class="cursor-pointer"><input type="checkbox" id="badge_m4_${u.id}" ${customBadges.m4 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 rounded bg-black border-zinc-700"> ⚡</label>
+                                <div class="grid grid-cols-4 gap-1 text-[11px]">
+                                    <label title="Rey V12" class="cursor-pointer"><input type="checkbox" id="badge_m1_${u.id}" ${customBadges.m1 ? 'checked' : ''} class="w-3 h-3 text-amber-500 rounded bg-black"> 👑</label>
+                                    <label title="Nitro" class="cursor-pointer"><input type="checkbox" id="badge_m2_${u.id}" ${customBadges.m2 ? 'checked' : ''} class="w-3 h-3 text-cyan-500 rounded bg-black"> 💨</label>
+                                    <label title="Drift" class="cursor-pointer"><input type="checkbox" id="badge_m3_${u.id}" ${customBadges.m3 ? 'checked' : ''} class="w-3 h-3 text-fuchsia-500 rounded bg-black"> 🏎️</label>
+                                    <label title="Mente V8" class="cursor-pointer"><input type="checkbox" id="badge_m4_${u.id}" ${customBadges.m4 ? 'checked' : ''} class="w-3 h-3 text-blue-500 rounded bg-black"> ⚙️</label>
+                                    <label title="Detallador" class="cursor-pointer"><input type="checkbox" id="badge_m5_${u.id}" ${customBadges.m5 ? 'checked' : ''} class="w-3 h-3 text-emerald-500 rounded bg-black"> 🧼</label>
+                                    <label title="Gran Negocio" class="cursor-pointer"><input type="checkbox" id="badge_m6_${u.id}" ${customBadges.m6 ? 'checked' : ''} class="w-3 h-3 text-yellow-400 rounded bg-black"> ⚡</label>
+                                    <label title="Medio Millón" class="cursor-pointer"><input type="checkbox" id="badge_m7_${u.id}" ${customBadges.m7 ? 'checked' : ''} class="w-3 h-3 text-teal-400 rounded bg-black"> 💎</label>
+                                    <label title="Millonario" class="cursor-pointer"><input type="checkbox" id="badge_m8_${u.id}" ${customBadges.m8 ? 'checked' : ''} class="w-3 h-3 text-rose-500 rounded bg-black"> 💰</label>
                                 </div>
                             </td>
                             <td class="p-3 text-right space-x-1">
@@ -1672,7 +1776,11 @@
                 m1: document.getElementById(`badge_m1_${usuario_id}`).checked,
                 m2: document.getElementById(`badge_m2_${usuario_id}`).checked,
                 m3: document.getElementById(`badge_m3_${usuario_id}`).checked,
-                m4: document.getElementById(`badge_m4_${usuario_id}`).checked
+                m4: document.getElementById(`badge_m4_${usuario_id}`).checked,
+                m5: document.getElementById(`badge_m5_${usuario_id}`).checked,
+                m6: document.getElementById(`badge_m6_${usuario_id}`).checked,
+                m7: document.getElementById(`badge_m7_${usuario_id}`).checked,
+                m8: document.getElementById(`badge_m8_${usuario_id}`).checked
             };
             localStorage.setItem(`ae_custom_badges_${usuario_id}`, JSON.stringify(badgesObj));
 
@@ -1754,7 +1862,7 @@
 
             let html = '';
             filtradas.forEach(f => {
-                const fecha = new Date(f.fecha).toLocaleString();
+                const fecha = new Date(f.fecha).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', hour12: true, dateStyle: 'short', timeStyle: 'short' });
                 const avatar = obtenerAvatarTrabajador(f.usuario_id);
                 let itemsHTML = '';
                 if (f.items_json) {
@@ -1781,7 +1889,7 @@
                                 <img src="${avatar}" class="w-7 h-7 rounded-full object-cover border border-cyan-500/40" />
                                 <div>
                                     <span class="font-bold text-cyan-300 text-sm">👷 ${f.trabajador_nombre}</span>
-                                    <span class="text-xs text-zinc-500 ml-1">(@${f.trabajador_usuario}) · ${fecha}</span>
+                                    <span class="text-xs text-zinc-500 ml-1">(@${f.trabajador_usuario}) · 🇲🇽 ${fecha}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -1829,30 +1937,41 @@
             const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
 
             let html = '';
-            lista.forEach((item, index) => {
+            for (let index = 0; index < lista.length; index++) {
+                const item = lista[index];
                 const badge = insignias[index] || `PUESTO #${index + 1}`;
                 const estaOnline = usuariosOnlineSet.has(Number(item.id));
                 const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
                 const stats = calcularNivelYProgreso(item.total_vendido, item.id);
                 const avatar = obtenerAvatarTrabajador(item.id);
+                const marcoClase = obtenerClaseMarcoRanked(stats.nivel);
+
+                // Obtener medallas y pasador de cinta
+                const medallas = generarMedallas([], item.total_vendido, item.id);
+                const ribbonHTML = generarRibbonBarHTML(medallas);
 
                 html += `
                     <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                            <img src="${avatar}" class="w-11 h-11 rounded-full object-cover border-2 border-cyan-500/50 shadow-md" />
+                            <div class="w-12 h-12 rounded-full p-0.5 ${marcoClase} overflow-hidden shrink-0">
+                                <img src="${avatar}" class="w-full h-full rounded-full object-cover" />
+                            </div>
                             <div>
-                                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                <div class="flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                    <span class="${colorClase}">${item.nombre}</span> <span class="text-xs text-zinc-500 font-normal">(@${item.usuario})</span>
+                                    <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
+                                    <span class="text-xs text-zinc-500">(@${item.usuario})</span>
                                     <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
                                     ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
-                                </h3>
-                                <p class="text-xs text-zinc-400 mt-0.5">
-                                    Ingresó: <strong class="text-zinc-300 font-semibold">${formatearFechaIngreso(item.created_at)}</strong> · 
-                                    Ventas: <strong class="text-white font-bold">${item.total_facturas}</strong> · 
-                                    XP: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong>
-                                </p>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <p class="text-xs text-zinc-400">
+                                        XP: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
+                                        Ventas: <strong class="text-white font-bold">${item.total_facturas}</strong>
+                                    </p>
+                                    ${ribbonHTML}
+                                </div>
                             </div>
                         </div>
                         <div class="text-right">
@@ -1861,7 +1980,7 @@
                         </div>
                     </div>
                 `;
-            });
+            }
             container.innerHTML = html;
         }
 
@@ -1884,7 +2003,7 @@
                 totalVendido += f.total_cliente;
                 if (f.estado_pago === 'pendiente') totalComision += f.comision_empleado;
 
-                const fecha = new Date(f.fecha).toLocaleString();
+                const fecha = new Date(f.fecha).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', hour12: true, dateStyle: 'short', timeStyle: 'short' });
                 let itemsHTML = '';
                 if (f.items_json) {
                     try {
@@ -1908,7 +2027,7 @@
                         <div class="flex justify-between items-center">
                             <div>
                                 <span class="font-bold text-white text-sm">Trabajador: ${usuarioActual.nombre}</span>
-                                <span class="text-xs text-zinc-500 ml-2">${fecha}</span>
+                                <span class="text-xs text-zinc-500 ml-2">🇲🇽 ${fecha}</span>
                             </div>
                             <div class="text-right">
                                 <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
@@ -1937,7 +2056,10 @@
             const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
             const racha = calcularRachaDiaria(usuarioActual.id);
             const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
+            const marcoClase = obtenerClaseMarcoRanked(stats.nivel);
 
+            document.getElementById('headerAvatarContainer').className = `relative w-14 h-14 rounded-full p-0.5 ${marcoClase} shrink-0 overflow-hidden cursor-pointer`;
+            document.getElementById('profileAvatarContainer').className = `w-20 h-20 rounded-full overflow-hidden p-0.5 ${marcoClase} shadow-lg`;
             document.getElementById('headerUserAvatar').src = miAvatar;
             document.getElementById('profileUserAvatar').src = miAvatar;
             document.getElementById('lblPerfilNombre').innerText = usuarioActual.nombre;
@@ -1950,8 +2072,10 @@
             document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
             document.getElementById('lblPerfilRacha').innerText = `${racha} ${racha === 1 ? 'día activo' : 'días activos'}`;
 
-            // RENDER DE 8 MEDALLAS
+            // RENDER DE MEDALLAS Y PASADOR TIPO MARINA
             const medallas = generarMedallas(facturas, totalVendido, usuarioActual.id);
+            document.getElementById('perfilRibbonBar').innerHTML = generarRibbonBarHTML(medallas);
+
             const contenedorMedallas = document.getElementById('contenedorMedallasPerfil');
             let medallasHTML = '';
             medallas.forEach(m => {

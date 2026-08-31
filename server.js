@@ -295,7 +295,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA (CON NOTIFICACIÓN GLOBAL Y DETALLES PARA SONIDO)
+// 13. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
