@@ -28,14 +28,8 @@
         }
 
         @keyframes tabFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px) scale(0.995);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(8px) scale(0.995); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .card-dark { 
@@ -72,73 +66,49 @@
             transform: translateY(-1px);
             box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45);
         }
-        .btn-white {
-            background: #ffffff;
-            color: #000000;
-            font-weight: 800;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+        /* 🏆 CONTENEDORES Y BORDES OFICIALES LEAGUE OF LEGENDS */
+        .lol-avatar-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
         }
-        .btn-white:hover {
-            background: #e4e4e7;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
+        .lol-avatar-img {
+            border-radius: 50%;
+            object-fit: cover;
+            position: absolute;
+            z-index: 1;
+        }
+        .lol-frame-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.9));
         }
 
-        /* 🏆 MARCOS RANKED LEAGUE OF LEGENDS (9 TIERS EXACTOS) */
-        .border-ranked-iron {
-            border: 2.5px solid #57585c !important;
-            box-shadow: 0 0 10px rgba(87, 88, 92, 0.7), inset 0 0 5px rgba(87, 88, 92, 0.4);
-        }
-        .border-ranked-bronze {
-            border: 3px solid #a86238 !important;
-            box-shadow: 0 0 14px rgba(168, 98, 56, 0.8), inset 0 0 6px rgba(168, 98, 56, 0.4);
-        }
-        .border-ranked-silver {
-            border: 3px solid #cfd8dc !important;
-            box-shadow: 0 0 15px rgba(207, 216, 220, 0.85), inset 0 0 6px rgba(207, 216, 220, 0.5);
-        }
-        .border-ranked-gold {
-            border: 3.5px solid #f59e0b !important;
-            box-shadow: 0 0 18px rgba(245, 158, 11, 0.9), inset 0 0 8px rgba(245, 158, 11, 0.5);
-        }
-        .border-ranked-emerald {
-            border: 3.5px solid #10b981 !important;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.95), inset 0 0 9px rgba(16, 185, 129, 0.55);
-        }
-        .border-ranked-diamond {
-            border: 3.5px solid #38bdf8 !important;
-            box-shadow: 0 0 22px rgba(56, 189, 248, 1), inset 0 0 10px rgba(56, 189, 248, 0.6);
-        }
-        .border-ranked-master {
-            border: 4px solid #c084fc !important;
-            box-shadow: 0 0 25px rgba(192, 132, 252, 1), inset 0 0 11px rgba(192, 132, 252, 0.6);
-            animation: pulseMaster 2.2s infinite alternate;
-        }
-        .border-ranked-grandmaster {
-            border: 4px solid #ef4444 !important;
-            box-shadow: 0 0 26px rgba(239, 68, 68, 1), inset 0 0 12px rgba(239, 68, 68, 0.7);
-            animation: pulseGM 2s infinite alternate;
-        }
-        .border-ranked-challenger {
-            border: 4.5px solid #facc15 !important;
-            box-shadow: 0 0 28px rgba(250, 204, 21, 1), 0 0 16px rgba(56, 189, 248, 0.9), inset 0 0 12px rgba(250, 204, 21, 0.8);
-            animation: pulseChallenger 1.8s infinite alternate;
+        /* RESPLANDORES DINÁMICOS SEGÚN RANGO */
+        .glow-iron { filter: drop-shadow(0 0 4px #57585c); }
+        .glow-bronze { filter: drop-shadow(0 0 6px #a86238); }
+        .glow-silver { filter: drop-shadow(0 0 8px #cfd8dc); }
+        .glow-gold { filter: drop-shadow(0 0 10px #f59e0b); }
+        .glow-emerald { filter: drop-shadow(0 0 12px #10b981); }
+        .glow-diamond { filter: drop-shadow(0 0 14px #38bdf8); }
+        .glow-master { filter: drop-shadow(0 0 16px #c084fc); animation: pulseTier 2.2s infinite alternate; }
+        .glow-grandmaster { filter: drop-shadow(0 0 18px #ef4444); animation: pulseTier 2s infinite alternate; }
+        .glow-challenger { filter: drop-shadow(0 0 20px #facc15) drop-shadow(0 0 8px #38bdf8); animation: pulseTier 1.8s infinite alternate; }
+
+        @keyframes pulseTier {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); }
         }
 
-        @keyframes pulseMaster {
-            0% { box-shadow: 0 0 12px rgba(192, 132, 252, 0.7); }
-            100% { box-shadow: 0 0 25px rgba(192, 132, 252, 1); }
-        }
-        @keyframes pulseGM {
-            0% { box-shadow: 0 0 14px rgba(239, 68, 68, 0.7); }
-            100% { box-shadow: 0 0 26px rgba(239, 68, 68, 1); }
-        }
-        @keyframes pulseChallenger {
-            0% { box-shadow: 0 0 16px rgba(250, 204, 21, 0.8), 0 0 8px rgba(56, 189, 248, 0.6); }
-            100% { box-shadow: 0 0 32px rgba(250, 204, 21, 1), 0 0 18px rgba(56, 189, 248, 1); }
-        }
-
-        /* 🎖️ PASADOR DE MEDALLAS / CINTAS TIPO MARINA MILITAR */
+        /* PASADOR DE MEDALLAS TIPO MARINA */
         .ribbon-bar {
             display: inline-flex;
             flex-wrap: wrap;
@@ -147,7 +117,7 @@
             background: #020305;
             border: 1px solid #3f3f46;
             border-radius: 6px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.5);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
         }
         .ribbon-chip {
             width: 26px;
@@ -158,16 +128,13 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.6);
             transition: transform 0.15s ease;
         }
-        .ribbon-chip:hover {
-            transform: scale(1.18);
-            z-index: 10;
-        }
+        .ribbon-chip:hover { transform: scale(1.2); z-index: 10; }
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-4">
         
-        <!-- BARRA DE RELOJES INTERNACIONALES CON BANDERAS GRANDES -->
+        <!-- BARRA DE RELOJES INTERNACIONALES CON BANDERAS -->
         <div class="card-dark px-4 py-2.5 rounded-xl flex flex-wrap justify-between items-center text-xs border-b border-zinc-800 gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-base">🕒</span>
@@ -204,11 +171,8 @@
         <!-- HEADER PRINCIPAL -->
         <div class="card-header-dark p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
             <div class="flex items-center gap-4 z-10">
-                <div id="headerAvatarContainer" class="relative w-14 h-14 rounded-full p-0.5 border-ranked-iron shrink-0 overflow-hidden cursor-pointer transition" onclick="cambiarPestana('historial')" title="Ver mi perfil">
-                    <img id="headerUserAvatar" src="/logo.png" 
-                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
-                         alt="Avatar" 
-                         class="w-full h-full object-cover rounded-full">
+                <div id="headerAvatarContainer" class="cursor-pointer" onclick="cambiarPestana('historial')" title="Ver mi perfil">
+                    <!-- Renderizado dinámico del avatar y marco LOL -->
                 </div>
                 <div>
                     <h1 class="text-xl md:text-2xl font-black uppercase tracking-wider text-white">
@@ -226,10 +190,11 @@
                 </div>
 
                 <div id="badgeNivelHeader" class="hidden items-center gap-3 bg-black/80 border border-cyan-500/30 px-3.5 py-1.5 rounded-xl shadow-inner">
+                    <div id="headerRankCrestContainer" class="w-8 h-8 shrink-0 flex items-center justify-center"></div>
                     <div>
                         <div class="flex justify-between items-center gap-2 text-[10px] font-black uppercase tracking-wider">
                             <span id="txtNivelHeader" class="text-cyan-300">Nivel 1</span>
-                            <span id="txtTituloNivelHeader" class="text-zinc-400">Novato</span>
+                            <span id="txtTituloNivelHeader" class="text-zinc-400">Hierro</span>
                         </div>
                         <div class="w-28 bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-1 border border-zinc-700/50">
                             <div id="barraProgresoXPHeader" class="bg-gradient-to-r from-cyan-500 to-blue-500 h-full w-0 transition-all duration-500"></div>
@@ -281,7 +246,7 @@
         <!-- LOGIN / REGISTRO -->
         <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-cyan-500/20 tab-content-anim">
             <div class="text-center space-y-2">
-                <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 to-blue-600 border-ranked-diamond overflow-hidden">
+                <div class="w-24 h-24 mx-auto flex items-center justify-center">
                     <img src="/logo.png" 
                          onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                          alt="AutoExotic Logo" 
@@ -586,14 +551,12 @@
         <div id="seccion-historial" class="space-y-6 hidden">
             <!-- BANNER DE PERFIL -->
             <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-6 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/20 via-zinc-950 to-zinc-950">
-                <div class="flex flex-wrap items-center gap-5">
+                <div class="flex flex-wrap items-center gap-6">
                     <div class="relative group">
-                        <div id="profileAvatarContainer" class="w-20 h-20 rounded-full overflow-hidden p-0.5 border-ranked-iron shadow-lg">
-                            <img id="profileUserAvatar" src="/logo.png" 
-                                 onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
-                                 alt="Avatar" class="w-full h-full object-cover rounded-full">
+                        <div id="profileAvatarContainer">
+                            <!-- Renderizado del avatar con marco LOL grande -->
                         </div>
-                        <label for="inputSubirFotoPerfil" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center text-xs text-white font-bold opacity-0 group-hover:opacity-100 transition cursor-pointer text-center px-1">
+                        <label for="inputSubirFotoPerfil" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center text-xs text-white font-bold opacity-0 group-hover:opacity-100 transition cursor-pointer text-center px-1 z-20">
                             📷 Subir (hasta 15MB)
                         </label>
                         <input type="file" id="inputSubirFotoPerfil" accept="image/*" class="hidden" onchange="subirFotoPerfilTrabajador(event)">
@@ -629,7 +592,7 @@
                 </div>
             </div>
 
-            <!-- PASADOR DE MEDALLAS / LOGROS DESBLOQUEABLES (TIPO MARINA) -->
+            <!-- PASADOR DE MEDALLAS / CONDECORACIONES -->
             <div class="card-dark p-5 rounded-2xl space-y-4">
                 <div class="flex flex-wrap justify-between items-center gap-2">
                     <h3 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
@@ -640,7 +603,7 @@
                 <div id="contenedorMedallasPerfil" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
             </div>
 
-            <!-- SELECCIÓN DE HUSO HORARIO PARA FACTURAS -->
+            <!-- SELECTOR DE ZONA HORARIA PARA FACTURAS -->
             <div class="card-dark p-4 rounded-xl flex flex-wrap justify-between items-center gap-4 border-l-4 border-yellow-400">
                 <div class="flex items-center gap-2">
                     <span class="text-base">🌐</span>
@@ -841,6 +804,107 @@
         }
         crearFaviconCircular();
 
+        // 🌟 CONFIGURACIÓN DE LOS 9 RANGOS DE LEAGUE OF LEGENDS CON LOS MARCOS Y CRESTAS OFICIALES
+        const LOL_RANKS_CONFIG = {
+            iron: {
+                key: 'iron',
+                nombre: 'Hierro (Iron)',
+                color: '#57585c',
+                glowClass: 'glow-iron',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 8L76 26L68 68L50 92L32 68L24 26L50 8Z" fill="#3a3a3c" stroke="#6d6d72" stroke-width="3"/><path d="M50 20L66 32L60 62L50 80L40 62L34 32L50 20Z" fill="#242426"/><path d="M50 30V65M42 45H58" stroke="#8a8a8e" stroke-width="3" stroke-linecap="round"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#48484a" stroke-width="4"/><path d="M60 4L70 16H50L60 4Z" fill="#6d6d72"/><path d="M60 116L72 102H48L60 116Z" fill="#6d6d72"/><path d="M4 60L16 50V70L4 60Z" fill="#6d6d72"/><path d="M116 60L104 50V70L116 60Z" fill="#6d6d72"/></svg>`
+            },
+            bronze: {
+                key: 'bronze',
+                nombre: 'Bronce (Bronze)',
+                color: '#a86238',
+                glowClass: 'glow-bronze',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 6L80 24L72 70L50 94L28 70L20 24L50 6Z" fill="#542e17" stroke="#a86238" stroke-width="3.5"/><path d="M50 18L70 30L64 64L50 82L36 64L30 30L50 18Z" fill="#381c0c"/><polygon points="50,30 58,45 74,47 62,59 65,75 50,67 35,75 38,59 26,47 42,45" fill="#cd7f32"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#8c4e28" stroke-width="4.5"/><path d="M60 2L74 18H46L60 2Z" fill="#c97947"/><path d="M60 118L76 100H44L60 118Z" fill="#c97947"/><path d="M2 60L18 46V74L2 60Z" fill="#a86238"/><path d="M118 60L102 46V74L118 60Z" fill="#a86238"/></svg>`
+            },
+            silver: {
+                key: 'silver',
+                nombre: 'Plata (Silver)',
+                color: '#cfd8dc',
+                glowClass: 'glow-silver',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L82 22L74 72L50 95L26 72L18 22L50 5Z" fill="#455a64" stroke="#cfd8dc" stroke-width="3.5"/><path d="M50 16L72 28L66 66L50 84L34 66L28 28L50 16Z" fill="#263238"/><path d="M50 25L64 38L50 72L36 38L50 25Z" fill="#90a4ae"/><circle cx="50" cy="48" r="7" fill="#eceff1"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#90a4ae" stroke-width="4.5"/><path d="M60 2L75 16H45L60 2Z" fill="#eceff1"/><path d="M60 118L76 102H44L60 118Z" fill="#b0bec5"/><path d="M2 60L18 46V74L2 60Z" fill="#cfd8dc"/><path d="M118 60L102 46V74L118 60Z" fill="#cfd8dc"/></svg>`
+            },
+            gold: {
+                key: 'gold',
+                nombre: 'Oro (Gold)',
+                color: '#f59e0b',
+                glowClass: 'glow-gold',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L85 20L76 74L50 96L24 74L15 20L50 4Z" fill="#78350f" stroke="#fbbf24" stroke-width="4"/><path d="M50 15L74 26L68 68L50 86L32 68L26 26L50 15Z" fill="#451a03"/><polygon points="50,22 62,38 80,40 66,54 70,72 50,62 30,72 34,54 20,40 38,38" fill="#f59e0b"/><circle cx="50" cy="48" r="9" fill="#fef08a"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#d97706" stroke-width="5"/><path d="M60 0L78 18H42L60 0Z" fill="#fbbf24"/><path d="M60 120L80 98H40L60 120Z" fill="#f59e0b"/><path d="M0 60L18 42V78L0 60Z" fill="#fbbf24"/><path d="M120 60L102 42V78L120 60Z" fill="#fbbf24"/><circle cx="60" cy="14" r="4" fill="#fef08a"/><circle cx="60" cy="106" r="4" fill="#fef08a"/></svg>`
+            },
+            emerald: {
+                key: 'emerald',
+                nombre: 'Esmeralda (Emerald)',
+                color: '#10b981',
+                glowClass: 'glow-emerald',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 75L50 97L22 75L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><path d="M50 14L75 24L69 69L50 87L31 69L25 24L50 14Z" fill="#022c22"/><polygon points="50,20 72,44 50,78 28,44" fill="#10b981"/><circle cx="50" cy="48" r="10" fill="#a7f3d0"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#059669" stroke-width="5.5"/><path d="M60 0L80 18H40L60 0Z" fill="#34d399"/><path d="M60 120L82 98H38L60 120Z" fill="#10b981"/><path d="M0 60L20 40V80L0 60Z" fill="#34d399"/><path d="M120 60L100 40V80L120 60Z" fill="#34d399"/><polygon points="60,8 65,15 60,22 55,15" fill="#d1fae5"/></svg>`
+            },
+            diamond: {
+                key: 'diamond',
+                nombre: 'Diamante (Diamond)',
+                color: '#38bdf8',
+                glowClass: 'glow-diamond',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 3L88 18L80 76L50 98L20 76L12 18L50 3Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><path d="M50 12L78 22L72 70L50 88L28 70L22 22L50 12Z" fill="#082f49"/><polygon points="50,18 78,42 50,82 22,42" fill="#0284c7"/><polygon points="50,26 68,44 50,70 32,44" fill="#bae6fd"/><circle cx="50" cy="46" r="10" fill="#ffffff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#0284c7" stroke-width="6"/><path d="M60 0L84 18H36L60 0Z" fill="#38bdf8"/><path d="M60 120L86 96H34L60 120Z" fill="#0ea5e9"/><path d="M0 60L22 38V82L0 60Z" fill="#7dd3fc"/><path d="M120 60L98 38V82L120 60Z" fill="#7dd3fc"/><polygon points="60,6 68,16 60,26 52,16" fill="#e0f2fe"/></svg>`
+            },
+            master: {
+                key: 'master',
+                nombre: 'Master (Maestro)',
+                color: '#c084fc',
+                glowClass: 'glow-master',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><path d="M50 10L80 20L74 72L50 90L26 72L20 20L50 10Z" fill="#2e1065"/><path d="M50 18L76 40L50 82L24 40L50 18Z" fill="#9333ea"/><circle cx="50" cy="46" r="12" fill="#f3e8ff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#9333ea" stroke-width="6.5"/><path d="M60 0L86 20H34L60 0Z" fill="#c084fc"/><path d="M60 120L88 94H32L60 120Z" fill="#a855f7"/><path d="M0 60L24 36V84L0 60Z" fill="#d8b4fe"/><path d="M120 60L96 36V84L120 60Z" fill="#d8b4fe"/><circle cx="60" cy="14" r="6" fill="#fae8ff"/></svg>`
+            },
+            grandmaster: {
+                key: 'grandmaster',
+                nombre: 'Grandmaster (Gran Maestro)',
+                color: '#ef4444',
+                glowClass: 'glow-grandmaster',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><path d="M50 8L82 18L76 74L50 92L24 74L18 18L50 8Z" fill="#2a0606"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><polygon points="50,22 72,42 50,72 28,42" fill="#fca5a5"/><circle cx="50" cy="45" r="13" fill="#ffffff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#b91c1c" stroke-width="7"/><path d="M60 0L90 20H30L60 0Z" fill="#ef4444"/><path d="M60 120L90 92H30L60 120Z" fill="#dc2626"/><path d="M0 60L26 34V86L0 60Z" fill="#f87171"/><path d="M120 60L94 34V86L120 60Z" fill="#f87171"/><polygon points="60,4 70,16 60,28 50,16" fill="#fee2e2"/></svg>`
+            },
+            challenger: {
+                key: 'challenger',
+                nombre: 'Challenger 👑 (Retador)',
+                color: '#facc15',
+                glowClass: 'glow-challenger',
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><path d="M50 6L84 16L78 76L50 94L22 76L16 16L50 6Z" fill="#1e1b4b"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><polygon points="50,18 76,40 50,76 24,40" fill="#38bdf8"/><circle cx="50" cy="45" r="14" fill="#ffffff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#ca8a04" stroke-width="7.5"/><path d="M60 0L92 22H28L60 0Z" fill="#facc15"/><path d="M60 120L92 90H28L60 120Z" fill="#eab308"/><path d="M0 60L28 32V88L0 60Z" fill="#38bdf8"/><path d="M120 60L92 32V88L120 60Z" fill="#38bdf8"/><polygon points="60,2 72,16 60,30 48,16" fill="#ffffff"/><circle cx="60" cy="106" r="6" fill="#38bdf8"/></svg>`
+            }
+        };
+
+        // RESOLVER RANGO LOL POR NIVEL
+        function obtenerRankInfoPorNivel(nivel) {
+            if (nivel >= 90) return LOL_RANKS_CONFIG.challenger;
+            if (nivel >= 75) return LOL_RANKS_CONFIG.grandmaster;
+            if (nivel >= 60) return LOL_RANKS_CONFIG.master;
+            if (nivel >= 45) return LOL_RANKS_CONFIG.diamond;
+            if (nivel >= 30) return LOL_RANKS_CONFIG.emerald;
+            if (nivel >= 20) return LOL_RANKS_CONFIG.gold;
+            if (nivel >= 10) return LOL_RANKS_CONFIG.silver;
+            if (nivel >= 5)  return LOL_RANKS_CONFIG.bronze;
+            return LOL_RANKS_CONFIG.iron;
+        }
+
+        // GENERADOR DEL COMPONENTE AVATAR CON MARCO OFICIAL LOL
+        function renderLolAvatar(avatarUrl, nivel, sizePx = 64) {
+            const rank = obtenerRankInfoPorNivel(nivel);
+            const innerSize = Math.round(sizePx * 0.76);
+            return `
+                <div class="lol-avatar-wrapper ${rank.glowClass}" style="width: ${sizePx}px; height: ${sizePx}px;">
+                    <img src="${avatarUrl}" class="lol-avatar-img" style="width: ${innerSize}px; height: ${innerSize}px;" onerror="this.src='/logo.png'" />
+                    <div class="lol-frame-svg">${rank.frameSvg}</div>
+                </div>
+            `;
+        }
+
         // CONTROL DE HUSO HORARIO SELECCIONADO POR EL USUARIO
         let zonaHorariaActiva = localStorage.getItem('ae_timezone') || 'America/Mexico_City';
 
@@ -886,19 +950,6 @@
         }
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
-
-        // MARCOS RANKED LEAGUE OF LEGENDS SEGÚN NIVEL
-        function obtenerClaseMarcoRanked(nivel) {
-            if (nivel >= 90) return 'border-ranked-challenger';
-            if (nivel >= 75) return 'border-ranked-grandmaster';
-            if (nivel >= 60) return 'border-ranked-master';
-            if (nivel >= 45) return 'border-ranked-diamond';
-            if (nivel >= 30) return 'border-ranked-emerald';
-            if (nivel >= 20) return 'border-ranked-gold';
-            if (nivel >= 10) return 'border-ranked-silver';
-            if (nivel >= 5)  return 'border-ranked-bronze';
-            return 'border-ranked-iron';
-        }
 
         // REPRODUCTOR DE AUDIO MULTITONOS
         function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
@@ -975,7 +1026,6 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    
                     const maxDim = 512;
                     let width = img.width;
                     let height = img.height;
@@ -998,9 +1048,9 @@
 
                     const base64Optimizado = canvas.toDataURL('image/jpeg', 0.85);
                     localStorage.setItem(`ae_avatar_${usuarioActual.id}`, base64Optimizado);
-                    document.getElementById('headerUserAvatar').src = base64Optimizado;
-                    document.getElementById('profileUserAvatar').src = base64Optimizado;
                     
+                    actualizarBarraNivelHeader();
+                    if (pestanaActiva === 'historial') cargarHistorial();
                     socket.emit('db_update', { evento: 'avatar_actualizado' });
                     mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
                 };
@@ -1025,17 +1075,8 @@
             const xpActualNivel = xpTotal % xpPorNivel;
             const porcentaje = Math.min(100, Math.floor((xpActualNivel / xpPorNivel) * 100));
 
-            let titulo = 'Hierro (Iron)';
-            if (nivel >= 90) titulo = 'Challenger 👑';
-            else if (nivel >= 75) titulo = 'Grandmaster 🩸';
-            else if (nivel >= 60) titulo = 'Master 🔮';
-            else if (nivel >= 45) titulo = 'Diamante 💎';
-            else if (nivel >= 30) titulo = 'Esmeralda ❇️';
-            else if (nivel >= 20) titulo = 'Oro 🪙';
-            else if (nivel >= 10) titulo = 'Plata 🛡️';
-            else if (nivel >= 5)  titulo = 'Bronce 🔨';
-
-            return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo, xpTotal };
+            const rank = obtenerRankInfoPorNivel(nivel);
+            return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo: rank.nombre, xpTotal, rank };
         }
 
         // GENERACIÓN DE 8 MEDALLAS DESTACADAS Y CONDECORACIONES TIPO MARINA
@@ -1092,70 +1133,14 @@
         }
 
         const categoriaConfig = {
-            'GENERAL': {
-                colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
-                bordeCard: 'border-purple-500/30 hover:border-purple-400/60',
-                bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '🛠️',
-                colorVenta: 'text-purple-300',
-                colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black'
-            },
-            'DRIFT Y NITRO': {
-                colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
-                bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60',
-                bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '💨',
-                colorVenta: 'text-cyan-300',
-                colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black'
-            },
-            'MOTOR': {
-                colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
-                bordeCard: 'border-blue-500/30 hover:border-blue-400/60',
-                bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '⚙️',
-                colorVenta: 'text-blue-300',
-                colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black'
-            },
-            'FRENOS': {
-                colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
-                bordeCard: 'border-rose-500/30 hover:border-rose-400/60',
-                bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '🛑',
-                colorVenta: 'text-rose-300',
-                colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black'
-            },
-            'TRACCIÓN': {
-                colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-                bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60',
-                bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '⚡',
-                colorVenta: 'text-emerald-300',
-                colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black'
-            },
-            'NEUMÁTICOS': {
-                colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
-                bordeCard: 'border-teal-500/30 hover:border-teal-400/60',
-                bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '🛞',
-                colorVenta: 'text-teal-300',
-                colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black'
-            },
-            'COMBOS (PRECIOS FIJOS)': {
-                colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-                bordeCard: 'border-amber-500/30 hover:border-amber-400/60',
-                bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '👑',
-                colorVenta: 'text-amber-300',
-                colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black'
-            },
-            'PAQUETES ESPECIALES': {
-                colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30',
-                bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60',
-                bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70',
-                icon: '🔥',
-                colorVenta: 'text-fuchsia-300',
-                colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black'
-            }
+            'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
+            'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
+            'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
+            'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
+            'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
+            'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30 hover:border-teal-400/60', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
+            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
+            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
         };
 
         const catalogo = [
@@ -1313,15 +1298,16 @@
                 facturas.forEach(f => totalVendido += f.total_cliente);
                 
                 const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
+                const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
+
+                document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 56);
+                document.getElementById('headerRankCrestContainer').innerHTML = stats.rank.crestSvg;
+
                 document.getElementById('badgeNivelHeader').classList.remove('hidden');
                 document.getElementById('badgeNivelHeader').classList.add('flex');
                 document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
                 document.getElementById('txtTituloNivelHeader').innerText = stats.titulo;
                 document.getElementById('barraProgresoXPHeader').style.width = `${stats.porcentaje}%`;
-
-                const marcoClase = obtenerClaseMarcoRanked(stats.nivel);
-                const headerCont = document.getElementById('headerAvatarContainer');
-                headerCont.className = `relative w-14 h-14 rounded-full p-0.5 ${marcoClase} shrink-0 overflow-hidden cursor-pointer`;
 
                 const racha = calcularRachaDiaria(usuarioActual.id);
                 document.getElementById('badgeRachaHeader').classList.remove('hidden');
@@ -1424,9 +1410,6 @@
                     document.getElementById('checkPrecioFabrica').checked = false;
                 }
 
-                const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
-                document.getElementById('headerUserAvatar').src = miAvatar;
-
                 container.innerHTML = `
                     <div class="flex items-center gap-2">
                         <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
@@ -1448,7 +1431,6 @@
                 document.getElementById('barraUsuariosOnline').classList.add('hidden');
                 document.getElementById('badgeNivelHeader').classList.add('hidden');
                 document.getElementById('badgeRachaHeader').classList.add('hidden');
-                document.getElementById('headerUserAvatar').src = '/logo.png';
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
                 document.getElementById('seccion-calculadora').classList.add('hidden');
@@ -2029,18 +2011,16 @@
                 const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
                 const stats = calcularNivelYProgreso(item.total_vendido, item.id);
                 const avatar = obtenerAvatarTrabajador(item.id);
-                const marcoClase = obtenerClaseMarcoRanked(stats.nivel);
 
                 const medallas = generarMedallas([], item.total_vendido, item.id);
                 const ribbonHTML = generarRibbonBarHTML(medallas);
+                const avatarWithLolFrame = renderLolAvatar(avatar, stats.nivel, 54);
 
                 html += `
                     <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                            <div class="w-12 h-12 rounded-full p-0.5 ${marcoClase} overflow-hidden shrink-0">
-                                <img src="${avatar}" class="w-full h-full rounded-full object-cover" />
-                            </div>
+                            <div class="shrink-0">${avatarWithLolFrame}</div>
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
@@ -2049,7 +2029,7 @@
                                     <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
                                     ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
                                 </div>
-                                <div class="flex items-center gap-2 mt-1">
+                                <div class="flex items-center gap-3 mt-1">
                                     <p class="text-xs text-zinc-400">
                                         XP: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
                                         Ventas: <strong class="text-white font-bold">${item.total_facturas}</strong>
@@ -2140,12 +2120,8 @@
             const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
             const racha = calcularRachaDiaria(usuarioActual.id);
             const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
-            const marcoClase = obtenerClaseMarcoRanked(stats.nivel);
 
-            document.getElementById('headerAvatarContainer').className = `relative w-14 h-14 rounded-full p-0.5 ${marcoClase} shrink-0 overflow-hidden cursor-pointer`;
-            document.getElementById('profileAvatarContainer').className = `w-20 h-20 rounded-full overflow-hidden p-0.5 ${marcoClase} shadow-lg`;
-            document.getElementById('headerUserAvatar').src = miAvatar;
-            document.getElementById('profileUserAvatar').src = miAvatar;
+            document.getElementById('profileAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 84);
             document.getElementById('lblPerfilNombre').innerText = usuarioActual.nombre;
             document.getElementById('lblPerfilUser').innerText = `@${usuarioActual.usuario}`;
             document.getElementById('lblPerfilIngreso').innerText = formatearFechaIngreso(usuarioActual.created_at);
@@ -2156,7 +2132,7 @@
             document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
             document.getElementById('lblPerfilRacha').innerText = `${racha} ${racha === 1 ? 'día activo' : 'días activos'}`;
 
-            // RENDER DE MEDALLAS ENRIQUECIDAS Y PASADOR TIPO MARINA
+            // RENDER DE MEDALLAS VISIBLES Y PASADOR TIPO MARINA
             const medallas = generarMedallas(facturas, totalVendido, usuarioActual.id);
             document.getElementById('perfilRibbonBar').innerHTML = generarRibbonBarHTML(medallas);
 
@@ -2164,7 +2140,7 @@
             let medallasHTML = '';
             medallas.forEach(m => {
                 medallasHTML += `
-                    <div class="p-4 rounded-xl border-2 ${m.activa ? `bg-zinc-900/90 ${m.colorBorde} shadow-lg shadow-black/60` : 'bg-zinc-950/40 border-zinc-800/60 opacity-30'} flex items-center gap-3.5 transition hover:scale-102">
+                    <div class="p-4 rounded-xl border-2 ${m.activa ? `bg-zinc-900/95 ${m.colorBorde} shadow-xl shadow-black/80` : 'bg-zinc-950/40 border-zinc-800/60 opacity-30'} flex items-center gap-3.5 transition hover:scale-102">
                         <span class="text-3xl filter drop-shadow">${m.icon}</span>
                         <div>
                             <div class="text-xs font-black ${m.activa ? 'text-white' : 'text-zinc-500'} tracking-wide uppercase">${m.titulo}</div>
