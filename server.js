@@ -33,7 +33,8 @@ io.on('connection', (socket) => {
                 id: Number(userData.id),
                 nombre: userData.nombre,
                 usuario: userData.usuario,
-                rol: userData.rol
+                rol: userData.rol,
+                comision_porcentaje: userData.comision_porcentaje
             });
             emitirUsuariosOnline();
         }
@@ -69,14 +70,14 @@ app.post('/api/register', async (req, res) => {
         const esPrimerUsuario = checkUser.rows[0].total === 0;
         const rolInicial = esPrimerUsuario ? 'admin' : 'empleado';
 
-        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol) VALUES (?, ?, ?, 30, ?)`;
+        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol, created_at) VALUES (?, ?, ?, 30, ?, CURRENT_TIMESTAMP)`;
         const result = await db.execute({
             sql: sql,
             args: [nombre, usuario.trim().toLowerCase(), password, rolInicial]
         });
 
         notificarCambioGlobal('nuevo_usuario');
-        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: 30, rol: rolInicial });
+        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: 30, rol: rolInicial, created_at: new Date().toISOString() });
     } catch (err) {
         if (err.message && err.message.includes('UNIQUE')) {
             return res.status(400).json({ error: "El nombre de usuario ya está registrado." });
@@ -85,13 +86,13 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN (CONSULTA LIMPIA Y SEGURA)
+// 2. LOGIN
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
@@ -199,13 +200,7 @@ app.get('/api/usuarios', async (req, res) => {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
-        // Compatibilidad por si created_at no responde
-        try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -293,7 +288,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA
+// 13. REGISTRAR FACTURA (Con alerta global de Loot Drop)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -303,7 +298,7 @@ app.post('/api/facturas', async (req, res) => {
         if (userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
         const user = userRes.rows[0];
 
-        const aplicarFabrica = es_precio_fabrica && user.rol === 'admin';
+        const aplicarFabrica = es_precio_fabrica && (user.rol === 'admin' || user.rol === 'jefe');
 
         let v8Necesarios = 0;
         let v12Necesarios = 0;
@@ -359,6 +354,18 @@ app.post('/api/facturas', async (req, res) => {
 
         notificarCambioGlobal('nueva_factura');
 
+        // Notificación de Venta Grande (Loot Drop en Vivo)
+        const esVentaGrande = total_cliente >= 500000 || items.some(i => i.id === 20 || i.id === 21 || i.id === 22 || i.id === 23);
+        if (esVentaGrande) {
+            const itemDestacado = items[0] ? items[0].nombre : 'Tuneo Especial';
+            io.emit('loot_drop', {
+                trabajador: user.nombre,
+                cliente: cliente || 'Cliente General',
+                total: total_cliente,
+                item: itemDestacado
+            });
+        }
+
         res.json({
             id: facturaId,
             subtotal: subtotal_cliente,
@@ -406,7 +413,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
+            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                    COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -419,24 +426,9 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const result = await db.execute(sql);
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
-                       COUNT(f.id) as total_facturas,
-                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
-                FROM usuarios u
-                LEFT JOIN facturas f ON u.id = f.usuario_id
-                GROUP BY u.id
-                ORDER BY ganancia_generada DESC
-            `);
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor AutoExotic activo en puerto ${PORT}`));

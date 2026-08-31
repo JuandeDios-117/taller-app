@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoExotic - Gestión & Facturación</title>
-    <!-- FAVICON DINÁMICO CIRCULAR -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -89,7 +88,6 @@
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-6">
         
-        <!-- HEADER PRINCIPAL -->
         <div class="card-header-dark p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
             <div class="flex items-center gap-4 z-10">
                 <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-700 logo-glow shrink-0 overflow-hidden">
@@ -115,7 +113,6 @@
             </div>
         </div>
 
-        <!-- NAVEGACIÓN -->
         <div class="flex flex-wrap justify-between items-center card-dark p-2 rounded-xl gap-2">
             <div class="flex flex-wrap gap-2 w-full md:w-auto">
                 <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition">
@@ -139,7 +136,6 @@
             </div>
         </div>
 
-        <!-- CONECTADOS EN LÍNEA -->
         <div id="barraUsuariosOnline" class="card-dark p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs border-l-4 border-emerald-500">
             <span class="text-emerald-400 font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
@@ -148,7 +144,6 @@
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
-        <!-- LOGIN / REGISTRO -->
         <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-cyan-500/20 tab-content-anim">
             <div class="text-center space-y-2">
                 <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 to-blue-600 logo-glow overflow-hidden">
@@ -186,10 +181,8 @@
             </p>
         </div>
 
-        <!-- CALCULADORA -->
         <div id="seccion-calculadora" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
             <div class="lg:col-span-2 space-y-6">
-                <!-- CLIENTE -->
                 <div class="card-dark p-5 rounded-2xl space-y-4 border-l-4 border-cyan-500">
                     <div>
                         <label class="block text-xs font-black text-cyan-300 uppercase mb-2 tracking-wider flex items-center gap-1.5">
@@ -211,7 +204,6 @@
                     </div>
                 </div>
 
-                <!-- CATÁLOGO -->
                 <div class="card-dark p-6 rounded-2xl space-y-6">
                     <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
                         <h2 class="text-xs font-black text-cyan-400 uppercase tracking-widest flex items-center gap-2">
@@ -223,7 +215,6 @@
                 </div>
             </div>
 
-            <!-- RESUMEN / ORDEN ACTUAL -->
             <div class="space-y-6">
                 <div class="card-dark p-6 rounded-2xl space-y-5 sticky top-6 border-t-4 border-cyan-400">
                     <div class="flex justify-between items-center border-b border-zinc-800/80 pb-3">
@@ -262,7 +253,6 @@
                         Completar Orden
                     </button>
 
-                    <!-- SECCIÓN DE DESCUENTOS -->
                     <div id="seccionDescuentosContenedor" class="border-t border-zinc-800/80 pt-4 space-y-3">
                         <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-wider">Aplicar Descuento</label>
                         <div class="grid grid-cols-4 gap-2">
@@ -285,7 +275,6 @@
             </div>
         </div>
 
-        <!-- ALMACÉN Y CAPITAL -->
         <div id="seccion-almacen" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-dark p-5 rounded-xl border-l-4 border-emerald-400">
@@ -303,7 +292,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- INGRESAR CAPITAL -->
                 <div class="card-dark p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
                         💵 Inyectar Capital
@@ -323,7 +311,6 @@
                     </div>
                 </div>
 
-                <!-- COMPRAR MOTORES -->
                 <div class="card-dark p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
                         📦 Pedido a Fábrica
@@ -346,7 +333,6 @@
                     </div>
                 </div>
 
-                <!-- AJUSTE MANUAL -->
                 <div class="card-dark p-6 rounded-xl space-y-4 border border-rose-500/30">
                     <h3 class="text-sm font-black text-rose-400 uppercase flex items-center gap-2">
                         ⚙️ Ajuste Manual Directo
@@ -379,7 +365,6 @@
             </div>
         </div>
 
-        <!-- COMBOS Y PIEZAS -->
         <div id="seccion-combos" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-cyan-400 uppercase">🛠️ COMPONENTES POR COMBO (PRECIOS FIJOS)</h2>
@@ -452,7 +437,6 @@
             </div>
         </div>
 
-        <!-- HISTORIAL PERSONAL -->
         <div id="seccion-historial" class="space-y-6 hidden">
             <div class="card-dark p-5 rounded-xl flex flex-wrap justify-between items-center gap-4 border-l-4 border-white">
                 <div>
@@ -488,7 +472,6 @@
             </div>
         </div>
 
-        <!-- TOP TRABAJADORES -->
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
@@ -498,9 +481,7 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL ADMIN -->
         <div id="seccion-admin" class="space-y-6 hidden">
-            <!-- REINICIAR SEMANA -->
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h3 class="text-lg font-black text-rose-400 uppercase flex items-center gap-2">
@@ -515,7 +496,6 @@
                 </button>
             </div>
 
-            <!-- GESTIÓN Y JERARQUÍA -->
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
@@ -535,7 +515,6 @@
                 <div id="contenedorSeccionesRangos" class="space-y-6"></div>
             </div>
 
-            <!-- HISTORIAL GLOBAL -->
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 border-b border-zinc-800 pb-4">
                     <div>
@@ -557,7 +536,6 @@
 
     </div>
 
-    <!-- MODAL TRANSFERIR FACTURA -->
     <div id="modalTransferir" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl">
             <h3 class="text-lg font-black text-cyan-400 uppercase">🔁 Transferir Orden</h3>
@@ -573,7 +551,6 @@
         </div>
     </div>
 
-    <!-- MODALES DE ALERTA -->
     <div id="modalAviso" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl text-center">
             <div id="modalAvisoIcono" class="w-12 h-12 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
@@ -718,8 +695,9 @@
             }
         };
 
+        // CATÁLOGO
         const catalogo = [
-            // 1. GENERAL (ARRIBA DE PRIMERAS)
+            // 1. GENERAL (ARRIBA)
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
             { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
             { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
@@ -780,7 +758,6 @@
             return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        // Determina la clave de sección considerando el rol y la comisión
         function obtenerClaveRango(rol, comision) {
             if (rol === 'jefe' || comision == -1) return 'jefe';
             if (comision == 0) return 'subjefe';
