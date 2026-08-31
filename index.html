@@ -8,7 +8,7 @@
     <link id="dynamic-favicon" rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <!-- LIBRERÍA DE CONFETI CELEBRATORIO -->
+    <!-- LIBRERÍA DE CONFETI -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { 
@@ -91,7 +91,7 @@
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-4">
         
-        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP NOTIFICATION) -->
+        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP) -->
         <div id="liveFeedVentas" class="card-dark p-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 hidden flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-pulse">
             <div class="flex items-center gap-2.5 text-xs">
                 <span class="text-base">🔥</span>
@@ -103,10 +103,10 @@
         <!-- HEADER PRINCIPAL -->
         <div class="card-header-dark p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
             <div class="flex items-center gap-4 z-10">
-                <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-700 logo-glow shrink-0 overflow-hidden">
-                    <img src="/logo.png" 
+                <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-700 logo-glow shrink-0 overflow-hidden cursor-pointer" onclick="cambiarPestana('historial')" title="Ver mi perfil">
+                    <img id="headerUserAvatar" src="/logo.png" 
                          onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
-                         alt="AutoExotic Logo" 
+                         alt="Avatar" 
                          class="w-full h-full object-cover rounded-full">
                 </div>
                 <div>
@@ -117,9 +117,16 @@
                 </div>
             </div>
 
-            <!-- BARRA DE NIVEL Y USUARIO -->
+            <!-- BARRA DE NIVEL, RACHA Y ESTADO -->
             <div class="flex flex-wrap items-center gap-3 z-10">
-                <div id="badgeNivelHeader" class="hidden flex items-center gap-3 bg-black/80 border border-cyan-500/30 px-3.5 py-1.5 rounded-xl shadow-inner">
+                <!-- RACHA DIARIA (PUNTO 6) -->
+                <div id="badgeRachaHeader" class="hidden items-center gap-1.5 bg-orange-950/40 border border-orange-500/40 px-3 py-1.5 rounded-xl shadow-inner text-xs font-black text-orange-400">
+                    <span>🔥</span>
+                    <span id="txtRachaHeader">1 día</span>
+                </div>
+
+                <!-- NIVEL Y XP (PUNTO 1) -->
+                <div id="badgeNivelHeader" class="hidden items-center gap-3 bg-black/80 border border-cyan-500/30 px-3.5 py-1.5 rounded-xl shadow-inner">
                     <div>
                         <div class="flex justify-between items-center gap-2 text-[10px] font-black uppercase tracking-wider">
                             <span id="txtNivelHeader" class="text-cyan-300">Nivel 1</span>
@@ -152,7 +159,7 @@
                     📋 COMBOS Y PIEZAS
                 </button>
                 <button onclick="cambiarPestana('historial')" id="tab-hist" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition">
-                    📊 MI HISTORIAL
+                    📊 MI HISTORIAL & PERFIL
                 </button>
                 <button onclick="cambiarPestana('top')" id="tab-top" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-yellow-400 hover:text-yellow-300 hover:bg-zinc-800 transition border border-yellow-500/20">
                     🏆 TOP TRABAJADORES
@@ -256,7 +263,6 @@
                         </h2>
                     </div>
 
-                    <!-- DESGLOSE TOTAL DE PRODUCTOS -->
                     <div id="carritoItems" class="space-y-2.5">
                         <p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>
                     </div>
@@ -477,31 +483,61 @@
             </div>
         </div>
 
-        <!-- HISTORIAL PERSONAL CON NIVEL Y XP -->
+        <!-- HISTORIAL PERSONAL & PERFIL DE TRABAJADOR -->
         <div id="seccion-historial" class="space-y-6 hidden">
-            <!-- BANNER DE PERFIL CON EXPERIENCIA Y NIVEL -->
-            <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-4 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/20 via-zinc-950 to-zinc-950">
-                <div class="space-y-2">
-                    <h3 class="text-xl font-black text-white uppercase flex items-center gap-2">
-                        👷 <span id="lblPerfilNombre">--</span>
-                        <span id="lblPerfilTituloNivel" class="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full font-bold">Novato</span>
-                    </h3>
-                    <p class="text-xs text-zinc-400">
-                        Fecha de Ingreso: <strong class="text-zinc-200" id="lblPerfilIngreso">--</strong> · 
-                        Usuario: <span class="text-zinc-400" id="lblPerfilUser">--</span>
-                    </p>
-                    <!-- BARRA DE XP Y NIVEL -->
-                    <div class="pt-1 max-w-sm">
-                        <div class="flex justify-between text-xs font-black">
-                            <span id="lblPerfilNivel" class="text-cyan-400 uppercase">Nivel 1</span>
-                            <span id="lblPerfilXP" class="text-zinc-400">0 / 1,000 XP</span>
+            <!-- BANNER DE PERFIL -->
+            <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-6 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/20 via-zinc-950 to-zinc-950">
+                <div class="flex flex-wrap items-center gap-5">
+                    <!-- FOTO DE PERFIL CON BOTÓN DE SUBIDA -->
+                    <div class="relative group">
+                        <div class="w-20 h-20 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-500 to-indigo-500 shadow-lg">
+                            <img id="profileUserAvatar" src="/logo.png" 
+                                 onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
+                                 alt="Avatar" class="w-full h-full object-cover rounded-full">
                         </div>
-                        <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden mt-1.5 border border-zinc-700/60 shadow-inner">
-                            <div id="barraProgresoXPPerfil" class="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 h-full w-0 transition-all duration-500 shadow-[0_0_10px_#00d2ff]"></div>
+                        <label for="inputSubirFotoPerfil" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center text-xs text-white font-bold opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            📷 Cambiar
+                        </label>
+                        <input type="file" id="inputSubirFotoPerfil" accept="image/*" class="hidden" onchange="subirFotoPerfilTrabajador(event)">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <h3 class="text-xl font-black text-white uppercase flex items-center gap-2">
+                            <span id="lblPerfilNombre">--</span>
+                            <span id="lblPerfilTituloNivel" class="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full font-bold">Novato</span>
+                        </h3>
+                        <p class="text-xs text-zinc-400">
+                            Fecha de Ingreso: <strong class="text-zinc-200" id="lblPerfilIngreso">--</strong> · 
+                            Usuario: <span class="text-zinc-400" id="lblPerfilUser">--</span>
+                        </p>
+                        <!-- BARRA DE XP Y NIVEL -->
+                        <div class="pt-1 w-64 md:w-80">
+                            <div class="flex justify-between text-xs font-black">
+                                <span id="lblPerfilNivel" class="text-cyan-400 uppercase">Nivel 1</span>
+                                <span id="lblPerfilXP" class="text-zinc-400">0 / 1,000 XP</span>
+                            </div>
+                            <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden mt-1.5 border border-zinc-700/60 shadow-inner">
+                                <div id="barraProgresoXPPerfil" class="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 h-full w-0 transition-all duration-500 shadow-[0_0_10px_#00d2ff]"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div id="lblPerfilBadgeRango"></div>
+
+                <div class="flex flex-col items-end gap-2">
+                    <div id="lblPerfilBadgeRango"></div>
+                    <div class="flex items-center gap-1.5 bg-orange-950/40 border border-orange-500/40 px-3 py-1 rounded-lg text-xs font-black text-orange-400">
+                        <span>🔥 Racha:</span>
+                        <span id="lblPerfilRacha">1 día activo</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOGROS Y MEDALLAS DESBLOQUEABLES (PUNTO 3) -->
+            <div class="card-dark p-5 rounded-2xl space-y-3">
+                <h3 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <span>🏆</span> MEDALLAS Y LOGROS DESBLOQUEABLES
+                </h3>
+                <div id="contenedorMedallasPerfil" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -529,7 +565,7 @@
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
-                <p class="text-xs text-zinc-400">Ranking oficial de ventas y rendimiento.</p>
+                <p class="text-xs text-zinc-400">Ranking oficial de ventas, niveles y medallas.</p>
             </div>
 
             <div id="topContenedor" class="space-y-4"></div>
@@ -667,6 +703,7 @@
     </div>
 
     <script>
+        // GENERADOR DE FAVICON CIRCULAR
         function crearFaviconCircular() {
             const img = new Image();
             img.crossOrigin = "anonymous";
@@ -686,9 +723,79 @@
         }
         crearFaviconCircular();
 
+        // EFECTOS DE SONIDO SINTETIZADOS (PUNTO 7 - WEB AUDIO API)
+        function reproducirSonidoExito() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.6);
+            } catch (e) {}
+        }
+
         const socket = io();
 
-        // CÁLCULO DE NIVEL, XP Y TÍTULOS
+        // GESTIÓN DE RACHA DIARIA (PUNTO 6)
+        function calcularRachaDiaria(usuarioId) {
+            const hoyStr = new Date().toISOString().split('T')[0];
+            const claveStorage = `ae_streak_${usuarioId}`;
+            const streakData = JSON.parse(localStorage.getItem(claveStorage)) || { racha: 1, ultimaFecha: hoyStr };
+
+            if (streakData.ultimaFecha !== hoyStr) {
+                const ayer = new Date();
+                ayer.setDate(ayer.getDate() - 1);
+                const ayerStr = ayer.toISOString().split('T')[0];
+
+                if (streakData.ultimaFecha === ayerStr) {
+                    streakData.racha += 1;
+                } else {
+                    streakData.racha = 1;
+                }
+                streakData.ultimaFecha = hoyStr;
+                localStorage.setItem(claveStorage, JSON.stringify(streakData));
+            }
+            return streakData.racha;
+        }
+
+        // FOTO DE PERFIL DEL TRABAJADOR
+        function obtenerAvatarTrabajador(usuarioId) {
+            return localStorage.getItem(`ae_avatar_${usuarioId}`) || '/logo.png';
+        }
+
+        function subirFotoPerfilTrabajador(event) {
+            if (!usuarioActual) return;
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                return mostrarAviso('Imagen muy pesada', 'Selecciona una foto menor a 2MB.', true);
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64 = e.target.result;
+                localStorage.setItem(`ae_avatar_${usuarioActual.id}`, base64);
+                document.getElementById('headerUserAvatar').src = base64;
+                document.getElementById('profileUserAvatar').src = base64;
+                mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // CÁLCULO DE NIVEL Y XP (PUNTO 1)
         function calcularNivelYProgreso(totalVendido) {
             const xpTotal = Math.floor((totalVendido || 0) / 100);
             const xpPorNivel = 1000;
@@ -703,6 +810,35 @@
             else if (nivel >= 5) titulo = 'Aprendiz del Dyno';
 
             return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo, xpTotal };
+        }
+
+        // MEDALLAS Y LOGROS (PUNTO 3)
+        function generarMedallas(facturas, totalVendido) {
+            let totalV12 = 0;
+            let totalNitro = 0;
+            let facturasGrandes = 0;
+
+            facturas.forEach(f => {
+                if (f.total_cliente >= 1000000) facturasGrandes++;
+                if (f.items_json) {
+                    try {
+                        const items = JSON.parse(f.items_json);
+                        items.forEach(it => {
+                            if (it.id === 7 || it.id === 20 || it.id === 21) totalV12 += it.cantidad;
+                            if (it.id === 25 || it.id === 26 || it.id === 22 || it.id === 23) totalNitro += it.cantidad;
+                        });
+                    } catch (e) {}
+                }
+            });
+
+            const listaMedallas = [
+                { id: 'm1', titulo: 'Rey del V12', icon: '👑', desc: 'Instala 3+ Motores V12', activa: totalV12 >= 3 },
+                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', desc: 'Vende 5+ Piezas de Nitro', activa: totalNitro >= 5 },
+                { id: 'm3', titulo: 'Millonario', icon: '💰', desc: 'Factura $5,000,000+', activa: totalVendido >= 5000000 },
+                { id: 'm4', titulo: 'Gran Negocio', icon: '⚡', desc: 'Factura de $1,000,000+', activa: facturasGrandes >= 1 }
+            ];
+
+            return listaMedallas;
         }
 
         const categoriaConfig = {
@@ -926,9 +1062,15 @@
                 
                 const stats = calcularNivelYProgreso(totalVendido);
                 document.getElementById('badgeNivelHeader').classList.remove('hidden');
+                document.getElementById('badgeNivelHeader').classList.add('flex');
                 document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
                 document.getElementById('txtTituloNivelHeader').innerText = stats.titulo;
                 document.getElementById('barraProgresoXPHeader').style.width = `${stats.porcentaje}%`;
+
+                const racha = calcularRachaDiaria(usuarioActual.id);
+                document.getElementById('badgeRachaHeader').classList.remove('hidden');
+                document.getElementById('badgeRachaHeader').classList.add('flex');
+                document.getElementById('txtRachaHeader').innerText = `${racha} ${racha === 1 ? 'día' : 'días'}`;
             } catch (e) {}
         }
 
@@ -971,8 +1113,10 @@
             onlineList.forEach(u => {
                 const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje ?? (u.rol === 'admin' ? 0 : 30));
                 const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
+                const avatar = obtenerAvatarTrabajador(u.id);
                 chipsHTML += `
-                    <div class="flex items-center gap-1.5 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
+                    <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
+                        <img src="${avatar}" class="w-5 h-5 rounded-full object-cover border border-cyan-500/40" />
                         <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
                         <span class="${colorClase}">${u.nombre}</span>
                         ${esAdminOJefe ? '<span class="text-[9px] text-amber-400 font-bold">👑</span>' : ''}
@@ -1024,6 +1168,9 @@
                     document.getElementById('checkPrecioFabrica').checked = false;
                 }
 
+                const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
+                document.getElementById('headerUserAvatar').src = miAvatar;
+
                 container.innerHTML = `
                     <div class="flex items-center gap-2">
                         <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
@@ -1043,6 +1190,8 @@
                 modoPrecioFabrica = false;
                 document.getElementById('barraUsuariosOnline').classList.add('hidden');
                 document.getElementById('badgeNivelHeader').classList.add('hidden');
+                document.getElementById('badgeRachaHeader').classList.add('hidden');
+                document.getElementById('headerUserAvatar').src = '/logo.png';
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
                 document.getElementById('seccion-calculadora').classList.add('hidden');
@@ -1310,6 +1459,7 @@
                     const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
                     const presetActual = obtenerClaveRango(u.rol, u.comision_porcentaje);
                     const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
+                    const avatar = obtenerAvatarTrabajador(u.id);
 
                     filas += `
                         <tr class="hover:bg-zinc-900/40 transition">
@@ -1320,11 +1470,14 @@
                                 </span>
                             </td>
                             <td class="p-3">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="${colorClase}">${u.nombre}</span>
-                                    ${esAdminOJefe ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
+                                <div class="flex items-center gap-2">
+                                    <img src="${avatar}" class="w-6 h-6 rounded-full object-cover border border-zinc-700" />
+                                    <div>
+                                        <span class="${colorClase}">${u.nombre}</span>
+                                        ${esAdminOJefe ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
+                                        <div class="text-[11px] text-zinc-500">@${u.usuario}</div>
+                                    </div>
                                 </div>
-                                <div class="text-xs text-zinc-500">@${u.usuario}</div>
                             </td>
                             <td class="p-3">
                                 <span class="text-xs text-zinc-400 font-medium">${formatearFechaIngreso(u.created_at)}</span>
@@ -1496,6 +1649,7 @@
             let html = '';
             filtradas.forEach(f => {
                 const fecha = new Date(f.fecha).toLocaleString();
+                const avatar = obtenerAvatarTrabajador(f.usuario_id);
                 let itemsHTML = '';
                 if (f.items_json) {
                     try {
@@ -1517,9 +1671,12 @@
                 html += `
                     <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
-                            <div>
-                                <span class="font-bold text-cyan-300 text-sm">👷 Trabajador: ${f.trabajador_nombre}</span>
-                                <span class="text-xs text-zinc-500 ml-2">(@${f.trabajador_usuario}) · ${fecha}</span>
+                            <div class="flex items-center gap-2">
+                                <img src="${avatar}" class="w-7 h-7 rounded-full object-cover border border-cyan-500/40" />
+                                <div>
+                                    <span class="font-bold text-cyan-300 text-sm">👷 ${f.trabajador_nombre}</span>
+                                    <span class="text-xs text-zinc-500 ml-1">(@${f.trabajador_usuario}) · ${fecha}</span>
+                                </div>
                             </div>
                             <div class="text-right">
                                 <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
@@ -1571,19 +1728,21 @@
                 const estaOnline = usuariosOnlineSet.has(Number(item.id));
                 const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
                 const stats = calcularNivelYProgreso(item.total_vendido);
+                const avatar = obtenerAvatarTrabajador(item.id);
 
                 html += `
                     <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3">
                             <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
+                            <img src="${avatar}" class="w-11 h-11 rounded-full object-cover border-2 border-cyan-500/50 shadow-md" />
                             <div>
-                                <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                                <h3 class="font-bold text-white text-base flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
                                     <span class="${colorClase}">${item.nombre}</span> <span class="text-xs text-zinc-500 font-normal">(@${item.usuario})</span>
                                     <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
                                     ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
                                 </h3>
-                                <p class="text-xs text-zinc-400 mt-1">
+                                <p class="text-xs text-zinc-400 mt-0.5">
                                     Ingresó: <strong class="text-zinc-300 font-semibold">${formatearFechaIngreso(item.created_at)}</strong> · 
                                     Ventas: <strong class="text-white font-bold">${item.total_facturas}</strong> · 
                                     XP: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong>
@@ -1670,6 +1829,11 @@
             });
 
             const stats = calcularNivelYProgreso(totalVendido);
+            const racha = calcularRachaDiaria(usuarioActual.id);
+            const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
+
+            document.getElementById('headerUserAvatar').src = miAvatar;
+            document.getElementById('profileUserAvatar').src = miAvatar;
             document.getElementById('lblPerfilNombre').innerText = usuarioActual.nombre;
             document.getElementById('lblPerfilUser').innerText = `@${usuarioActual.usuario}`;
             document.getElementById('lblPerfilIngreso').innerText = formatearFechaIngreso(usuarioActual.created_at);
@@ -1678,6 +1842,24 @@
             document.getElementById('lblPerfilNivel').innerText = `Nivel ${stats.nivel}`;
             document.getElementById('lblPerfilXP').innerText = `${stats.xpActualNivel.toLocaleString()} / ${stats.xpPorNivel.toLocaleString()} XP`;
             document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
+            document.getElementById('lblPerfilRacha').innerText = `${racha} ${racha === 1 ? 'día activo' : 'días activos'}`;
+
+            // RENDER DE MEDALLAS (PUNTO 3)
+            const medallas = generarMedallas(facturas, totalVendido);
+            const contenedorMedallas = document.getElementById('contenedorMedallasPerfil');
+            let medallasHTML = '';
+            medallas.forEach(m => {
+                medallasHTML += `
+                    <div class="p-3 rounded-xl border ${m.activa ? 'bg-amber-950/20 border-amber-500/40 shadow-sm' : 'bg-zinc-950/40 border-zinc-800/80 opacity-40'} flex items-center gap-3">
+                        <span class="text-2xl">${m.icon}</span>
+                        <div>
+                            <div class="text-xs font-black ${m.activa ? 'text-amber-300' : 'text-zinc-500'}">${m.titulo}</div>
+                            <div class="text-[10px] text-zinc-400 mt-0.5">${m.desc}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            contenedorMedallas.innerHTML = medallasHTML;
 
             container.innerHTML = html;
             document.getElementById('mTotalVendido').innerText = `$${totalVendido.toLocaleString()}`;
@@ -1903,11 +2085,12 @@
 
                 const data = await res.json();
                 if (res.ok) {
-                    // DISPARO DE CONFETI CELEBRATORIO
+                    // CONFETI Y SONIDO DE ÉXITO (PUNTO 7)
+                    reproducirSonidoExito();
                     if (typeof confetti === 'function') {
                         confetti({
-                            particleCount: 80,
-                            spread: 70,
+                            particleCount: 90,
+                            spread: 75,
                             origin: { y: 0.6 }
                         });
                     }
@@ -1930,6 +2113,7 @@
                     
                     catalogo.forEach(p => sincronizarBotonItem(p.id));
                     actualizarCarrito();
+                    actualizarBarraNivelHeader();
                 } else {
                     mostrarAviso('Almacén Insuficiente', data.error, true);
                 }
