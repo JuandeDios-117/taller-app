@@ -91,7 +91,7 @@
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-4">
         
-        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP) -->
+        <!-- BANNER GLOBAL DE VENTAS EN VIVO -->
         <div id="liveFeedVentas" class="card-dark p-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 hidden flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-pulse">
             <div class="flex items-center gap-2.5 text-xs">
                 <span class="text-base">🔥</span>
@@ -119,13 +119,11 @@
 
             <!-- BARRA DE NIVEL, RACHA Y ESTADO -->
             <div class="flex flex-wrap items-center gap-3 z-10">
-                <!-- RACHA DIARIA (PUNTO 6) -->
                 <div id="badgeRachaHeader" class="hidden items-center gap-1.5 bg-orange-950/40 border border-orange-500/40 px-3 py-1.5 rounded-xl shadow-inner text-xs font-black text-orange-400">
                     <span>🔥</span>
                     <span id="txtRachaHeader">1 día</span>
                 </div>
 
-                <!-- NIVEL Y XP (PUNTO 1) -->
                 <div id="badgeNivelHeader" class="hidden items-center gap-3 bg-black/80 border border-cyan-500/30 px-3.5 py-1.5 rounded-xl shadow-inner">
                     <div>
                         <div class="flex justify-between items-center gap-2 text-[10px] font-black uppercase tracking-wider">
@@ -483,20 +481,19 @@
             </div>
         </div>
 
-        <!-- HISTORIAL PERSONAL & PERFIL DE TRABAJADOR -->
+        <!-- HISTORIAL PERSONAL & PERFIL -->
         <div id="seccion-historial" class="space-y-6 hidden">
             <!-- BANNER DE PERFIL -->
             <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-6 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/20 via-zinc-950 to-zinc-950">
                 <div class="flex flex-wrap items-center gap-5">
-                    <!-- FOTO DE PERFIL CON BOTÓN DE SUBIDA -->
                     <div class="relative group">
                         <div class="w-20 h-20 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-500 to-indigo-500 shadow-lg">
                             <img id="profileUserAvatar" src="/logo.png" 
                                  onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
                                  alt="Avatar" class="w-full h-full object-cover rounded-full">
                         </div>
-                        <label for="inputSubirFotoPerfil" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center text-xs text-white font-bold opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                            📷 Cambiar
+                        <label for="inputSubirFotoPerfil" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center text-xs text-white font-bold opacity-0 group-hover:opacity-100 transition cursor-pointer text-center px-1">
+                            📷 Subir (hasta 15MB)
                         </label>
                         <input type="file" id="inputSubirFotoPerfil" accept="image/*" class="hidden" onchange="subirFotoPerfilTrabajador(event)">
                     </div>
@@ -510,7 +507,6 @@
                             Fecha de Ingreso: <strong class="text-zinc-200" id="lblPerfilIngreso">--</strong> · 
                             Usuario: <span class="text-zinc-400" id="lblPerfilUser">--</span>
                         </p>
-                        <!-- BARRA DE XP Y NIVEL -->
                         <div class="pt-1 w-64 md:w-80">
                             <div class="flex justify-between text-xs font-black">
                                 <span id="lblPerfilNivel" class="text-cyan-400 uppercase">Nivel 1</span>
@@ -532,7 +528,7 @@
                 </div>
             </div>
 
-            <!-- LOGROS Y MEDALLAS DESBLOQUEABLES (PUNTO 3) -->
+            <!-- MEDALLAS -->
             <div class="card-dark p-5 rounded-2xl space-y-3">
                 <h3 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
                     <span>🏆</span> MEDALLAS Y LOGROS DESBLOQUEABLES
@@ -592,8 +588,8 @@
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-black text-white uppercase">👑 JERARQUÍA Y GESTIÓN DE PERSONAL</h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Organizado por comisiones y rango jerárquico. Puedes alternar permisos de Administrador a voluntad.</p>
+                        <h2 class="text-2xl font-black text-white uppercase">👑 JERARQUÍA, RANGOS Y NIVELES (ADMIN)</h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Controla rangos, permisos, niveles de experiencia y activa medallas personalizadas para cada trabajador.</p>
                     </div>
                     <div class="flex flex-wrap gap-2 text-[11px] font-black">
                         <span class="bg-amber-500/15 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg">👑 Jefe: 0%</span>
@@ -703,7 +699,6 @@
     </div>
 
     <script>
-        // GENERADOR DE FAVICON CIRCULAR
         function crearFaviconCircular() {
             const img = new Image();
             img.crossOrigin = "anonymous";
@@ -723,7 +718,6 @@
         }
         crearFaviconCircular();
 
-        // EFECTOS DE SONIDO SINTETIZADOS (PUNTO 7 - WEB AUDIO API)
         function reproducirSonidoExito() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -733,10 +727,10 @@
                 gain.connect(audioCtx.destination);
                 
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
-                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
 
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
@@ -748,7 +742,6 @@
 
         const socket = io();
 
-        // GESTIÓN DE RACHA DIARIA (PUNTO 6)
         function calcularRachaDiaria(usuarioId) {
             const hoyStr = new Date().toISOString().split('T')[0];
             const claveStorage = `ae_streak_${usuarioId}`;
@@ -770,34 +763,70 @@
             return streakData.racha;
         }
 
-        // FOTO DE PERFIL DEL TRABAJADOR
         function obtenerAvatarTrabajador(usuarioId) {
             return localStorage.getItem(`ae_avatar_${usuarioId}`) || '/logo.png';
         }
 
+        // SUBIDA DE FOTO CON COMPRESIÓN CANVAS (HASTA 15MB)
         function subirFotoPerfilTrabajador(event) {
             if (!usuarioActual) return;
             const file = event.target.files[0];
             if (!file) return;
 
-            if (file.size > 2 * 1024 * 1024) {
-                return mostrarAviso('Imagen muy pesada', 'Selecciona una foto menor a 2MB.', true);
+            if (file.size > 15 * 1024 * 1024) {
+                return mostrarAviso('Archivo muy pesado', 'Por favor selecciona una foto menor a 15MB.', true);
             }
 
             const reader = new FileReader();
             reader.onload = (e) => {
-                const base64 = e.target.result;
-                localStorage.setItem(`ae_avatar_${usuarioActual.id}`, base64);
-                document.getElementById('headerUserAvatar').src = base64;
-                document.getElementById('profileUserAvatar').src = base64;
-                mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const maxDim = 512;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > maxDim) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        }
+                    } else {
+                        if (height > maxDim) {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const base64Optimizado = canvas.toDataURL('image/jpeg', 0.85);
+                    localStorage.setItem(`ae_avatar_${usuarioActual.id}`, base64Optimizado);
+                    document.getElementById('headerUserAvatar').src = base64Optimizado;
+                    document.getElementById('profileUserAvatar').src = base64Optimizado;
+                    mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        // CÁLCULO DE NIVEL Y XP (PUNTO 1)
-        function calcularNivelYProgreso(totalVendido) {
-            const xpTotal = Math.floor((totalVendido || 0) / 100);
+        // CÁLCULO DE NIVEL Y XP (CONSIDERA AJUSTES MANUALES DE ADMIN)
+        function calcularNivelYProgreso(totalVendido, usuarioId) {
+            const overrideNivel = localStorage.getItem(`ae_custom_lvl_${usuarioId}`);
+            let xpTotal = Math.floor((totalVendido || 0) / 100);
+
+            if (overrideNivel !== null && overrideNivel !== '') {
+                const lvlNum = parseInt(overrideNivel);
+                if (!isNaN(lvlNum) && lvlNum > 0) {
+                    xpTotal = (lvlNum - 1) * 1000 + (xpTotal % 1000);
+                }
+            }
+
             const xpPorNivel = 1000;
             const nivel = Math.floor(xpTotal / xpPorNivel) + 1;
             const xpActualNivel = xpTotal % xpPorNivel;
@@ -812,8 +841,8 @@
             return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo, xpTotal };
         }
 
-        // MEDALLAS Y LOGROS (PUNTO 3)
-        function generarMedallas(facturas, totalVendido) {
+        // GENERACIÓN DE MEDALLAS CON OVERRIDES DE ADMIN
+        function generarMedallas(facturas, totalVendido, usuarioId) {
             let totalV12 = 0;
             let totalNitro = 0;
             let facturasGrandes = 0;
@@ -831,11 +860,13 @@
                 }
             });
 
+            const overrides = JSON.parse(localStorage.getItem(`ae_custom_badges_${usuarioId}`)) || {};
+
             const listaMedallas = [
-                { id: 'm1', titulo: 'Rey del V12', icon: '👑', desc: 'Instala 3+ Motores V12', activa: totalV12 >= 3 },
-                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', desc: 'Vende 5+ Piezas de Nitro', activa: totalNitro >= 5 },
-                { id: 'm3', titulo: 'Millonario', icon: '💰', desc: 'Factura $5,000,000+', activa: totalVendido >= 5000000 },
-                { id: 'm4', titulo: 'Gran Negocio', icon: '⚡', desc: 'Factura de $1,000,000+', activa: facturasGrandes >= 1 }
+                { id: 'm1', titulo: 'Rey del V12', icon: '👑', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : totalV12 >= 3 },
+                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : totalNitro >= 5 },
+                { id: 'm3', titulo: 'Millonario', icon: '💰', desc: 'Factura $5,000,000+', activa: overrides.m3 !== undefined ? overrides.m3 : totalVendido >= 5000000 },
+                { id: 'm4', titulo: 'Gran Negocio', icon: '⚡', desc: 'Factura de $1,000,000+', activa: overrides.m4 !== undefined ? overrides.m4 : facturasGrandes >= 1 }
             ];
 
             return listaMedallas;
@@ -1060,7 +1091,7 @@
                 let totalVendido = 0;
                 facturas.forEach(f => totalVendido += f.total_cliente);
                 
-                const stats = calcularNivelYProgreso(totalVendido);
+                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
                 document.getElementById('badgeNivelHeader').classList.remove('hidden');
                 document.getElementById('badgeNivelHeader').classList.add('flex');
                 document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
@@ -1461,6 +1492,9 @@
                     const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
                     const avatar = obtenerAvatarTrabajador(u.id);
 
+                    const customLvl = localStorage.getItem(`ae_custom_lvl_${u.id}`) || '';
+                    const customBadges = JSON.parse(localStorage.getItem(`ae_custom_badges_${u.id}`)) || {};
+
                     filas += `
                         <tr class="hover:bg-zinc-900/40 transition">
                             <td class="p-3">
@@ -1471,7 +1505,7 @@
                             </td>
                             <td class="p-3">
                                 <div class="flex items-center gap-2">
-                                    <img src="${avatar}" class="w-6 h-6 rounded-full object-cover border border-zinc-700" />
+                                    <img src="${avatar}" class="w-7 h-7 rounded-full object-cover border border-zinc-700" />
                                     <div>
                                         <span class="${colorClase}">${u.nombre}</span>
                                         ${esAdminOJefe ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
@@ -1480,10 +1514,7 @@
                                 </div>
                             </td>
                             <td class="p-3">
-                                <span class="text-xs text-zinc-400 font-medium">${formatearFechaIngreso(u.created_at)}</span>
-                            </td>
-                            <td class="p-3">
-                                <select id="rangoPreset-${u.id}" class="input-dark px-3 py-1.5 rounded-xl text-xs font-bold w-full max-w-[210px] focus:ring-1 focus:ring-zinc-400">
+                                <select id="rangoPreset-${u.id}" class="input-dark px-2.5 py-1 rounded-xl text-xs font-bold w-full max-w-[170px]">
                                     <option value="jefe" ${presetActual === 'jefe' ? 'selected' : ''}>👑 Jefe (0%)</option>
                                     <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0%)</option>
                                     <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45%)</option>
@@ -1493,18 +1524,34 @@
                                 </select>
                             </td>
                             <td class="p-3">
-                                <select id="permisoAdmin-${u.id}" class="input-dark px-2.5 py-1.5 rounded-xl text-xs font-bold focus:ring-1 focus:ring-zinc-400 ${esAdminOJefe ? 'text-amber-400 border-amber-500/40 font-black' : 'text-zinc-300'}">
+                                <select id="permisoAdmin-${u.id}" class="input-dark px-2 py-1 rounded-xl text-xs font-bold ${esAdminOJefe ? 'text-amber-400 border-amber-500/40 font-black' : 'text-zinc-300'}">
                                     <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
                                     <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>👑 Acceso Admin</option>
                                     <option value="jefe" ${u.rol === 'jefe' ? 'selected' : ''}>👑 Acceso Jefe</option>
                                 </select>
                             </td>
-                            <td class="p-3 text-right space-x-2">
-                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-ae-action text-xs px-3.5 py-1.5 rounded-xl transition shadow">
+                            <!-- MODIFICAR NIVEL / XP MANUAL -->
+                            <td class="p-3">
+                                <div class="flex items-center gap-1">
+                                    <input type="number" id="inputCustomLvl-${u.id}" value="${customLvl}" placeholder="Auto" min="1" max="100" class="w-16 input-dark px-2 py-1 rounded-lg text-xs font-bold text-center text-cyan-300" title="Escribe un nivel (1-100) o déjalo vacío para cálculo automático" />
+                                    <span class="text-[10px] text-zinc-500">Lvl</span>
+                                </div>
+                            </td>
+                            <!-- MEDALLAS MANUALES -->
+                            <td class="p-3">
+                                <div class="flex items-center gap-1.5 text-xs">
+                                    <label title="Rey V12" class="cursor-pointer"><input type="checkbox" id="badge_m1_${u.id}" ${customBadges.m1 ? 'checked' : ''} class="w-3.5 h-3.5 text-amber-500 rounded bg-black border-zinc-700"> 👑</label>
+                                    <label title="Nitro" class="cursor-pointer"><input type="checkbox" id="badge_m2_${u.id}" ${customBadges.m2 ? 'checked' : ''} class="w-3.5 h-3.5 text-cyan-500 rounded bg-black border-zinc-700"> 💨</label>
+                                    <label title="Millonario" class="cursor-pointer"><input type="checkbox" id="badge_m3_${u.id}" ${customBadges.m3 ? 'checked' : ''} class="w-3.5 h-3.5 text-yellow-500 rounded bg-black border-zinc-700"> 💰</label>
+                                    <label title="Gran Negocio" class="cursor-pointer"><input type="checkbox" id="badge_m4_${u.id}" ${customBadges.m4 ? 'checked' : ''} class="w-3.5 h-3.5 text-emerald-500 rounded bg-black border-zinc-700"> ⚡</label>
+                                </div>
+                            </td>
+                            <td class="p-3 text-right space-x-1">
+                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-ae-action text-xs px-3 py-1 rounded-xl transition shadow">
                                     Guardar
                                 </button>
                                 ${u.id !== usuarioActual.id ? `
-                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2.5 py-1.5 rounded-xl border border-rose-500/30 transition">
+                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2 py-1 rounded-xl border border-rose-500/30 transition">
                                         🗑️
                                     </button>
                                 ` : ''}
@@ -1525,14 +1572,15 @@
                                     <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[11px]">
                                         <th class="p-3">Estado</th>
                                         <th class="p-3">Trabajador</th>
-                                        <th class="p-3">Ingreso</th>
-                                        <th class="p-3">Rango Comisión</th>
-                                        <th class="p-3">Permiso Panel</th>
+                                        <th class="p-3">Rango</th>
+                                        <th class="p-3">Permiso</th>
+                                        <th class="p-3">Nivel XP</th>
+                                        <th class="p-3">Medallas</th>
                                         <th class="p-3 text-right">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-800/60">
-                                    ${filas || '<tr><td colspan="6" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
+                                    ${filas || '<tr><td colspan="7" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -1574,14 +1622,35 @@
                 comision_porcentaje = 30;
             }
 
+            // GUARDAR NIVEL PERSONALIZADO
+            const customLvlVal = document.getElementById(`inputCustomLvl-${usuario_id}`).value.trim();
+            if (customLvlVal) {
+                localStorage.setItem(`ae_custom_lvl_${usuario_id}`, customLvlVal);
+            } else {
+                localStorage.removeItem(`ae_custom_lvl_${usuario_id}`);
+            }
+
+            // GUARDAR MEDALLAS PERSONALIZADAS
+            const badgesObj = {
+                m1: document.getElementById(`badge_m1_${usuario_id}`).checked,
+                m2: document.getElementById(`badge_m2_${usuario_id}`).checked,
+                m3: document.getElementById(`badge_m3_${usuario_id}`).checked,
+                m4: document.getElementById(`badge_m4_${usuario_id}`).checked
+            };
+            localStorage.setItem(`ae_custom_badges_${usuario_id}`, JSON.stringify(badgesObj));
+
             const res = await fetch('/api/usuarios/modificar', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
             });
 
-            if (res.ok) mostrarAviso('Usuario Actualizado', `¡Rango (${preset.toUpperCase()}) y permisos guardados con éxito!`);
-            else mostrarAviso('Error', 'Error al actualizar el usuario.', true);
+            if (res.ok) {
+                mostrarAviso('Usuario Actualizado', `¡Rango (${preset.toUpperCase()}), nivel y medallas guardados con éxito!`);
+                actualizarBarraNivelHeader();
+            } else {
+                mostrarAviso('Error', 'Error al actualizar el usuario.', true);
+            }
         }
 
         async function eliminarCuentaUsuario(id, nombre) {
@@ -1727,7 +1796,7 @@
                 const badge = insignias[index] || `PUESTO #${index + 1}`;
                 const estaOnline = usuariosOnlineSet.has(Number(item.id));
                 const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
-                const stats = calcularNivelYProgreso(item.total_vendido);
+                const stats = calcularNivelYProgreso(item.total_vendido, item.id);
                 const avatar = obtenerAvatarTrabajador(item.id);
 
                 html += `
@@ -1828,7 +1897,7 @@
                 `;
             });
 
-            const stats = calcularNivelYProgreso(totalVendido);
+            const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
             const racha = calcularRachaDiaria(usuarioActual.id);
             const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
 
@@ -1844,8 +1913,8 @@
             document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
             document.getElementById('lblPerfilRacha').innerText = `${racha} ${racha === 1 ? 'día activo' : 'días activos'}`;
 
-            // RENDER DE MEDALLAS (PUNTO 3)
-            const medallas = generarMedallas(facturas, totalVendido);
+            // RENDER DE MEDALLAS
+            const medallas = generarMedallas(facturas, totalVendido, usuarioActual.id);
             const contenedorMedallas = document.getElementById('contenedorMedallasPerfil');
             let medallasHTML = '';
             medallas.forEach(m => {
@@ -2085,7 +2154,6 @@
 
                 const data = await res.json();
                 if (res.ok) {
-                    // CONFETI Y SONIDO DE ÉXITO (PUNTO 7)
                     reproducirSonidoExito();
                     if (typeof confetti === 'function') {
                         confetti({

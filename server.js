@@ -12,7 +12,8 @@ const io = new Server(server, {
 });
 
 app.use(compression());
-app.use(express.json());
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -60,7 +61,7 @@ function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
 
-// 1. REGISTRO DE TRABAJADOR
+// 1. REGISTRO
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -87,7 +88,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. INICIO DE SESIÓN SEGURO
+// 2. LOGIN
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
@@ -103,7 +104,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3. ESTADO DE ALMACÉN
+// 3. ALMACEN ESTADO
 app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
@@ -114,7 +115,7 @@ app.get('/api/almacen/estado', async (req, res) => {
     }
 });
 
-// 4. INYECTAR CAPITAL
+// 4. INGRESAR CAPITAL
 app.post('/api/almacen/ingresar-capital', async (req, res) => {
     const { monto, descripcion, usuario_nombre } = req.body;
     const montoNum = parseFloat(monto);
@@ -133,7 +134,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRA DE MOTORES A FÁBRICA
+// 5. COMPRA DE MOTORES
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -166,7 +167,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// 6. AJUSTE MANUAL
+// 6. AJUSTE MANUAL ALMACEN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
     const capNum = parseFloat(capital);
@@ -210,7 +211,7 @@ app.get('/api/usuarios', async (req, res) => {
     }
 });
 
-// 8. MODIFICAR RANGO Y PERMISOS DE USUARIO
+// 8. MODIFICAR RANGO Y PERMISOS
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -358,7 +359,7 @@ app.post('/api/facturas', async (req, res) => {
             });
         }
 
-        notificarCambioGlobal('nueva_factura');
+        notificarCambioGlobal('nueva_factura', { usuario_nombre: user.nombre, cliente, total: total_cliente });
 
         res.json({
             id: facturaId,
