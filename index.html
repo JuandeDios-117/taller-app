@@ -67,48 +67,15 @@
             box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45);
         }
 
-        /* 🏆 CONTENEDOR Y MARCOS LEAGUE OF LEGENDS CON CENTRO HUECO */
-        .lol-avatar-wrapper {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-            flex-shrink: 0;
-        }
-        .lol-avatar-img {
+        /* FOTOS DE PERFIL TOTALMENTE LIMPIAS SIN BORDES */
+        .avatar-clean {
             border-radius: 50%;
             object-fit: cover;
-            position: absolute;
-            z-index: 1;
-        }
-        .lol-frame-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 3;
-            pointer-events: none;
+            flex-shrink: 0;
+            display: block;
         }
 
-        /* RESPLANDORES SEGÚN RANGO */
-        .glow-iron { filter: drop-shadow(0 2px 5px rgba(0,0,0,0.9)) drop-shadow(0 0 6px #4b4b4d); }
-        .glow-bronze { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 8px #964d22); }
-        .glow-silver { filter: drop-shadow(0 2px 7px rgba(0,0,0,0.9)) drop-shadow(0 0 10px #b0bec5); }
-        .glow-gold { filter: drop-shadow(0 3px 8px rgba(0,0,0,0.95)) drop-shadow(0 0 12px #f59e0b); }
-        .glow-emerald { filter: drop-shadow(0 3px 8px rgba(0,0,0,0.95)) drop-shadow(0 0 14px #10b981); }
-        .glow-diamond { filter: drop-shadow(0 3px 9px rgba(0,0,0,0.95)) drop-shadow(0 0 16px #38bdf8); }
-        .glow-master { filter: drop-shadow(0 4px 10px rgba(0,0,0,1)) drop-shadow(0 0 18px #c084fc); animation: pulseRankedLol 2.4s infinite alternate; }
-        .glow-grandmaster { filter: drop-shadow(0 4px 10px rgba(0,0,0,1)) drop-shadow(0 0 20px #ef4444); animation: pulseRankedLol 2.2s infinite alternate; }
-        .glow-challenger { filter: drop-shadow(0 4px 12px rgba(0,0,0,1)) drop-shadow(0 0 22px #facc15) drop-shadow(0 0 10px #38bdf8); animation: pulseRankedLol 1.8s infinite alternate; }
-
-        @keyframes pulseRankedLol {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.025); }
-        }
-
-        /* 🎖️ MEDALLAS EN EL TOP */
+        /* MEDALLAS EN EL TOP */
         .top-medal-badge {
             display: inline-flex;
             align-items: center;
@@ -680,7 +647,7 @@
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
-                <p class="text-xs text-zinc-400">Ranking oficial con rangos LoL, niveles y medallas destacadas.</p>
+                <p class="text-xs text-zinc-400">Ranking oficial con niveles y medallas destacadas.</p>
             </div>
 
             <div id="topContenedor" class="space-y-4"></div>
@@ -837,79 +804,61 @@
         }
         crearFaviconCircular();
 
-        // 🌟 CONFIGURACIÓN DE LOS 9 RANGOS DE LEAGUE OF LEGENDS
+        // 🌟 CONFIGURACIÓN DE TÍTULOS Y CRESTAS
         const LOL_RANKS_CONFIG = {
             iron: {
                 key: 'iron',
                 nombre: 'Hierro (Iron)',
                 color: '#57585c',
-                glowClass: 'glow-iron',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 8L74 24L68 66L50 90L32 66L26 24L50 8Z" fill="#2d2e30" stroke="#71717a" stroke-width="3"/><path d="M50 20L64 30L58 60L50 78L42 60L36 30L50 20Z" fill="#18181b"/><circle cx="50" cy="48" r="6" fill="#71717a"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#3f3f46" stroke-width="5"/><circle cx="60" cy="60" r="44" stroke="#71717a" stroke-width="2" stroke-dasharray="10 6"/><path d="M60 4L72 16H48L60 4Z" fill="#71717a" stroke="#27272a" stroke-width="1.5"/><path d="M60 116L72 104H48L60 116Z" fill="#52525b"/><path d="M4 60L16 52V68L4 60Z" fill="#52525b"/><path d="M116 60L104 52V68L116 60Z" fill="#52525b"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 8L74 24L68 66L50 90L32 66L26 24L50 8Z" fill="#2d2e30" stroke="#71717a" stroke-width="3"/><circle cx="50" cy="48" r="6" fill="#71717a"/></svg>`
             },
             bronze: {
                 key: 'bronze',
                 nombre: 'Bronce (Bronze)',
                 color: '#a86238',
-                glowClass: 'glow-bronze',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 6L78 22L70 68L50 92L30 68L22 22L50 6Z" fill="#451a03" stroke="#b45309" stroke-width="3.5"/><polygon points="50,22 62,38 78,40 65,54 68,70 50,60 32,70 35,54 22,40 38,38" fill="#d97706"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#78350f" stroke-width="5.5"/><circle cx="60" cy="60" r="44" stroke="#b45309" stroke-width="2.5"/><path d="M60 2L76 18H44L60 2Z" fill="#d97706" stroke="#451a03" stroke-width="1.5"/><path d="M60 118L76 102H44L60 118Z" fill="#b45309"/><path d="M2 60L18 48V72L2 60Z" fill="#92400e"/><path d="M118 60L102 48V72L118 60Z" fill="#92400e"/><circle cx="60" cy="11" r="3" fill="#fef3c7"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 6L78 22L70 68L50 92L30 68L22 22L50 6Z" fill="#451a03" stroke="#b45309" stroke-width="3.5"/><polygon points="50,22 62,38 78,40 65,54 68,70 50,60 32,70 35,54 22,40 38,38" fill="#d97706"/></svg>`
             },
             silver: {
                 key: 'silver',
                 nombre: 'Plata (Silver)',
                 color: '#cfd8dc',
-                glowClass: 'glow-silver',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L80 20L72 70L50 94L28 70L20 20L50 5Z" fill="#334155" stroke="#94a3b8" stroke-width="3.5"/><polygon points="50,20 70,42 50,75 30,42" fill="#cbd5e1"/><circle cx="50" cy="46" r="7" fill="#ffffff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#475569" stroke-width="5.5"/><circle cx="60" cy="60" r="44" stroke="#cbd5e1" stroke-width="2.5"/><path d="M60 0L78 18H42L60 0Z" fill="#e2e8f0" stroke="#334155" stroke-width="1.5"/><path d="M60 120L78 102H42L60 120Z" fill="#94a3b8"/><path d="M0 60L18 46V74L0 60Z" fill="#cbd5e1"/><path d="M120 60L102 46V74L120 60Z" fill="#cbd5e1"/><polygon points="60,6 64,12 60,18 56,12" fill="#ffffff"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L80 20L72 70L50 94L28 70L20 20L50 5Z" fill="#334155" stroke="#94a3b8" stroke-width="3.5"/><polygon points="50,20 70,42 50,75 30,42" fill="#cbd5e1"/><circle cx="50" cy="46" r="7" fill="#ffffff"/></svg>`
             },
             gold: {
                 key: 'gold',
                 nombre: 'Oro (Gold)',
                 color: '#f59e0b',
-                glowClass: 'glow-gold',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L84 18L75 72L50 95L25 72L16 18L50 4Z" fill="#713f12" stroke="#f59e0b" stroke-width="4"/><polygon points="50,18 64,36 82,38 68,52 72,70 50,60 28,70 32,52 18,38 36,36" fill="#fbbf24"/><circle cx="50" cy="46" r="8" fill="#fffbeb"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#b45309" stroke-width="6"/><circle cx="60" cy="60" r="45" stroke="#fde047" stroke-width="3"/><path d="M60 0L82 18H38L60 0Z" fill="#facc15" stroke="#713f12" stroke-width="2"/><path d="M60 120L82 100H38L60 120Z" fill="#eab308"/><path d="M0 60L20 42V78L0 60Z" fill="#facc15"/><path d="M120 60L100 42V78L120 60Z" fill="#facc15"/><polygon points="60,4 66,13 60,20 54,13" fill="#ffffff"/><circle cx="60" cy="108" r="4" fill="#fde047"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L84 18L75 72L50 95L25 72L16 18L50 4Z" fill="#713f12" stroke="#f59e0b" stroke-width="4"/><polygon points="50,18 64,36 82,38 68,52 72,70 50,60 28,70 32,52 18,38 36,36" fill="#fbbf24"/><circle cx="50" cy="46" r="8" fill="#fffbeb"/></svg>`
             },
             emerald: {
                 key: 'emerald',
                 nombre: 'Esmeralda (Emerald)',
                 color: '#10b981',
-                glowClass: 'glow-emerald',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 74L50 96L22 74L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><polygon points="50,18 72,42 50,76 28,42" fill="#10b981"/><circle cx="50" cy="46" r="9" fill="#a7f3d0"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#047857" stroke-width="6"/><circle cx="60" cy="60" r="45" stroke="#6ee7b7" stroke-width="3"/><path d="M60 0L84 18H36L60 0Z" fill="#34d399" stroke="#064e3b" stroke-width="2"/><path d="M60 120L84 98H36L60 120Z" fill="#10b981"/><path d="M0 60L22 40V80L0 60Z" fill="#34d399"/><path d="M120 60L98 40V80L120 60Z" fill="#34d399"/><polygon points="60,4 66,13 60,21 54,13" fill="#ecfdf5"/><circle cx="60" cy="108" r="4" fill="#a7f3d0"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 74L50 96L22 74L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><polygon points="50,18 72,42 50,76 28,42" fill="#10b981"/><circle cx="50" cy="46" r="9" fill="#a7f3d0"/></svg>`
             },
             diamond: {
                 key: 'diamond',
                 nombre: 'Diamante (Diamond)',
                 color: '#38bdf8',
-                glowClass: 'glow-diamond',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L88 16L80 76L50 98L20 76L12 16L50 2Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><polygon points="50,14 80,40 50,82 20,40" fill="#0284c7"/><polygon points="50,22 70,42 50,70 30,42" fill="#bae6fd"/><circle cx="50" cy="45" r="9" fill="#ffffff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#0369a1" stroke-width="6.5"/><circle cx="60" cy="60" r="45" stroke="#7dd3fc" stroke-width="3"/><path d="M60 0L86 18H34L60 0Z" fill="#38bdf8" stroke="#082f49" stroke-width="2"/><path d="M60 120L86 98H34L60 120Z" fill="#0284c7"/><path d="M0 60L24 38V82L0 60Z" fill="#7dd3fc"/><path d="M120 60L96 38V82L120 60Z" fill="#7dd3fc"/><polygon points="60,3 67,13 60,22 53,13" fill="#ffffff"/><polygon points="60,98 66,108 60,116 54,108" fill="#e0f2fe"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L88 16L80 76L50 98L20 76L12 16L50 2Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><polygon points="50,14 80,40 50,82 20,40" fill="#0284c7"/><circle cx="50" cy="45" r="9" fill="#ffffff"/></svg>`
             },
             master: {
                 key: 'master',
                 nombre: 'Master (Maestro)',
                 color: '#c084fc',
-                glowClass: 'glow-master',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><polygon points="50,14 78,38 50,84 22,38" fill="#9333ea"/><circle cx="50" cy="45" r="10" fill="#f3e8ff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#7e22ce" stroke-width="7"/><circle cx="60" cy="60" r="45" stroke="#d8b4fe" stroke-width="3.5"/><path d="M60 0L88 18H32L60 0Z" fill="#c084fc" stroke="#2e1065" stroke-width="2"/><path d="M60 120L88 96H32L60 120Z" fill="#a855f7"/><path d="M0 60L26 36V84L0 60Z" fill="#e9d5ff"/><path d="M120 60L94 36V84L120 60Z" fill="#e9d5ff"/><polygon points="60,2 68,13 60,23 52,13" fill="#ffffff"/><circle cx="60" cy="108" r="5" fill="#f3e8ff"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><polygon points="50,14 78,38 50,84 22,38" fill="#9333ea"/><circle cx="50" cy="45" r="10" fill="#f3e8ff"/></svg>`
             },
             grandmaster: {
                 key: 'grandmaster',
                 nombre: 'Grandmaster (Gran Maestro)',
                 color: '#ef4444',
-                glowClass: 'glow-grandmaster',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><circle cx="50" cy="45" r="11" fill="#ffffff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#991b1b" stroke-width="7.5"/><circle cx="60" cy="60" r="45" stroke="#f87171" stroke-width="3.5"/><path d="M60 0L90 20H30L60 0Z" fill="#ef4444" stroke="#450a0a" stroke-width="2"/><path d="M60 120L90 94H30L60 120Z" fill="#dc2626"/><path d="M0 60L28 34V86L0 60Z" fill="#fca5a5"/><path d="M120 60L92 34V86L120 60Z" fill="#fca5a5"/><polygon points="60,2 69,13 60,24 51,13" fill="#ffffff"/><polygon points="60,96 68,107 60,117 52,107" fill="#fee2e2"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><circle cx="50" cy="45" r="11" fill="#ffffff"/></svg>`
             },
             challenger: {
                 key: 'challenger',
                 nombre: 'Challenger 👑 (Retador)',
                 color: '#facc15',
-                glowClass: 'glow-challenger',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><circle cx="50" cy="45" r="12" fill="#ffffff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#a16207" stroke-width="8"/><circle cx="60" cy="60" r="45" stroke="#fde047" stroke-width="4"/><path d="M60 0L92 22H28L60 0Z" fill="#facc15" stroke="#713f12" stroke-width="2.5"/><path d="M60 120L92 90H28L60 120Z" fill="#eab308"/><path d="M0 60L30 32V88L0 60Z" fill="#38bdf8"/><path d="M120 60L90 32V88L120 60Z" fill="#38bdf8"/><polygon points="60,1 71,14 60,26 49,14" fill="#ffffff"/><circle cx="60" cy="106" r="5" fill="#38bdf8"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><circle cx="50" cy="45" r="12" fill="#ffffff"/></svg>`
             }
         };
 
@@ -925,15 +874,10 @@
             return LOL_RANKS_CONFIG.iron;
         }
 
-        // GENERADOR DE AVATAR CON CENTRO TRANSPARENTE
+        // RENDER DE FOTO LIMPIA SIN NINGÚN BORDE NI MARCO
         function renderLolAvatar(avatarUrl, nivel, sizePx = 64) {
-            const rank = obtenerRankInfoPorNivel(nivel);
-            const innerSize = Math.round(sizePx * 0.68);
             return `
-                <div class="lol-avatar-wrapper ${rank.glowClass}" style="width: ${sizePx}px; height: ${sizePx}px;">
-                    <img src="${avatarUrl}" class="lol-avatar-img" style="width: ${innerSize}px; height: ${innerSize}px;" onerror="this.src='/logo.png'" />
-                    <div class="lol-frame-svg">${rank.frameSvg}</div>
-                </div>
+                <img src="${avatarUrl}" class="avatar-clean" style="width: ${sizePx}px; height: ${sizePx}px;" onerror="this.src='/logo.png'" />
             `;
         }
 
@@ -1161,7 +1105,6 @@
             return html;
         }
 
-        // GENERADOR DE MEDALLAS DESTACADAS EN TOP TRABAJADORES
         function generarMedallasTopHTML(medallas) {
             let html = '<div class="flex flex-wrap items-center gap-1.5 mt-2">';
             let count = 0;
@@ -1349,7 +1292,7 @@
                 const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
                 const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
 
-                document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 56);
+                document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 52);
                 document.getElementById('headerRankCrestContainer').innerHTML = stats.rank.crestSvg;
 
                 document.getElementById('badgeNivelHeader').classList.remove('hidden');
@@ -1407,7 +1350,7 @@
                 const avatar = obtenerAvatarTrabajador(u.id);
                 chipsHTML += `
                     <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
-                        <img src="${avatar}" class="w-5 h-5 rounded-full object-cover border border-cyan-500/40" />
+                        <img src="${avatar}" class="w-5 h-5 rounded-full object-cover" />
                         <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
                         <span class="${colorClase}">${u.nombre}</span>
                         ${esAdminOJefe ? '<span class="text-[9px] text-amber-400 font-bold">👑</span>' : ''}
@@ -1762,7 +1705,7 @@
                             </td>
                             <td class="p-3">
                                 <div class="flex items-center gap-2">
-                                    <img src="${avatar}" class="w-7 h-7 rounded-full object-cover border border-zinc-700" />
+                                    <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
                                     <div>
                                         <span class="${colorClase}">${u.nombre}</span>
                                         ${esAdminOJefe ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
@@ -2002,7 +1945,7 @@
                     <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-2">
-                                <img src="${avatar}" class="w-7 h-7 rounded-full object-cover border border-cyan-500/40" />
+                                <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
                                 <div>
                                     <span class="font-bold text-cyan-300 text-sm">👷 ${f.trabajador_nombre}</span>
                                     <span class="text-xs text-zinc-400 ml-1 font-mono">(${fecha})</span>
@@ -2063,13 +2006,13 @@
 
                 const medallas = generarMedallas([], item.total_vendido, item.id);
                 const medallasTopHTML = generarMedallasTopHTML(medallas);
-                const avatarWithLolFrame = renderLolAvatar(avatar, stats.nivel, 58);
+                const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
 
                 html += `
                     <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
                         <div class="flex items-center gap-3.5">
                             <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                            <div class="shrink-0">${avatarWithLolFrame}</div>
+                            <div class="shrink-0">${avatarClean}</div>
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
