@@ -698,11 +698,21 @@
                         <p class="text-xs text-zinc-400">Reasigna o elimina órdenes en tiempo real.</p>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <label class="text-xs font-bold text-zinc-400 uppercase">Filtrar:</label>
-                        <select id="selectFiltroTrabajador" onchange="filtrarHistorialAdmin()" class="input-dark px-3 py-1.5 rounded-lg text-xs font-medium">
-                            <option value="todos">Todos los trabajadores</option>
-                        </select>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- SELECTOR DE ZONA HORARIA EN EL HISTORIAL ADMIN -->
+                        <div class="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-lg border border-zinc-800">
+                            <span class="text-[11px] font-bold text-zinc-400 uppercase">Zona Horaria:</span>
+                            <button onclick="cambiarZonaHorariaFacturas('America/Mexico_City')" class="px-2 py-0.5 rounded text-[11px] font-black transition" id="btnAdminTzMx">🇲🇽 MX</button>
+                            <button onclick="cambiarZonaHorariaFacturas('Europe/Madrid')" class="px-2 py-0.5 rounded text-[11px] font-black transition" id="btnAdminTzEs">🇪🇸 ES</button>
+                            <button onclick="cambiarZonaHorariaFacturas('America/Argentina/Buenos_Aires')" class="px-2 py-0.5 rounded text-[11px] font-black transition" id="btnAdminTzAr">🇦🇷 AR</button>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs font-bold text-zinc-400 uppercase">Filtrar:</label>
+                            <select id="selectFiltroTrabajador" onchange="filtrarHistorialAdmin()" class="input-dark px-3 py-1.5 rounded-lg text-xs font-medium">
+                                <option value="todos">Todos los trabajadores</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -804,7 +814,6 @@
         }
         crearFaviconCircular();
 
-        // 🌟 CONFIGURACIÓN DE TÍTULOS Y CRESTAS
         const LOL_RANKS_CONFIG = {
             iron: {
                 key: 'iron',
@@ -874,7 +883,6 @@
             return LOL_RANKS_CONFIG.iron;
         }
 
-        // RENDER DE FOTO LIMPIA SIN NINGÚN BORDE NI MARCO
         function renderLolAvatar(avatarUrl, nivel, sizePx = 64) {
             return `
                 <img src="${avatarUrl}" class="avatar-clean" style="width: ${sizePx}px; height: ${sizePx}px;" onerror="this.src='/logo.png'" />
@@ -887,6 +895,7 @@
             zonaHorariaActiva = tz;
             localStorage.setItem('ae_timezone', tz);
 
+            // Botones en Historial Personal
             const btnMx = document.getElementById('btnTzMx');
             const btnEs = document.getElementById('btnTzEs');
             const btnAr = document.getElementById('btnTzAr');
@@ -895,6 +904,17 @@
                 btnMx.className = tz === 'America/Mexico_City' ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-cyan-600 text-white border border-cyan-400 transition' : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:text-white transition';
                 btnEs.className = tz === 'Europe/Madrid' ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-cyan-600 text-white border border-cyan-400 transition' : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:text-white transition';
                 btnAr.className = tz === 'America/Argentina/Buenos_Aires' ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-cyan-600 text-white border border-cyan-400 transition' : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:text-white transition';
+            }
+
+            // Botones en Historial Admin
+            const btnAdminMx = document.getElementById('btnAdminTzMx');
+            const btnAdminEs = document.getElementById('btnAdminTzEs');
+            const btnAdminAr = document.getElementById('btnAdminTzAr');
+
+            if (btnAdminMx && btnAdminEs && btnAdminAr) {
+                btnAdminMx.className = tz === 'America/Mexico_City' ? 'px-2 py-0.5 rounded text-[11px] font-black bg-cyan-600 text-white' : 'px-2 py-0.5 rounded text-[11px] font-bold text-zinc-400 hover:text-white';
+                btnAdminEs.className = tz === 'Europe/Madrid' ? 'px-2 py-0.5 rounded text-[11px] font-black bg-cyan-600 text-white' : 'px-2 py-0.5 rounded text-[11px] font-bold text-zinc-400 hover:text-white';
+                btnAdminAr.className = tz === 'America/Argentina/Buenos_Aires' ? 'px-2 py-0.5 rounded text-[11px] font-black bg-cyan-600 text-white' : 'px-2 py-0.5 rounded text-[11px] font-bold text-zinc-400 hover:text-white';
             }
 
             if (pestanaActiva === 'historial') cargarHistorial();
@@ -914,7 +934,6 @@
             return `${flag} ${fechaFormat}, ${horaFormat}`;
         }
 
-        // RELOJES EN VIVO
         function actualizarRelojesMultiZona() {
             const ahora = new Date();
             const opciones = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
