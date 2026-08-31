@@ -718,25 +718,40 @@
         }
         crearFaviconCircular();
 
-        function reproducirSonidoExito() {
+        // SONIDOS CARACTERÍSTICOS POR MONTO Y TIPO DE PIEZA (WEB AUDIO API)
+        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
-                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+                const ahora = audioCtx.currentTime;
 
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                const emitirTono = (freq, inicio, duracion, tipo = 'triangle', ganancia = 0.2) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = tipo;
+                    osc.frequency.setValueAtTime(freq, ahora + inicio);
+                    gain.gain.setValueAtTime(ganancia, ahora + inicio);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ahora + inicio + duracion);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(ahora + inicio);
+                    osc.stop(ahora + inicio + duracion);
+                };
 
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.6);
+                if (total >= 1000000) {
+                    // FANFARRIA ÉPICA ($1,000,000+)
+                    [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => emitirTono(f, i * 0.12, 0.5, 'sine', 0.25));
+                } else if (total >= 500000 || tieneV12) {
+                    // RUGIDO V12 / ACORDE POTENTE ($500K+)
+                    [220, 329.63, 440, 554.37, 659.25].forEach((f) => emitirTono(f, 0, 0.8, 'sawtooth', 0.12));
+                } else if (total >= 100000) {
+                    // SONIDO METÁLICO ($100K+)
+                    emitirTono(880, 0, 0.15, 'triangle', 0.2);
+                    emitirTono(1318.51, 0.12, 0.4, 'triangle', 0.2);
+                } else {
+                    // DING ESTÁNDAR
+                    emitirTono(659.25, 0, 0.1, 'sine', 0.15);
+                    emitirTono(880, 0.08, 0.25, 'sine', 0.15);
+                }
             } catch (e) {}
         }
 
@@ -767,7 +782,7 @@
             return localStorage.getItem(`ae_avatar_${usuarioId}`) || '/logo.png';
         }
 
-        // SUBIDA DE FOTO CON COMPRESIÓN CANVAS (HASTA 15MB)
+        // SUBIDA DE FOTO CON COMPRESIÓN CANVAS HASTA 15MB
         function subirFotoPerfilTrabajador(event) {
             if (!usuarioActual) return;
             const file = event.target.files[0];
@@ -815,7 +830,6 @@
             reader.readAsDataURL(file);
         }
 
-        // CÁLCULO DE NIVEL Y XP (CONSIDERA AJUSTES MANUALES DE ADMIN)
         function calcularNivelYProgreso(totalVendido, usuarioId) {
             const overrideNivel = localStorage.getItem(`ae_custom_lvl_${usuarioId}`);
             let xpTotal = Math.floor((totalVendido || 0) / 100);
@@ -841,11 +855,14 @@
             return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo, xpTotal };
         }
 
-        // GENERACIÓN DE MEDALLAS CON OVERRIDES DE ADMIN
+        // 8 MEDALLAS DESBLOQUEABLES
         function generarMedallas(facturas, totalVendido, usuarioId) {
             let totalV12 = 0;
+            let totalV8 = 0;
             let totalNitro = 0;
             let facturasGrandes = 0;
+            let totalDrift = 0;
+            let totalLimpieza = 0;
 
             facturas.forEach(f => {
                 if (f.total_cliente >= 1000000) facturasGrandes++;
@@ -854,7 +871,10 @@
                         const items = JSON.parse(f.items_json);
                         items.forEach(it => {
                             if (it.id === 7 || it.id === 20 || it.id === 21) totalV12 += it.cantidad;
+                            if (it.id === 8 || it.id === 18 || it.id === 19) totalV8 += it.cantidad;
                             if (it.id === 25 || it.id === 26 || it.id === 22 || it.id === 23) totalNitro += it.cantidad;
+                            if (it.id === 24 || it.id === 23) totalDrift += it.cantidad;
+                            if (it.id === 27) totalLimpieza += it.cantidad;
                         });
                     } catch (e) {}
                 }
@@ -862,14 +882,16 @@
 
             const overrides = JSON.parse(localStorage.getItem(`ae_custom_badges_${usuarioId}`)) || {};
 
-            const listaMedallas = [
-                { id: 'm1', titulo: 'Rey del V12', icon: '👑', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : totalV12 >= 3 },
-                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : totalNitro >= 5 },
-                { id: 'm3', titulo: 'Millonario', icon: '💰', desc: 'Factura $5,000,000+', activa: overrides.m3 !== undefined ? overrides.m3 : totalVendido >= 5000000 },
-                { id: 'm4', titulo: 'Gran Negocio', icon: '⚡', desc: 'Factura de $1,000,000+', activa: overrides.m4 !== undefined ? overrides.m4 : facturasGrandes >= 1 }
+            return [
+                { id: 'm1', titulo: 'Rey del V12', icon: '👑', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : (totalV12 >= 3) },
+                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : (totalNitro >= 5) },
+                { id: 'm3', titulo: 'Rey del Drift', icon: '🏎️', desc: 'Instala Kits de Drift', activa: overrides.m3 !== undefined ? overrides.m3 : (totalDrift >= 2) },
+                { id: 'm4', titulo: 'Mente V8', icon: '⚙️', desc: 'Instala 5+ Motores V8', activa: overrides.m4 !== undefined ? overrides.m4 : (totalV8 >= 5) },
+                { id: 'm5', titulo: 'Detallador Pro', icon: '🧼', desc: '10+ Kits de Limpieza', activa: overrides.m5 !== undefined ? overrides.m5 : (totalLimpieza >= 10) },
+                { id: 'm6', titulo: 'Gran Negocio', icon: '⚡', desc: 'Factura de $1,000,000+', activa: overrides.m6 !== undefined ? overrides.m6 : (facturasGrandes >= 1) },
+                { id: 'm7', titulo: 'Medio Millón', icon: '💎', desc: 'Vende $500,000+', activa: overrides.m7 !== undefined ? overrides.m7 : (totalVendido >= 500000) },
+                { id: 'm8', titulo: 'Millonario', icon: '💰', desc: 'Factura $5,000,000+', activa: overrides.m8 !== undefined ? overrides.m8 : (totalVendido >= 5000000) }
             ];
-
-            return listaMedallas;
         }
 
         const categoriaConfig = {
@@ -1047,9 +1069,26 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
+        // NOTIFICACIONES GLOBALES EN TIEMPO REAL CON SONIDO Y ALERTAS
         socket.on('db_update', (data) => {
-            if (data.evento === 'nueva_factura' && data.cliente && data.total) {
+            if (data.evento === 'nueva_factura' && data.total) {
+                let tieneV12 = false;
+                if (data.items && Array.isArray(data.items)) {
+                    tieneV12 = data.items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
+                }
+
+                reproducirSonidoGlobalVenta(data.total, tieneV12);
                 mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
+
+                if (data.total >= 500000 || tieneV12) {
+                    mostrarAviso(
+                        '🔥 ¡VENTA ÉPICA REGISTRADA!', 
+                        `👷 ${data.usuario_nombre} acaba de cerrar una orden de $${data.total.toLocaleString()} para ${data.cliente}`
+                    );
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+                    }
+                }
             }
 
             if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
@@ -1551,7 +1590,7 @@
                                     Guardar
                                 </button>
                                 ${u.id !== usuarioActual.id ? `
-                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2 py-1 rounded-xl border border-rose-500/30 transition">
+                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2.5 py-1 rounded-xl border border-rose-500/30 transition">
                                         🗑️
                                     </button>
                                 ` : ''}
@@ -1622,7 +1661,6 @@
                 comision_porcentaje = 30;
             }
 
-            // GUARDAR NIVEL PERSONALIZADO
             const customLvlVal = document.getElementById(`inputCustomLvl-${usuario_id}`).value.trim();
             if (customLvlVal) {
                 localStorage.setItem(`ae_custom_lvl_${usuario_id}`, customLvlVal);
@@ -1630,7 +1668,6 @@
                 localStorage.removeItem(`ae_custom_lvl_${usuario_id}`);
             }
 
-            // GUARDAR MEDALLAS PERSONALIZADAS
             const badgesObj = {
                 m1: document.getElementById(`badge_m1_${usuario_id}`).checked,
                 m2: document.getElementById(`badge_m2_${usuario_id}`).checked,
@@ -1913,7 +1950,7 @@
             document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
             document.getElementById('lblPerfilRacha').innerText = `${racha} ${racha === 1 ? 'día activo' : 'días activos'}`;
 
-            // RENDER DE MEDALLAS
+            // RENDER DE 8 MEDALLAS
             const medallas = generarMedallas(facturas, totalVendido, usuarioActual.id);
             const contenedorMedallas = document.getElementById('contenedorMedallasPerfil');
             let medallasHTML = '';
@@ -2154,7 +2191,9 @@
 
                 const data = await res.json();
                 if (res.ok) {
-                    reproducirSonidoExito();
+                    let tieneV12 = items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
+                    reproducirSonidoGlobalVenta(data.total, tieneV12);
+
                     if (typeof confetti === 'function') {
                         confetti({
                             particleCount: 90,

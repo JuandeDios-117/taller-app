@@ -104,7 +104,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3. ALMACEN ESTADO
+// 3. ALMACÉN ESTADO
 app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
@@ -134,7 +134,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRA DE MOTORES
+// 5. COMPRA DE MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -167,7 +167,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// 6. AJUSTE MANUAL ALMACEN
+// 6. AJUSTE MANUAL ALMACÉN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
     const capNum = parseFloat(capital);
@@ -211,7 +211,7 @@ app.get('/api/usuarios', async (req, res) => {
     }
 });
 
-// 8. MODIFICAR RANGO Y PERMISOS
+// 8. MODIFICAR RANGO Y PERMISOS DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -295,7 +295,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA
+// 13. REGISTRAR FACTURA (CON NOTIFICACIÓN GLOBAL Y DETALLES PARA SONIDO)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -359,7 +359,12 @@ app.post('/api/facturas', async (req, res) => {
             });
         }
 
-        notificarCambioGlobal('nueva_factura', { usuario_nombre: user.nombre, cliente, total: total_cliente });
+        notificarCambioGlobal('nueva_factura', { 
+            usuario_nombre: user.nombre, 
+            cliente: cliente || 'Cliente General', 
+            total: total_cliente,
+            items: items
+        });
 
         res.json({
             id: facturaId,
