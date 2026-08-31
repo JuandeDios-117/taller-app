@@ -67,7 +67,7 @@
             box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45);
         }
 
-        /* 🏆 CONTENEDOR Y MARCOS LEAGUE OF LEGENDS CON RELIEVE Y GEMAS */
+        /* 🏆 CONTENEDOR Y MARCOS LEAGUE OF LEGENDS CON CENTRO HUECO */
         .lol-avatar-wrapper {
             position: relative;
             display: inline-flex;
@@ -88,27 +88,27 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2;
+            z-index: 3;
             pointer-events: none;
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.95));
         }
 
-        .glow-iron { filter: drop-shadow(0 0 4px rgba(100, 100, 105, 0.7)); }
-        .glow-bronze { filter: drop-shadow(0 0 7px rgba(185, 95, 45, 0.8)); }
-        .glow-silver { filter: drop-shadow(0 0 9px rgba(220, 230, 240, 0.85)); }
-        .glow-gold { filter: drop-shadow(0 0 12px rgba(245, 175, 25, 0.9)); }
-        .glow-emerald { filter: drop-shadow(0 0 14px rgba(20, 210, 140, 0.95)); }
-        .glow-diamond { filter: drop-shadow(0 0 16px rgba(56, 189, 248, 1)); }
-        .glow-master { filter: drop-shadow(0 0 18px rgba(192, 132, 252, 1)); animation: pulseTier 2.2s infinite alternate; }
-        .glow-grandmaster { filter: drop-shadow(0 0 20px rgba(239, 68, 68, 1)); animation: pulseTier 2s infinite alternate; }
-        .glow-challenger { filter: drop-shadow(0 0 22px #facc15) drop-shadow(0 0 10px #38bdf8); animation: pulseTier 1.8s infinite alternate; }
+        /* RESPLANDORES SEGÚN RANGO */
+        .glow-iron { filter: drop-shadow(0 2px 5px rgba(0,0,0,0.9)) drop-shadow(0 0 6px #4b4b4d); }
+        .glow-bronze { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 8px #964d22); }
+        .glow-silver { filter: drop-shadow(0 2px 7px rgba(0,0,0,0.9)) drop-shadow(0 0 10px #b0bec5); }
+        .glow-gold { filter: drop-shadow(0 3px 8px rgba(0,0,0,0.95)) drop-shadow(0 0 12px #f59e0b); }
+        .glow-emerald { filter: drop-shadow(0 3px 8px rgba(0,0,0,0.95)) drop-shadow(0 0 14px #10b981); }
+        .glow-diamond { filter: drop-shadow(0 3px 9px rgba(0,0,0,0.95)) drop-shadow(0 0 16px #38bdf8); }
+        .glow-master { filter: drop-shadow(0 4px 10px rgba(0,0,0,1)) drop-shadow(0 0 18px #c084fc); animation: pulseRankedLol 2.4s infinite alternate; }
+        .glow-grandmaster { filter: drop-shadow(0 4px 10px rgba(0,0,0,1)) drop-shadow(0 0 20px #ef4444); animation: pulseRankedLol 2.2s infinite alternate; }
+        .glow-challenger { filter: drop-shadow(0 4px 12px rgba(0,0,0,1)) drop-shadow(0 0 22px #facc15) drop-shadow(0 0 10px #38bdf8); animation: pulseRankedLol 1.8s infinite alternate; }
 
-        @keyframes pulseTier {
+        @keyframes pulseRankedLol {
             0% { transform: scale(1); }
-            100% { transform: scale(1.03); }
+            100% { transform: scale(1.025); }
         }
 
-        /* 🎖️ MEDALLAS EN MINIATURA EN EL RANKING TOP */
+        /* 🎖️ MEDALLAS EN EL TOP */
         .top-medal-badge {
             display: inline-flex;
             align-items: center;
@@ -150,14 +150,14 @@
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-4">
         
-        <!-- BARRA SUPERIOR DE RELOJES CON BANDERAS EN ALTA DEFINICIÓN -->
+        <!-- BARRA SUPERIOR DE RELOJES CON BANDERAS EN SVG -->
         <div class="card-dark px-4 py-2.5 rounded-xl flex flex-wrap justify-between items-center text-xs border-b border-zinc-800 gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-base">🕒</span>
                 <span class="font-black text-cyan-400 uppercase tracking-wider text-[11px]">HORARIOS DE REGISTRO EN VIVO:</span>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
-                <!-- BANDERA MÉXICO -->
+                <!-- MÉXICO -->
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-emerald-500/40 shadow-sm">
                     <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
                         <path fill="#006847" d="M0 0h213.3v480H0z"/>
@@ -169,7 +169,7 @@
                     <span id="relojMexico" class="text-white font-black tracking-wider text-xs">--:--:--</span>
                 </div>
 
-                <!-- BANDERA ESPAÑA -->
+                <!-- ESPAÑA -->
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-yellow-500/40 shadow-sm">
                     <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
                         <path fill="#aa151b" d="M0 0h640v480H0z"/>
@@ -180,7 +180,7 @@
                     <span id="relojEspana" class="text-white font-black tracking-wider text-xs">--:--:--</span>
                 </div>
 
-                <!-- BANDERA ARGENTINA -->
+                <!-- ARGENTINA -->
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-cyan-500/40 shadow-sm">
                     <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
                         <path fill="#74acdf" d="M0 0h640v480H0z"/>
@@ -837,79 +837,79 @@
         }
         crearFaviconCircular();
 
-        // 🏆 9 RANGOS LEAGUE OF LEGENDS CON LOS BORDES, ALAS Y GEMAS VECTORIALES
+        // 🌟 CONFIGURACIÓN DE LOS 9 RANGOS DE LEAGUE OF LEGENDS
         const LOL_RANKS_CONFIG = {
             iron: {
                 key: 'iron',
                 nombre: 'Hierro (Iron)',
                 color: '#57585c',
                 glowClass: 'glow-iron',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 8L76 26L68 68L50 92L32 68L24 26L50 8Z" fill="#3a3a3c" stroke="#6d6d72" stroke-width="3"/><path d="M50 20L66 32L60 62L50 80L40 62L34 32L50 20Z" fill="#242426"/><path d="M50 30V65M42 45H58" stroke="#8a8a8e" stroke-width="3" stroke-linecap="round"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#48484a" stroke-width="4"/><path d="M60 4L70 16H50L60 4Z" fill="#6d6d72"/><path d="M60 116L72 102H48L60 116Z" fill="#6d6d72"/><path d="M4 60L16 50V70L4 60Z" fill="#6d6d72"/><path d="M116 60L104 50V70L116 60Z" fill="#6d6d72"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 8L74 24L68 66L50 90L32 66L26 24L50 8Z" fill="#2d2e30" stroke="#71717a" stroke-width="3"/><path d="M50 20L64 30L58 60L50 78L42 60L36 30L50 20Z" fill="#18181b"/><circle cx="50" cy="48" r="6" fill="#71717a"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#3f3f46" stroke-width="5"/><circle cx="60" cy="60" r="44" stroke="#71717a" stroke-width="2" stroke-dasharray="10 6"/><path d="M60 4L72 16H48L60 4Z" fill="#71717a" stroke="#27272a" stroke-width="1.5"/><path d="M60 116L72 104H48L60 116Z" fill="#52525b"/><path d="M4 60L16 52V68L4 60Z" fill="#52525b"/><path d="M116 60L104 52V68L116 60Z" fill="#52525b"/></svg>`
             },
             bronze: {
                 key: 'bronze',
                 nombre: 'Bronce (Bronze)',
                 color: '#a86238',
                 glowClass: 'glow-bronze',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 6L80 24L72 70L50 94L28 70L20 24L50 6Z" fill="#542e17" stroke="#a86238" stroke-width="3.5"/><path d="M50 18L70 30L64 64L50 82L36 64L30 30L50 18Z" fill="#381c0c"/><polygon points="50,30 58,45 74,47 62,59 65,75 50,67 35,75 38,59 26,47 42,45" fill="#cd7f32"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#8c4e28" stroke-width="4.5"/><path d="M60 2L74 18H46L60 2Z" fill="#c97947"/><path d="M60 118L76 100H44L60 118Z" fill="#c97947"/><path d="M2 60L18 46V74L2 60Z" fill="#a86238"/><path d="M118 60L102 46V74L118 60Z" fill="#a86238"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 6L78 22L70 68L50 92L30 68L22 22L50 6Z" fill="#451a03" stroke="#b45309" stroke-width="3.5"/><polygon points="50,22 62,38 78,40 65,54 68,70 50,60 32,70 35,54 22,40 38,38" fill="#d97706"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#78350f" stroke-width="5.5"/><circle cx="60" cy="60" r="44" stroke="#b45309" stroke-width="2.5"/><path d="M60 2L76 18H44L60 2Z" fill="#d97706" stroke="#451a03" stroke-width="1.5"/><path d="M60 118L76 102H44L60 118Z" fill="#b45309"/><path d="M2 60L18 48V72L2 60Z" fill="#92400e"/><path d="M118 60L102 48V72L118 60Z" fill="#92400e"/><circle cx="60" cy="11" r="3" fill="#fef3c7"/></svg>`
             },
             silver: {
                 key: 'silver',
                 nombre: 'Plata (Silver)',
                 color: '#cfd8dc',
                 glowClass: 'glow-silver',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L82 22L74 72L50 95L26 72L18 22L50 5Z" fill="#455a64" stroke="#cfd8dc" stroke-width="3.5"/><path d="M50 16L72 28L66 66L50 84L34 66L28 28L50 16Z" fill="#263238"/><path d="M50 25L64 38L50 72L36 38L50 25Z" fill="#90a4ae"/><circle cx="50" cy="48" r="7" fill="#eceff1"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#90a4ae" stroke-width="4.5"/><path d="M60 2L75 16H45L60 2Z" fill="#eceff1"/><path d="M60 118L76 102H44L60 118Z" fill="#b0bec5"/><path d="M2 60L18 46V74L2 60Z" fill="#cfd8dc"/><path d="M118 60L102 46V74L118 60Z" fill="#cfd8dc"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L80 20L72 70L50 94L28 70L20 20L50 5Z" fill="#334155" stroke="#94a3b8" stroke-width="3.5"/><polygon points="50,20 70,42 50,75 30,42" fill="#cbd5e1"/><circle cx="50" cy="46" r="7" fill="#ffffff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#475569" stroke-width="5.5"/><circle cx="60" cy="60" r="44" stroke="#cbd5e1" stroke-width="2.5"/><path d="M60 0L78 18H42L60 0Z" fill="#e2e8f0" stroke="#334155" stroke-width="1.5"/><path d="M60 120L78 102H42L60 120Z" fill="#94a3b8"/><path d="M0 60L18 46V74L0 60Z" fill="#cbd5e1"/><path d="M120 60L102 46V74L120 60Z" fill="#cbd5e1"/><polygon points="60,6 64,12 60,18 56,12" fill="#ffffff"/></svg>`
             },
             gold: {
                 key: 'gold',
                 nombre: 'Oro (Gold)',
                 color: '#f59e0b',
                 glowClass: 'glow-gold',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L85 20L76 74L50 96L24 74L15 20L50 4Z" fill="#78350f" stroke="#fbbf24" stroke-width="4"/><path d="M50 15L74 26L68 68L50 86L32 68L26 26L50 15Z" fill="#451a03"/><polygon points="50,22 62,38 80,40 66,54 70,72 50,62 30,72 34,54 20,40 38,38" fill="#f59e0b"/><circle cx="50" cy="48" r="9" fill="#fef08a"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#d97706" stroke-width="5"/><path d="M60 0L78 18H42L60 0Z" fill="#fbbf24"/><path d="M60 120L80 98H40L60 120Z" fill="#f59e0b"/><path d="M0 60L18 42V78L0 60Z" fill="#fbbf24"/><path d="M120 60L102 42V78L120 60Z" fill="#fbbf24"/><circle cx="60" cy="14" r="4" fill="#fef08a"/><circle cx="60" cy="106" r="4" fill="#fef08a"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L84 18L75 72L50 95L25 72L16 18L50 4Z" fill="#713f12" stroke="#f59e0b" stroke-width="4"/><polygon points="50,18 64,36 82,38 68,52 72,70 50,60 28,70 32,52 18,38 36,36" fill="#fbbf24"/><circle cx="50" cy="46" r="8" fill="#fffbeb"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#b45309" stroke-width="6"/><circle cx="60" cy="60" r="45" stroke="#fde047" stroke-width="3"/><path d="M60 0L82 18H38L60 0Z" fill="#facc15" stroke="#713f12" stroke-width="2"/><path d="M60 120L82 100H38L60 120Z" fill="#eab308"/><path d="M0 60L20 42V78L0 60Z" fill="#facc15"/><path d="M120 60L100 42V78L120 60Z" fill="#facc15"/><polygon points="60,4 66,13 60,20 54,13" fill="#ffffff"/><circle cx="60" cy="108" r="4" fill="#fde047"/></svg>`
             },
             emerald: {
                 key: 'emerald',
                 nombre: 'Esmeralda (Emerald)',
                 color: '#10b981',
                 glowClass: 'glow-emerald',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 75L50 97L22 75L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><path d="M50 14L75 24L69 69L50 87L31 69L25 24L50 14Z" fill="#022c22"/><polygon points="50,20 72,44 50,78 28,44" fill="#10b981"/><circle cx="50" cy="48" r="10" fill="#a7f3d0"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#059669" stroke-width="5.5"/><path d="M60 0L80 18H40L60 0Z" fill="#34d399"/><path d="M60 120L82 98H38L60 120Z" fill="#10b981"/><path d="M0 60L20 40V80L0 60Z" fill="#34d399"/><path d="M120 60L100 40V80L120 60Z" fill="#34d399"/><polygon points="60,8 65,15 60,22 55,15" fill="#d1fae5"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 74L50 96L22 74L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><polygon points="50,18 72,42 50,76 28,42" fill="#10b981"/><circle cx="50" cy="46" r="9" fill="#a7f3d0"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#047857" stroke-width="6"/><circle cx="60" cy="60" r="45" stroke="#6ee7b7" stroke-width="3"/><path d="M60 0L84 18H36L60 0Z" fill="#34d399" stroke="#064e3b" stroke-width="2"/><path d="M60 120L84 98H36L60 120Z" fill="#10b981"/><path d="M0 60L22 40V80L0 60Z" fill="#34d399"/><path d="M120 60L98 40V80L120 60Z" fill="#34d399"/><polygon points="60,4 66,13 60,21 54,13" fill="#ecfdf5"/><circle cx="60" cy="108" r="4" fill="#a7f3d0"/></svg>`
             },
             diamond: {
                 key: 'diamond',
                 nombre: 'Diamante (Diamond)',
                 color: '#38bdf8',
                 glowClass: 'glow-diamond',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 3L88 18L80 76L50 98L20 76L12 18L50 3Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><path d="M50 12L78 22L72 70L50 88L28 70L22 22L50 12Z" fill="#082f49"/><polygon points="50,18 78,42 50,82 22,42" fill="#0284c7"/><polygon points="50,26 68,44 50,70 32,44" fill="#bae6fd"/><circle cx="50" cy="46" r="10" fill="#ffffff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#0284c7" stroke-width="6"/><path d="M60 0L84 18H36L60 0Z" fill="#38bdf8"/><path d="M60 120L86 96H34L60 120Z" fill="#0ea5e9"/><path d="M0 60L22 38V82L0 60Z" fill="#7dd3fc"/><path d="M120 60L98 38V82L120 60Z" fill="#7dd3fc"/><polygon points="60,6 68,16 60,26 52,16" fill="#e0f2fe"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L88 16L80 76L50 98L20 76L12 16L50 2Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><polygon points="50,14 80,40 50,82 20,40" fill="#0284c7"/><polygon points="50,22 70,42 50,70 30,42" fill="#bae6fd"/><circle cx="50" cy="45" r="9" fill="#ffffff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#0369a1" stroke-width="6.5"/><circle cx="60" cy="60" r="45" stroke="#7dd3fc" stroke-width="3"/><path d="M60 0L86 18H34L60 0Z" fill="#38bdf8" stroke="#082f49" stroke-width="2"/><path d="M60 120L86 98H34L60 120Z" fill="#0284c7"/><path d="M0 60L24 38V82L0 60Z" fill="#7dd3fc"/><path d="M120 60L96 38V82L120 60Z" fill="#7dd3fc"/><polygon points="60,3 67,13 60,22 53,13" fill="#ffffff"/><polygon points="60,98 66,108 60,116 54,108" fill="#e0f2fe"/></svg>`
             },
             master: {
                 key: 'master',
                 nombre: 'Master (Maestro)',
                 color: '#c084fc',
                 glowClass: 'glow-master',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><path d="M50 10L80 20L74 72L50 90L26 72L20 20L50 10Z" fill="#2e1065"/><path d="M50 18L76 40L50 82L24 40L50 18Z" fill="#9333ea"/><circle cx="50" cy="46" r="12" fill="#f3e8ff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#9333ea" stroke-width="6.5"/><path d="M60 0L86 20H34L60 0Z" fill="#c084fc"/><path d="M60 120L88 94H32L60 120Z" fill="#a855f7"/><path d="M0 60L24 36V84L0 60Z" fill="#d8b4fe"/><path d="M120 60L96 36V84L120 60Z" fill="#d8b4fe"/><circle cx="60" cy="14" r="6" fill="#fae8ff"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><polygon points="50,14 78,38 50,84 22,38" fill="#9333ea"/><circle cx="50" cy="45" r="10" fill="#f3e8ff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#7e22ce" stroke-width="7"/><circle cx="60" cy="60" r="45" stroke="#d8b4fe" stroke-width="3.5"/><path d="M60 0L88 18H32L60 0Z" fill="#c084fc" stroke="#2e1065" stroke-width="2"/><path d="M60 120L88 96H32L60 120Z" fill="#a855f7"/><path d="M0 60L26 36V84L0 60Z" fill="#e9d5ff"/><path d="M120 60L94 36V84L120 60Z" fill="#e9d5ff"/><polygon points="60,2 68,13 60,23 52,13" fill="#ffffff"/><circle cx="60" cy="108" r="5" fill="#f3e8ff"/></svg>`
             },
             grandmaster: {
                 key: 'grandmaster',
                 nombre: 'Grandmaster (Gran Maestro)',
                 color: '#ef4444',
                 glowClass: 'glow-grandmaster',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><path d="M50 8L82 18L76 74L50 92L24 74L18 18L50 8Z" fill="#2a0606"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><polygon points="50,22 72,42 50,72 28,42" fill="#fca5a5"/><circle cx="50" cy="45" r="13" fill="#ffffff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#b91c1c" stroke-width="7"/><path d="M60 0L90 20H30L60 0Z" fill="#ef4444"/><path d="M60 120L90 92H30L60 120Z" fill="#dc2626"/><path d="M0 60L26 34V86L0 60Z" fill="#f87171"/><path d="M120 60L94 34V86L120 60Z" fill="#f87171"/><polygon points="60,4 70,16 60,28 50,16" fill="#fee2e2"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><circle cx="50" cy="45" r="11" fill="#ffffff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#991b1b" stroke-width="7.5"/><circle cx="60" cy="60" r="45" stroke="#f87171" stroke-width="3.5"/><path d="M60 0L90 20H30L60 0Z" fill="#ef4444" stroke="#450a0a" stroke-width="2"/><path d="M60 120L90 94H30L60 120Z" fill="#dc2626"/><path d="M0 60L28 34V86L0 60Z" fill="#fca5a5"/><path d="M120 60L92 34V86L120 60Z" fill="#fca5a5"/><polygon points="60,2 69,13 60,24 51,13" fill="#ffffff"/><polygon points="60,96 68,107 60,117 52,107" fill="#fee2e2"/></svg>`
             },
             challenger: {
                 key: 'challenger',
                 nombre: 'Challenger 👑 (Retador)',
                 color: '#facc15',
                 glowClass: 'glow-challenger',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><path d="M50 6L84 16L78 76L50 94L22 76L16 16L50 6Z" fill="#1e1b4b"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><polygon points="50,18 76,40 50,76 24,40" fill="#38bdf8"/><circle cx="50" cy="45" r="14" fill="#ffffff"/></svg>`,
-                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="46" stroke="#ca8a04" stroke-width="7.5"/><path d="M60 0L92 22H28L60 0Z" fill="#facc15"/><path d="M60 120L92 90H28L60 120Z" fill="#eab308"/><path d="M0 60L28 32V88L0 60Z" fill="#38bdf8"/><path d="M120 60L92 32V88L120 60Z" fill="#38bdf8"/><polygon points="60,2 72,16 60,30 48,16" fill="#ffffff"/><circle cx="60" cy="106" r="6" fill="#38bdf8"/></svg>`
+                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><circle cx="50" cy="45" r="12" fill="#ffffff"/></svg>`,
+                frameSvg: `<svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="41" stroke="#a16207" stroke-width="8"/><circle cx="60" cy="60" r="45" stroke="#fde047" stroke-width="4"/><path d="M60 0L92 22H28L60 0Z" fill="#facc15" stroke="#713f12" stroke-width="2.5"/><path d="M60 120L92 90H28L60 120Z" fill="#eab308"/><path d="M0 60L30 32V88L0 60Z" fill="#38bdf8"/><path d="M120 60L90 32V88L120 60Z" fill="#38bdf8"/><polygon points="60,1 71,14 60,26 49,14" fill="#ffffff"/><circle cx="60" cy="106" r="5" fill="#38bdf8"/></svg>`
             }
         };
 
@@ -925,9 +925,10 @@
             return LOL_RANKS_CONFIG.iron;
         }
 
+        // GENERADOR DE AVATAR CON CENTRO TRANSPARENTE
         function renderLolAvatar(avatarUrl, nivel, sizePx = 64) {
             const rank = obtenerRankInfoPorNivel(nivel);
-            const innerSize = Math.round(sizePx * 0.76);
+            const innerSize = Math.round(sizePx * 0.68);
             return `
                 <div class="lol-avatar-wrapper ${rank.glowClass}" style="width: ${sizePx}px; height: ${sizePx}px;">
                     <img src="${avatarUrl}" class="lol-avatar-img" style="width: ${innerSize}px; height: ${innerSize}px;" onerror="this.src='/logo.png'" />
@@ -969,7 +970,7 @@
             return `${flag} ${fechaFormat}, ${horaFormat}`;
         }
 
-        // RELOJES EN VIVO CON SEGUNDERO
+        // RELOJES EN VIVO
         function actualizarRelojesMultiZona() {
             const ahora = new Date();
             const opciones = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
@@ -1284,6 +1285,7 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
+        // NOTIFICACIONES GLOBALES EN TIEMPO REAL
         socket.on('db_update', (data) => {
             if (data.evento === 'nueva_factura' && data.total) {
                 let tieneV12 = false;
