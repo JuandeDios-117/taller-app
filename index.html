@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoExotic - Gestión & Facturación</title>
+    <!-- FAVICON DINÁMICO CIRCULAR -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <!-- LIBRERÍA DE CONFETI CELEBRATORIO -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { 
             background-color: #040507; 
@@ -86,8 +89,18 @@
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen">
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="max-w-7xl mx-auto space-y-4">
         
+        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP NOTIFICATION) -->
+        <div id="liveFeedVentas" class="card-dark p-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 hidden flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-pulse">
+            <div class="flex items-center gap-2.5 text-xs">
+                <span class="text-base">🔥</span>
+                <span id="liveFeedTexto" class="font-black text-amber-300"></span>
+            </div>
+            <span class="text-[10px] font-black uppercase text-zinc-500 bg-black/60 px-2 py-0.5 rounded border border-zinc-800">EN VIVO</span>
+        </div>
+
+        <!-- HEADER PRINCIPAL -->
         <div class="card-header-dark p-5 rounded-2xl flex flex-wrap justify-between items-center gap-4 relative overflow-hidden">
             <div class="flex items-center gap-4 z-10">
                 <div class="relative w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-700 logo-glow shrink-0 overflow-hidden">
@@ -104,7 +117,20 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-4 z-10">
+            <!-- BARRA DE NIVEL Y USUARIO -->
+            <div class="flex flex-wrap items-center gap-3 z-10">
+                <div id="badgeNivelHeader" class="hidden flex items-center gap-3 bg-black/80 border border-cyan-500/30 px-3.5 py-1.5 rounded-xl shadow-inner">
+                    <div>
+                        <div class="flex justify-between items-center gap-2 text-[10px] font-black uppercase tracking-wider">
+                            <span id="txtNivelHeader" class="text-cyan-300">Nivel 1</span>
+                            <span id="txtTituloNivelHeader" class="text-zinc-400">Novato</span>
+                        </div>
+                        <div class="w-28 bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-1 border border-zinc-700/50">
+                            <div id="barraProgresoXPHeader" class="bg-gradient-to-r from-cyan-500 to-blue-500 h-full w-0 transition-all duration-500"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="badgeOnlineCount" class="text-xs bg-black/90 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl flex items-center gap-2 shadow-[0_0_12px_rgba(16,185,129,0.1)]">
                     <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span>
                     <span id="txtOnlineCount" class="font-bold text-emerald-400">0 en línea</span>
@@ -113,6 +139,7 @@
             </div>
         </div>
 
+        <!-- NAVEGACIÓN -->
         <div class="flex flex-wrap justify-between items-center card-dark p-2 rounded-xl gap-2">
             <div class="flex flex-wrap gap-2 w-full md:w-auto">
                 <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition">
@@ -136,6 +163,7 @@
             </div>
         </div>
 
+        <!-- CONECTADOS EN LÍNEA -->
         <div id="barraUsuariosOnline" class="card-dark p-3 rounded-xl hidden flex-wrap items-center gap-3 text-xs border-l-4 border-emerald-500">
             <span class="text-emerald-400 font-bold uppercase tracking-wider text-[10px] flex items-center gap-1.5">
                 <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
@@ -144,6 +172,7 @@
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
+        <!-- LOGIN / REGISTRO -->
         <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-cyan-500/20 tab-content-anim">
             <div class="text-center space-y-2">
                 <div class="w-20 h-20 mx-auto rounded-full p-0.5 bg-gradient-to-tr from-cyan-500 to-blue-600 logo-glow overflow-hidden">
@@ -181,8 +210,10 @@
             </p>
         </div>
 
+        <!-- CALCULADORA -->
         <div id="seccion-calculadora" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
             <div class="lg:col-span-2 space-y-6">
+                <!-- CLIENTE -->
                 <div class="card-dark p-5 rounded-2xl space-y-4 border-l-4 border-cyan-500">
                     <div>
                         <label class="block text-xs font-black text-cyan-300 uppercase mb-2 tracking-wider flex items-center gap-1.5">
@@ -204,6 +235,7 @@
                     </div>
                 </div>
 
+                <!-- CATÁLOGO -->
                 <div class="card-dark p-6 rounded-2xl space-y-6">
                     <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
                         <h2 class="text-xs font-black text-cyan-400 uppercase tracking-widest flex items-center gap-2">
@@ -215,6 +247,7 @@
                 </div>
             </div>
 
+            <!-- RESUMEN / ORDEN ACTUAL -->
             <div class="space-y-6">
                 <div class="card-dark p-6 rounded-2xl space-y-5 sticky top-6 border-t-4 border-cyan-400">
                     <div class="flex justify-between items-center border-b border-zinc-800/80 pb-3">
@@ -223,6 +256,7 @@
                         </h2>
                     </div>
 
+                    <!-- DESGLOSE TOTAL DE PRODUCTOS -->
                     <div id="carritoItems" class="space-y-2.5">
                         <p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>
                     </div>
@@ -253,6 +287,7 @@
                         Completar Orden
                     </button>
 
+                    <!-- SECCIÓN DE DESCUENTOS -->
                     <div id="seccionDescuentosContenedor" class="border-t border-zinc-800/80 pt-4 space-y-3">
                         <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-wider">Aplicar Descuento</label>
                         <div class="grid grid-cols-4 gap-2">
@@ -275,6 +310,7 @@
             </div>
         </div>
 
+        <!-- ALMACÉN Y CAPITAL -->
         <div id="seccion-almacen" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-dark p-5 rounded-xl border-l-4 border-emerald-400">
@@ -292,6 +328,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- INGRESAR CAPITAL -->
                 <div class="card-dark p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
                         💵 Inyectar Capital
@@ -311,6 +348,7 @@
                     </div>
                 </div>
 
+                <!-- COMPRAR MOTORES -->
                 <div class="card-dark p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">
                         📦 Pedido a Fábrica
@@ -333,6 +371,7 @@
                     </div>
                 </div>
 
+                <!-- AJUSTE MANUAL -->
                 <div class="card-dark p-6 rounded-xl space-y-4 border border-rose-500/30">
                     <h3 class="text-sm font-black text-rose-400 uppercase flex items-center gap-2">
                         ⚙️ Ajuste Manual Directo
@@ -365,6 +404,7 @@
             </div>
         </div>
 
+        <!-- COMBOS Y PIEZAS -->
         <div id="seccion-combos" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-cyan-400 uppercase">🛠️ COMPONENTES POR COMBO (PRECIOS FIJOS)</h2>
@@ -437,16 +477,29 @@
             </div>
         </div>
 
+        <!-- HISTORIAL PERSONAL CON NIVEL Y XP -->
         <div id="seccion-historial" class="space-y-6 hidden">
-            <div class="card-dark p-5 rounded-xl flex flex-wrap justify-between items-center gap-4 border-l-4 border-white">
-                <div>
-                    <h3 class="text-lg font-black text-white uppercase flex items-center gap-2">
+            <!-- BANNER DE PERFIL CON EXPERIENCIA Y NIVEL -->
+            <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-4 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/20 via-zinc-950 to-zinc-950">
+                <div class="space-y-2">
+                    <h3 class="text-xl font-black text-white uppercase flex items-center gap-2">
                         👷 <span id="lblPerfilNombre">--</span>
+                        <span id="lblPerfilTituloNivel" class="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full font-bold">Novato</span>
                     </h3>
-                    <p class="text-xs text-zinc-400 mt-0.5">
+                    <p class="text-xs text-zinc-400">
                         Fecha de Ingreso: <strong class="text-zinc-200" id="lblPerfilIngreso">--</strong> · 
                         Usuario: <span class="text-zinc-400" id="lblPerfilUser">--</span>
                     </p>
+                    <!-- BARRA DE XP Y NIVEL -->
+                    <div class="pt-1 max-w-sm">
+                        <div class="flex justify-between text-xs font-black">
+                            <span id="lblPerfilNivel" class="text-cyan-400 uppercase">Nivel 1</span>
+                            <span id="lblPerfilXP" class="text-zinc-400">0 / 1,000 XP</span>
+                        </div>
+                        <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden mt-1.5 border border-zinc-700/60 shadow-inner">
+                            <div id="barraProgresoXPPerfil" class="bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 h-full w-0 transition-all duration-500 shadow-[0_0_10px_#00d2ff]"></div>
+                        </div>
+                    </div>
                 </div>
                 <div id="lblPerfilBadgeRango"></div>
             </div>
@@ -472,6 +525,7 @@
             </div>
         </div>
 
+        <!-- TOP TRABAJADORES -->
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
@@ -481,7 +535,9 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
+        <!-- PANEL ADMIN -->
         <div id="seccion-admin" class="space-y-6 hidden">
+            <!-- REINICIAR SEMANA -->
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h3 class="text-lg font-black text-rose-400 uppercase flex items-center gap-2">
@@ -496,6 +552,7 @@
                 </button>
             </div>
 
+            <!-- GESTIÓN Y JERARQUÍA -->
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
@@ -515,6 +572,7 @@
                 <div id="contenedorSeccionesRangos" class="space-y-6"></div>
             </div>
 
+            <!-- HISTORIAL GLOBAL -->
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 border-b border-zinc-800 pb-4">
                     <div>
@@ -536,6 +594,7 @@
 
     </div>
 
+    <!-- MODAL TRANSFERIR FACTURA -->
     <div id="modalTransferir" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl">
             <h3 class="text-lg font-black text-cyan-400 uppercase">🔁 Transferir Orden</h3>
@@ -551,6 +610,7 @@
         </div>
     </div>
 
+    <!-- MODALES DE ALERTA -->
     <div id="modalAviso" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl text-center">
             <div id="modalAvisoIcono" class="w-12 h-12 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
@@ -628,6 +688,23 @@
 
         const socket = io();
 
+        // CÁLCULO DE NIVEL, XP Y TÍTULOS
+        function calcularNivelYProgreso(totalVendido) {
+            const xpTotal = Math.floor((totalVendido || 0) / 100);
+            const xpPorNivel = 1000;
+            const nivel = Math.floor(xpTotal / xpPorNivel) + 1;
+            const xpActualNivel = xpTotal % xpPorNivel;
+            const porcentaje = Math.min(100, Math.floor((xpActualNivel / xpPorNivel) * 100));
+
+            let titulo = 'Novato';
+            if (nivel >= 50) titulo = 'Leyenda AutoExotic';
+            else if (nivel >= 30) titulo = 'Maestro V12';
+            else if (nivel >= 15) titulo = 'Afinador Callejero';
+            else if (nivel >= 5) titulo = 'Aprendiz del Dyno';
+
+            return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo, xpTotal };
+        }
+
         const categoriaConfig = {
             'GENERAL': {
                 colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
@@ -695,7 +772,6 @@
             }
         };
 
-        // CATÁLOGO
         const catalogo = [
             // 1. GENERAL (ARRIBA)
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
@@ -805,6 +881,10 @@
         });
 
         socket.on('db_update', (data) => {
+            if (data.evento === 'nueva_factura' && data.cliente && data.total) {
+                mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
+            }
+
             if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
                 mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
                 usuarioActual = null;
@@ -824,8 +904,33 @@
                 if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
                 if (pestanaActiva === 'top') cargarTop();
                 if (pestanaActiva === 'admin' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarGestionAdmin();
+                actualizarBarraNivelHeader();
             }, 250);
         });
+
+        function mostrarLiveFeedVenta(trabajador, cliente, total) {
+            const feed = document.getElementById('liveFeedVentas');
+            const texto = document.getElementById('liveFeedTexto');
+            texto.innerText = `¡${trabajador} acaba de cerrar una orden de $${total.toLocaleString()} para ${cliente}!`;
+            feed.classList.remove('hidden');
+            setTimeout(() => { feed.classList.add('hidden'); }, 6500);
+        }
+
+        async function actualizarBarraNivelHeader() {
+            if (!usuarioActual) return;
+            try {
+                const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
+                const facturas = await res.json();
+                let totalVendido = 0;
+                facturas.forEach(f => totalVendido += f.total_cliente);
+                
+                const stats = calcularNivelYProgreso(totalVendido);
+                document.getElementById('badgeNivelHeader').classList.remove('hidden');
+                document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
+                document.getElementById('txtTituloNivelHeader').innerText = stats.titulo;
+                document.getElementById('barraProgresoXPHeader').style.width = `${stats.porcentaje}%`;
+            } catch (e) {}
+        }
 
         function tieneProductosSinDescuento() {
             const items = Object.values(carrito);
@@ -928,6 +1033,7 @@
                 `;
                 document.getElementById('seccion-auth').classList.add('hidden');
                 cambiarPestana('calculadora');
+                actualizarBarraNivelHeader();
 
                 socket.emit('user_connected', usuarioActual);
             } else {
@@ -936,6 +1042,7 @@
                 contModoFabrica.classList.add('hidden');
                 modoPrecioFabrica = false;
                 document.getElementById('barraUsuariosOnline').classList.add('hidden');
+                document.getElementById('badgeNivelHeader').classList.add('hidden');
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
                 document.getElementById('seccion-calculadora').classList.add('hidden');
@@ -1463,6 +1570,7 @@
                 const badge = insignias[index] || `PUESTO #${index + 1}`;
                 const estaOnline = usuariosOnlineSet.has(Number(item.id));
                 const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
+                const stats = calcularNivelYProgreso(item.total_vendido);
 
                 html += `
                     <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
@@ -1472,12 +1580,13 @@
                                 <h3 class="font-bold text-white text-lg flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
                                     <span class="${colorClase}">${item.nombre}</span> <span class="text-xs text-zinc-500 font-normal">(@${item.usuario})</span>
+                                    <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
                                     ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
                                 </h3>
                                 <p class="text-xs text-zinc-400 mt-1">
                                     Ingresó: <strong class="text-zinc-300 font-semibold">${formatearFechaIngreso(item.created_at)}</strong> · 
                                     Ventas: <strong class="text-white font-bold">${item.total_facturas}</strong> · 
-                                    Comisión: <strong class="text-cyan-400 font-bold">${item.comision_porcentaje}%</strong>
+                                    XP: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong>
                                 </p>
                             </div>
                         </div>
@@ -1493,11 +1602,6 @@
 
         async function cargarHistorial() {
             if (!usuarioActual) return;
-
-            document.getElementById('lblPerfilNombre').innerText = usuarioActual.nombre;
-            document.getElementById('lblPerfilUser').innerText = `@${usuarioActual.usuario}`;
-            document.getElementById('lblPerfilIngreso').innerText = formatearFechaIngreso(usuarioActual.created_at);
-            document.getElementById('lblPerfilBadgeRango').innerHTML = obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje);
 
             const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
             const facturas = await res.json();
@@ -1564,6 +1668,16 @@
                     </div>
                 `;
             });
+
+            const stats = calcularNivelYProgreso(totalVendido);
+            document.getElementById('lblPerfilNombre').innerText = usuarioActual.nombre;
+            document.getElementById('lblPerfilUser').innerText = `@${usuarioActual.usuario}`;
+            document.getElementById('lblPerfilIngreso').innerText = formatearFechaIngreso(usuarioActual.created_at);
+            document.getElementById('lblPerfilBadgeRango').innerHTML = obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje);
+            document.getElementById('lblPerfilTituloNivel').innerText = stats.titulo;
+            document.getElementById('lblPerfilNivel').innerText = `Nivel ${stats.nivel}`;
+            document.getElementById('lblPerfilXP').innerText = `${stats.xpActualNivel.toLocaleString()} / ${stats.xpPorNivel.toLocaleString()} XP`;
+            document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
 
             container.innerHTML = html;
             document.getElementById('mTotalVendido').innerText = `$${totalVendido.toLocaleString()}`;
@@ -1789,6 +1903,15 @@
 
                 const data = await res.json();
                 if (res.ok) {
+                    // DISPARO DE CONFETI CELEBRATORIO
+                    if (typeof confetti === 'function') {
+                        confetti({
+                            particleCount: 80,
+                            spread: 70,
+                            origin: { y: 0.6 }
+                        });
+                    }
+
                     document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
                     document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente} ${data.es_precio_fabrica ? '(A Precio Fábrica)' : ''}`;
                     document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
