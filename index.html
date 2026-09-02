@@ -815,60 +815,15 @@
         crearFaviconCircular();
 
         const LOL_RANKS_CONFIG = {
-            iron: {
-                key: 'iron',
-                nombre: 'Hierro (Iron)',
-                color: '#57585c',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 8L74 24L68 66L50 90L32 66L26 24L50 8Z" fill="#2d2e30" stroke="#71717a" stroke-width="3"/><circle cx="50" cy="48" r="6" fill="#71717a"/></svg>`
-            },
-            bronze: {
-                key: 'bronze',
-                nombre: 'Bronce (Bronze)',
-                color: '#a86238',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 6L78 22L70 68L50 92L30 68L22 22L50 6Z" fill="#451a03" stroke="#b45309" stroke-width="3.5"/><polygon points="50,22 62,38 78,40 65,54 68,70 50,60 32,70 35,54 22,40 38,38" fill="#d97706"/></svg>`
-            },
-            silver: {
-                key: 'silver',
-                nombre: 'Plata (Silver)',
-                color: '#cfd8dc',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L80 20L72 70L50 94L28 70L20 20L50 5Z" fill="#334155" stroke="#94a3b8" stroke-width="3.5"/><polygon points="50,20 70,42 50,75 30,42" fill="#cbd5e1"/><circle cx="50" cy="46" r="7" fill="#ffffff"/></svg>`
-            },
-            gold: {
-                key: 'gold',
-                nombre: 'Oro (Gold)',
-                color: '#f59e0b',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L84 18L75 72L50 95L25 72L16 18L50 4Z" fill="#713f12" stroke="#f59e0b" stroke-width="4"/><polygon points="50,18 64,36 82,38 68,52 72,70 50,60 28,70 32,52 18,38 36,36" fill="#fbbf24"/><circle cx="50" cy="46" r="8" fill="#fffbeb"/></svg>`
-            },
-            emerald: {
-                key: 'emerald',
-                nombre: 'Esmeralda (Emerald)',
-                color: '#10b981',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 74L50 96L22 74L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><polygon points="50,18 72,42 50,76 28,42" fill="#10b981"/><circle cx="50" cy="46" r="9" fill="#a7f3d0"/></svg>`
-            },
-            diamond: {
-                key: 'diamond',
-                nombre: 'Diamante (Diamond)',
-                color: '#38bdf8',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L88 16L80 76L50 98L20 76L12 16L50 2Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><polygon points="50,14 80,40 50,82 20,40" fill="#0284c7"/><circle cx="50" cy="45" r="9" fill="#ffffff"/></svg>`
-            },
-            master: {
-                key: 'master',
-                nombre: 'Master (Maestro)',
-                color: '#c084fc',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><polygon points="50,14 78,38 50,84 22,38" fill="#9333ea"/><circle cx="50" cy="45" r="10" fill="#f3e8ff"/></svg>`
-            },
-            grandmaster: {
-                key: 'grandmaster',
-                nombre: 'Grandmaster (Gran Maestro)',
-                color: '#ef4444',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><circle cx="50" cy="45" r="11" fill="#ffffff"/></svg>`
-            },
-            challenger: {
-                key: 'challenger',
-                nombre: 'Challenger 👑 (Retador)',
-                color: '#facc15',
-                crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><circle cx="50" cy="45" r="12" fill="#ffffff"/></svg>`
-            }
+            iron: { key: 'iron', nombre: 'Hierro (Iron)', color: '#57585c', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 8L74 24L68 66L50 90L32 66L26 24L50 8Z" fill="#2d2e30" stroke="#71717a" stroke-width="3"/><circle cx="50" cy="48" r="6" fill="#71717a"/></svg>` },
+            bronze: { key: 'bronze', nombre: 'Bronce (Bronze)', color: '#a86238', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 6L78 22L70 68L50 92L30 68L22 22L50 6Z" fill="#451a03" stroke="#b45309" stroke-width="3.5"/><polygon points="50,22 62,38 78,40 65,54 68,70 50,60 32,70 35,54 22,40 38,38" fill="#d97706"/></svg>` },
+            silver: { key: 'silver', nombre: 'Plata (Silver)', color: '#cfd8dc', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L80 20L72 70L50 94L28 70L20 20L50 5Z" fill="#334155" stroke="#94a3b8" stroke-width="3.5"/><polygon points="50,20 70,42 50,75 30,42" fill="#cbd5e1"/><circle cx="50" cy="46" r="7" fill="#ffffff"/></svg>` },
+            gold: { key: 'gold', nombre: 'Oro (Gold)', color: '#f59e0b', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L84 18L75 72L50 95L25 72L16 18L50 4Z" fill="#713f12" stroke="#f59e0b" stroke-width="4"/><polygon points="50,18 64,36 82,38 68,52 72,70 50,60 28,70 32,52 18,38 36,36" fill="#fbbf24"/><circle cx="50" cy="46" r="8" fill="#fffbeb"/></svg>` },
+            emerald: { key: 'emerald', nombre: 'Esmeralda (Emerald)', color: '#10b981', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 74L50 96L22 74L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><polygon points="50,18 72,42 50,76 28,42" fill="#10b981"/><circle cx="50" cy="46" r="9" fill="#a7f3d0"/></svg>` },
+            diamond: { key: 'diamond', nombre: 'Diamante (Diamond)', color: '#38bdf8', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L88 16L80 76L50 98L20 76L12 16L50 2Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><polygon points="50,14 80,40 50,82 20,40" fill="#0284c7"/><circle cx="50" cy="45" r="9" fill="#ffffff"/></svg>` },
+            master: { key: 'master', nombre: 'Master (Maestro)', color: '#c084fc', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><polygon points="50,14 78,38 50,84 22,38" fill="#9333ea"/><circle cx="50" cy="45" r="10" fill="#f3e8ff"/></svg>` },
+            grandmaster: { key: 'grandmaster', nombre: 'Grandmaster (Gran Maestro)', color: '#ef4444', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><circle cx="50" cy="45" r="11" fill="#ffffff"/></svg>` },
+            challenger: { key: 'challenger', nombre: 'Challenger 👑 (Retador)', color: '#facc15', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><circle cx="50" cy="45" r="12" fill="#ffffff"/></svg>` }
         };
 
         function obtenerRankInfoPorNivel(nivel) {
@@ -895,7 +850,6 @@
             zonaHorariaActiva = tz;
             localStorage.setItem('ae_timezone', tz);
 
-            // Botones en Historial Personal
             const btnMx = document.getElementById('btnTzMx');
             const btnEs = document.getElementById('btnTzEs');
             const btnAr = document.getElementById('btnTzAr');
@@ -906,7 +860,6 @@
                 btnAr.className = tz === 'America/Argentina/Buenos_Aires' ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-cyan-600 text-white border border-cyan-400 transition' : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black bg-zinc-800 text-zinc-300 border border-zinc-700 hover:text-white transition';
             }
 
-            // Botones en Historial Admin
             const btnAdminMx = document.getElementById('btnAdminTzMx');
             const btnAdminEs = document.getElementById('btnAdminTzEs');
             const btnAdminAr = document.getElementById('btnAdminTzAr');
@@ -923,7 +876,14 @@
 
         function formatearFechaConZona(fechaStr) {
             if (!fechaStr) return '--:--';
-            const d = new Date(fechaStr);
+            
+            // Interpretamos la fecha con la zona horaria correcta sin desfases de UTC
+            let d = new Date(fechaStr);
+            if (typeof fechaStr === 'string' && !fechaStr.endsWith('Z') && !fechaStr.includes('+') && !fechaStr.includes('T')) {
+                // Convertimos el formato "YYYY-MM-DD HH:MM:SS" a un formato analizable en local
+                d = new Date(fechaStr.replace(' ', 'T'));
+            }
+
             let flag = '🇲🇽';
             if (zonaHorariaActiva === 'Europe/Madrid') flag = '🇪🇸';
             if (zonaHorariaActiva === 'America/Argentina/Buenos_Aires') flag = '🇦🇷';
@@ -1247,7 +1207,6 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
-        // NOTIFICACIONES GLOBALES EN TIEMPO REAL
         socket.on('db_update', (data) => {
             if (data.evento === 'nueva_factura' && data.total) {
                 let tieneV12 = false;

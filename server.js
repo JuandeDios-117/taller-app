@@ -295,7 +295,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA
+// 13. REGISTRAR FACTURA (CON HORA LOCAL DE MÉXICO)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -337,11 +337,12 @@ app.post('/api/facturas', async (req, res) => {
         const ganancia_neta = total_cliente - coste_fabrica_total;
         const comision_empleado = ganancia_neta > 0 ? ganancia_neta * pctComision : 0;
         const itemsJSON = JSON.stringify(items);
+        const fechaLocalMx = new Date().toLocaleString('sv', { timeZone: 'America/Mexico_City' }).replace('T', ' ');
 
-        const sql = `INSERT INTO facturas (usuario_id, cliente, total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje, items_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        const sql = `INSERT INTO facturas (usuario_id, cliente, total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje, items_json, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const insertRes = await db.execute({
             sql,
-            args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, aplicarFabrica ? 0 : (descuento_porcentaje || 0), itemsJSON]
+            args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, aplicarFabrica ? 0 : (descuento_porcentaje || 0), itemsJSON, fechaLocalMx]
         });
 
         const facturaId = Number(insertRes.lastInsertRowid);
