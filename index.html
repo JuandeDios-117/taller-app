@@ -877,10 +877,8 @@
         function formatearFechaConZona(fechaStr) {
             if (!fechaStr) return '--:--';
             
-            // Interpretamos la fecha con la zona horaria correcta sin desfases de UTC
             let d = new Date(fechaStr);
             if (typeof fechaStr === 'string' && !fechaStr.endsWith('Z') && !fechaStr.includes('+') && !fechaStr.includes('T')) {
-                // Convertimos el formato "YYYY-MM-DD HH:MM:SS" a un formato analizable en local
                 d = new Date(fechaStr.replace(' ', 'T'));
             }
 
@@ -2328,6 +2326,8 @@
             btn.disabled = true;
             btn.innerText = 'Procesando orden...';
 
+            const fecha_local = new Date().toISOString();
+
             try {
                 const res = await fetch('/api/facturas', {
                     method: 'POST',
@@ -2337,7 +2337,8 @@
                         cliente, 
                         items, 
                         descuento_porcentaje: (modoPrecioFabrica || tieneProductosSinDescuento()) ? 0 : descuentoPorcentaje,
-                        es_precio_fabrica: modoPrecioFabrica
+                        es_precio_fabrica: modoPrecioFabrica,
+                        fecha_local
                     })
                 });
 
