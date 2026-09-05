@@ -160,7 +160,7 @@
             </div>
         </div>
 
-        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP) -->
+        <!-- BANNER GLOBAL DE VENTAS EN VIVO -->
         <div id="liveFeedVentas" class="card-dark p-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 hidden flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-pulse">
             <div class="flex items-center gap-2.5 text-xs">
                 <span class="text-base">🔥</span>
@@ -322,11 +322,11 @@
                 <div class="card-dark p-6 rounded-2xl space-y-5 sticky top-6 border-t-4 border-cyan-400">
                     <div class="flex justify-between items-center border-b border-zinc-800/80 pb-3">
                         <h2 class="text-xs font-black text-cyan-300 uppercase flex items-center gap-2 tracking-wider">
-                            🛒 RESUMEN (<span id="cantItems" class="text-cyan-400 font-extrabold">0</span> ITEMS)
+                            🛒 RESUMEN (<span id="cantItems" class="text-cyan-400 font-extrabold">0</span> PIEZAS)
                         </h2>
                     </div>
 
-                    <div id="carritoItems" class="space-y-2.5">
+                    <div id="carritoItems" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
                         <p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>
                     </div>
 
@@ -336,7 +336,7 @@
                             <span id="subtotalText" class="font-bold text-zinc-200">$0</span>
                         </div>
                         <div id="filaDescuento" class="flex justify-between text-xs text-rose-400 font-bold hidden">
-                            <span>Descuento (<span id="descPorcentajeText">0</span>%):</span>
+                            <span>Descuento (10% en piezas elegibles):</span>
                             <span id="descuentoMontoText">-$0</span>
                         </div>
                         <div class="flex justify-between items-baseline pt-3 border-t border-zinc-800">
@@ -358,20 +358,16 @@
 
                     <!-- SECCIÓN DE DESCUENTOS -->
                     <div id="seccionDescuentosContenedor" class="border-t border-zinc-800/80 pt-4 space-y-3">
-                        <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-wider">Aplicar Descuento</label>
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">10%</button>
-                            <button onclick="aplicarDescuento(15)" id="btn-15" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">15%</button>
-                            <button onclick="aplicarDescuento(20)" id="btn-20" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">20%</button>
-                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-rose-950/30 border border-rose-500/40 text-xs font-black py-2 rounded-xl text-rose-400 hover:bg-rose-900/50 transition">Quitar</button>
+                        <div class="flex justify-between items-center">
+                            <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-wider">Aplicar Descuento</label>
+                            <span id="infoDescuentoPermitido" class="text-[10px] text-amber-400 font-bold hidden">ℹ️ Motor V12 sin descuento</span>
                         </div>
-                        <div class="flex gap-2 items-center pt-1">
-                            <div class="relative flex-1">
-                                <input type="number" id="inputDescuentoManual" placeholder="Otro % (ej. 25, 30)" min="0" max="100" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-medium pr-6">
-                                <span class="absolute right-3 top-2 text-xs text-zinc-500 font-bold">%</span>
-                            </div>
-                            <button onclick="aplicarDescuentoManual()" class="bg-zinc-800 hover:bg-zinc-700 text-cyan-300 font-black text-xs px-3 py-2 rounded-xl border border-zinc-700 transition">
-                                Aplicar
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">
+                                Aplicar 10% Descuento
+                            </button>
+                            <button onclick="aplicarDescuento(0)" id="btn-0" class="btn-desc bg-rose-950/30 border border-rose-500/40 text-xs font-black py-2 rounded-xl text-rose-400 hover:bg-rose-900/50 transition">
+                                Quitar Descuento
                             </button>
                         </div>
                     </div>
@@ -508,38 +504,38 @@
                         </tr>
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">MOTOR</td>
-                            <td class="p-3 text-blue-300 font-bold">Motor V8</td>
-                            <td class="p-3 text-blue-300 font-bold">Motor V8</td>
-                            <td class="p-3 text-purple-300 font-bold">Motor V12</td>
-                            <td class="p-3 text-purple-300 font-bold">Motor V12</td>
+                            <td class="p-3 text-blue-300 font-bold">Motor V8 ($50,000)</td>
+                            <td class="p-3 text-blue-300 font-bold">Motor V8 ($50,000)</td>
+                            <td class="p-3 text-purple-300 font-bold">Motor V12 ($500,000)</td>
+                            <td class="p-3 text-purple-300 font-bold">Motor V12 ($500,000)</td>
                         </tr>
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">FRENOS</td>
-                            <td class="p-3">Frenos Cerámicos</td>
-                            <td class="p-3">Frenos Cerámicos</td>
-                            <td class="p-3">Frenos Cerámicos</td>
-                            <td class="p-3">Frenos Cerámicos</td>
+                            <td class="p-3">Frenos Cerámicos ($20,000)</td>
+                            <td class="p-3">Frenos Cerámicos ($20,000)</td>
+                            <td class="p-3">Frenos Cerámicos ($20,000)</td>
+                            <td class="p-3">Frenos Cerámicos ($20,000)</td>
                         </tr>
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">NEUMÁTICOS</td>
-                            <td class="p-3">Slicks</td>
-                            <td class="p-3">Slicks</td>
-                            <td class="p-3">Slicks</td>
-                            <td class="p-3">Slicks</td>
+                            <td class="p-3">Slicks ($6,000)</td>
+                            <td class="p-3">Slicks ($6,000)</td>
+                            <td class="p-3">Slicks ($6,000)</td>
+                            <td class="p-3">Slicks ($6,000)</td>
                         </tr>
                         <tr>
                             <td class="p-3 font-bold text-zinc-400">TRACCIÓN</td>
-                            <td class="p-3">Tracción AWD</td>
-                            <td class="p-3">Tracción AWD</td>
-                            <td class="p-3">Tracción AWD</td>
-                            <td class="p-3">Tracción AWD</td>
+                            <td class="p-3">Tracción AWD ($12,500)</td>
+                            <td class="p-3">Tracción AWD ($12,500)</td>
+                            <td class="p-3">Tracción AWD ($12,500)</td>
+                            <td class="p-3">Tracción AWD ($12,500)</td>
                         </tr>
                         <tr>
-                            <td class="p-3 font-bold text-zinc-400">POR PEDIDO (RENDIMIENTOS)</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza Rendimiento</td>
-                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza (Turbo)</td>
-                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
+                            <td class="p-3 font-bold text-zinc-400">RENDIMIENTOS</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Rendimiento ($10,000)</td>
+                            <td class="p-3 text-cyan-400 font-semibold">4x Rendimientos ($40,000)</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Rendimiento ($10,000)</td>
+                            <td class="p-3 text-cyan-400 font-semibold">4x Rendimientos ($40,000)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -699,7 +695,6 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
-                        <!-- SELECTOR DE ZONA HORARIA EN EL HISTORIAL ADMIN -->
                         <div class="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-lg border border-zinc-800">
                             <span class="text-[11px] font-bold text-zinc-400 uppercase">Zona Horaria:</span>
                             <button onclick="cambiarZonaHorariaFacturas('America/Mexico_City')" class="px-2 py-0.5 rounded text-[11px] font-black transition" id="btnAdminTzMx">🇲🇽 MX</button>
@@ -820,7 +815,7 @@
             silver: { key: 'silver', nombre: 'Plata (Silver)', color: '#cfd8dc', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 5L80 20L72 70L50 94L28 70L20 20L50 5Z" fill="#334155" stroke="#94a3b8" stroke-width="3.5"/><polygon points="50,20 70,42 50,75 30,42" fill="#cbd5e1"/><circle cx="50" cy="46" r="7" fill="#ffffff"/></svg>` },
             gold: { key: 'gold', nombre: 'Oro (Gold)', color: '#f59e0b', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L84 18L75 72L50 95L25 72L16 18L50 4Z" fill="#713f12" stroke="#f59e0b" stroke-width="4"/><polygon points="50,18 64,36 82,38 68,52 72,70 50,60 28,70 32,52 18,38 36,36" fill="#fbbf24"/><circle cx="50" cy="46" r="8" fill="#fffbeb"/></svg>` },
             emerald: { key: 'emerald', nombre: 'Esmeralda (Emerald)', color: '#10b981', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 4L86 18L78 74L50 96L22 74L14 18L50 4Z" fill="#064e3b" stroke="#34d399" stroke-width="4"/><polygon points="50,18 72,42 50,76 28,42" fill="#10b981"/><circle cx="50" cy="46" r="9" fill="#a7f3d0"/></svg>` },
-            diamond: { key: 'diamond', nombre: 'Diamante (Diamond)', color: '#38bdf8', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L88 16L80 76L50 98L20 76L12 16L50 2Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><polygon points="50,14 80,40 50,82 20,40" fill="#0284c7"/><circle cx="50" cy="45" r="9" fill="#ffffff"/></svg>` },
+            diamond: { key: 'diamond', nombre: 'Diamante (Diamond)', color: '#38bdf8', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L88 16L80 76L50 98L20 76L12 16L50 2Z" fill="#0c4a6e" stroke="#38bdf8" stroke-width="4"/><polygon points="50,14 80,40 50,82 20,40" fill="#0284c7"/><polygon points="50,22 70,42 50,70 30,42" fill="#bae6fd"/><circle cx="50" cy="45" r="9" fill="#ffffff"/></svg>` },
             master: { key: 'master', nombre: 'Master (Maestro)', color: '#c084fc', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L90 16L82 78L50 99L18 78L10 16L50 2Z" fill="#3b0764" stroke="#c084fc" stroke-width="4.5"/><polygon points="50,14 78,38 50,84 22,38" fill="#9333ea"/><circle cx="50" cy="45" r="10" fill="#f3e8ff"/></svg>` },
             grandmaster: { key: 'grandmaster', nombre: 'Grandmaster (Gran Maestro)', color: '#ef4444', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 2L92 15L84 80L50 100L16 80L8 15L50 2Z" fill="#450a0a" stroke="#ef4444" stroke-width="5"/><polygon points="50,14 82,40 50,86 18,40" fill="#dc2626"/><circle cx="50" cy="45" r="11" fill="#ffffff"/></svg>` },
             challenger: { key: 'challenger', nombre: 'Challenger 👑 (Retador)', color: '#facc15', crestSvg: `<svg viewBox="0 0 100 100" fill="none"><path d="M50 0L94 14L86 82L50 100L14 82L6 14L50 0Z" fill="#422006" stroke="#facc15" stroke-width="5"/><polygon points="50,12 86,38 50,88 14,38" fill="#eab308"/><circle cx="50" cy="45" r="12" fill="#ffffff"/></svg>` }
@@ -1112,6 +1107,7 @@
             'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
         };
 
+        // CATÁLOGO CON PRECIOS ACTUALIZADOS (DRIFT $1,500,000 Y PAQUETE NEED FOR SPEED $2,700,000)
         const catalogo = [
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
             { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
@@ -1121,7 +1117,7 @@
             { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
             { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
             { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
-            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
+            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1000000 },
             { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
             { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000 },
@@ -1133,13 +1129,49 @@
             { id: 12, categoria: 'NEUMÁTICOS', nombre: 'Slick', venta: 6000, costo: 4000 },
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
+
+            // COMBOS (AL PULSAR SE DESGLOSAN EN PIEZAS INDIVIDUALES EN EL RESUMEN)
             { id: 18, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V8 PRO', venta: 140000, costo: 95000 },
             { id: 19, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V8', venta: 100000, costo: 67000 },
             { id: 20, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12', venta: 550000, costo: 327000 },
             { id: 21, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12 PRO (RENDIMIENTOS)', venta: 580000, costo: 348000 },
+
+            // PAQUETES ESPECIALES
             { id: 22, categoria: 'PAQUETES ESPECIALES', nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', venta: 1350000, costo: 600000 },
-            { id: 23, categoria: 'PAQUETES ESPECIALES', nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', venta: 2900000, costo: 1800000 }
+            { id: 23, categoria: 'PAQUETES ESPECIALES', nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', venta: 2700000, costo: 1600000 }
         ];
+
+        // DEFINICIÓN DE COMPONENTES EXACTOS POR COMBO
+        const COMPONENTES_COMBOS = {
+            19: [ // FULL TUNNING V8 ($100,000)
+                { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
+                { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                { id: 12, cantidad: 1 }, // Slick ($6,000)
+                { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                { id: 1, cantidad: 1 }   // 1x Rendimiento ($10,000)
+            ],
+            18: [ // FULL TUNNING V8 PRO ($140,000)
+                { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
+                { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                { id: 12, cantidad: 1 }, // Slick ($6,000)
+                { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                { id: 1, cantidad: 4 }   // 4x Rendimiento ($40,000)
+            ],
+            20: [ // FULL TUNNING V12 ($550,000)
+                { id: 7, cantidad: 1 },  // Motor V12 ($500,000 -> NUNCA DESCUENTO)
+                { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                { id: 12, cantidad: 1 }, // Slick ($6,000)
+                { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                { id: 1, cantidad: 1 }   // 1x Rendimiento ($10,000)
+            ],
+            21: [ // FULL TUNNING V12 PRO ($580,000)
+                { id: 7, cantidad: 1 },  // Motor V12 ($500,000 -> NUNCA DESCUENTO)
+                { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                { id: 12, cantidad: 1 }, // Slick ($6,000)
+                { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                { id: 1, cantidad: 4 }   // 4x Rendimiento ($40,000)
+            ]
+        };
 
         let usuarioActual = null;
         let pestanaActiva = 'calculadora';
@@ -1284,15 +1316,6 @@
             } catch (e) {}
         }
 
-        function tieneProductosSinDescuento() {
-            const items = Object.values(carrito);
-            return items.some(item => 
-                item.categoria === 'COMBOS (PRECIOS FIJOS)' || 
-                item.categoria === 'PAQUETES ESPECIALES' || 
-                item.id === 7
-            );
-        }
-
         function mostrarAviso(titulo, mensaje, esError = false) {
             document.getElementById('modalAvisoTitulo').innerText = titulo;
             document.getElementById('modalAvisoMensaje').innerText = mensaje;
@@ -1348,7 +1371,6 @@
             modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
             if (modoPrecioFabrica) {
                 descuentoPorcentaje = 0;
-                document.getElementById('inputDescuentoManual').value = '';
                 document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
             }
 
@@ -1947,7 +1969,7 @@
                         <div class="flex flex-wrap justify-between items-center text-xs pt-1 gap-2">
                             <div>
                                 <span>Cliente: <strong class="text-zinc-200">${f.cliente}</strong></span>
-                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-rose-400 font-bold">Desc: ${f.descuento_porcentaje}%</span>` : ''}
+                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-rose-400 font-bold">Desc. aplicado en piezas aptas</span>` : ''}
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-900 hover:bg-zinc-800 text-cyan-300 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
@@ -2001,7 +2023,6 @@
                                     XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
                                     Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
                                 </p>
-                                <!-- MEDALLAS DETALLADAS EN EL RANKING -->
                                 ${medallasTopHTML}
                             </div>
                         </div>
@@ -2078,7 +2099,7 @@
                         </div>
 
                         <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
-                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado: ${f.descuento_porcentaje}%</div>` : ''}
+                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado en piezas elegibles</div>` : ''}
                         ${itemsHTML}
                     </div>
                 `;
@@ -2151,6 +2172,7 @@
                 `;
 
                 productosCat.forEach(p => {
+                    const esCombo = cat === 'COMBOS (PRECIOS FIJOS)';
                     htmlTotal += `
                         <div class="flex items-center justify-between p-3.5 rounded-xl border ${conf.bordeCard} ${conf.bgCard} transition shadow-sm">
                             <div class="pr-2">
@@ -2161,7 +2183,9 @@
                                 </p>
                             </div>
                             <div id="btn-container-${p.id}" class="shrink-0">
-                                <button onclick="agregar(${p.id})" class="${conf.colorBtn} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">+ Añadir</button>
+                                <button onclick="${esCombo ? `agregarCombo(${p.id})` : `agregar(${p.id})`}" class="${conf.colorBtn} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">
+                                    ${esCombo ? '+ Desglosar Combo' : '+ Añadir'}
+                                </button>
                             </div>
                         </div>
                     `;
@@ -2172,10 +2196,32 @@
             catalogoRenderizado = true;
         }
 
+        // DESGLOSE AUTOMÁTICO DE PIEZAS EN EL RESUMEN
+        function agregarCombo(comboId) {
+            const piezas = COMPONENTES_COMBOS[comboId];
+            if (!piezas) return;
+
+            piezas.forEach(comp => {
+                const piezaOriginal = catalogo.find(p => p.id === comp.id);
+                if (piezaOriginal) {
+                    if (!carrito[comp.id]) {
+                        carrito[comp.id] = { ...piezaOriginal, cantidad: comp.cantidad };
+                    } else {
+                        carrito[comp.id].cantidad += comp.cantidad;
+                    }
+                    sincronizarBotonItem(comp.id);
+                }
+            });
+
+            actualizarCarrito();
+        }
+
         function sincronizarBotonItem(id) {
             const cont = document.getElementById(`btn-container-${id}`);
             if (!cont) return;
             const p = catalogo.find(x => x.id === id);
+            if (p && p.categoria === 'COMBOS (PRECIOS FIJOS)') return;
+
             const conf = categoriaConfig[p.categoria] || {};
             const cant = carrito[id] ? carrito[id].cantidad : 0;
 
@@ -2198,14 +2244,6 @@
             else carrito[id].cantidad++;
 
             sincronizarBotonItem(id);
-
-            if (!modoPrecioFabrica && tieneProductosSinDescuento() && descuentoPorcentaje > 0) {
-                descuentoPorcentaje = 0;
-                document.getElementById('inputDescuentoManual').value = '';
-                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-                mostrarAviso('Descuento Desactivado', 'Los Combos, Paquetes Especiales y el Motor V12 no admiten descuento.');
-            }
-
             actualizarCarrito();
         }
 
@@ -2226,30 +2264,17 @@
 
         function aplicarDescuento(porcentaje) {
             if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
-            if (porcentaje > 0 && tieneProductosSinDescuento()) {
-                return mostrarAviso('No Permitido', 'No se puede aplicar descuento porque la orden contiene Combos, Paquetes Especiales o Motor V12.');
+
+            if (porcentaje === 0) {
+                descuentoPorcentaje = 0;
+                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
+                actualizarCarrito();
+                return;
             }
 
-            descuentoPorcentaje = porcentaje;
-            document.getElementById('inputDescuentoManual').value = '';
+            descuentoPorcentaje = 10;
             document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            if (porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
-                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-cyan-400');
-            }
-            actualizarCarrito();
-        }
-
-        function aplicarDescuentoManual() {
-            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
-            if (tieneProductosSinDescuento()) {
-                return mostrarAviso('No Permitido', 'No se puede aplicar descuento porque la orden contiene Combos, Paquetes Especiales o Motor V12.');
-            }
-
-            const val = parseFloat(document.getElementById('inputDescuentoManual').value);
-            if (isNaN(val) || val < 0 || val > 100) return mostrarAviso('Inválido', 'Ingresa entre 0% y 100%.');
-            
-            descuentoPorcentaje = val;
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
+            document.getElementById('btn-10').classList.add('ring-2', 'ring-cyan-400');
             actualizarCarrito();
         }
 
@@ -2258,6 +2283,8 @@
             const items = Object.values(carrito);
             let subtotal = 0;
             let totalCantidad = 0;
+            let descuentoTotal = 0;
+            let tieneV12 = false;
 
             if (items.length === 0) {
                 container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>';
@@ -2269,10 +2296,19 @@
                     const itemTotal = precioUnitario * item.cantidad;
                     subtotal += itemTotal;
                     totalCantidad += item.cantidad;
+
+                    // EL MOTOR V12 TIENE BLOQUEADO EL DESCUENTO POR CUALQUIER MOTIVO
+                    const esMotorV12 = (item.id === 7 || item.id === 20 || item.id === 21);
+                    if (esMotorV12) tieneV12 = true;
+
+                    if (!modoPrecioFabrica && descuentoPorcentaje > 0 && !esMotorV12) {
+                        descuentoTotal += itemTotal * (descuentoPorcentaje / 100);
+                    }
+
                     html += `
                         <div class="flex justify-between items-center text-xs bg-zinc-950 p-2.5 rounded-xl border border-zinc-800/80">
                             <div>
-                                <h4 class="font-black text-white text-xs">${item.nombre}</h4>
+                                <h4 class="font-black text-white text-xs">${item.nombre} ${esMotorV12 ? '<span class="text-[10px] text-amber-400 font-bold ml-1">(Sin descuento)</span>' : ''}</h4>
                                 <p class="text-zinc-400 mt-0.5">${item.cantidad} × $${precioUnitario.toLocaleString()} ${modoPrecioFabrica ? '<span class="text-rose-400 font-bold">(Fábrica)</span>' : ''}</p>
                             </div>
                             <div class="flex items-center gap-2">
@@ -2285,19 +2321,22 @@
                 container.innerHTML = html;
             }
 
-            if (modoPrecioFabrica || tieneProductosSinDescuento()) descuentoPorcentaje = 0;
+            const tagDesc = document.getElementById('infoDescuentoPermitido');
+            if (tieneV12 && !modoPrecioFabrica) {
+                tagDesc.classList.remove('hidden');
+            } else {
+                tagDesc.classList.add('hidden');
+            }
 
-            const montoDescuento = subtotal * (descuentoPorcentaje / 100);
-            const totalFinal = subtotal - montoDescuento;
+            const totalFinal = subtotal - descuentoTotal;
 
             document.getElementById('cantItems').innerText = totalCantidad;
             document.getElementById('labelSubtotal').innerText = modoPrecioFabrica ? 'Subtotal (Fábrica):' : 'Subtotal:';
             document.getElementById('subtotalText').innerText = `$${subtotal.toLocaleString()}`;
 
-            if (descuentoPorcentaje > 0 && subtotal > 0) {
+            if (descuentoPorcentaje > 0 && descuentoTotal > 0) {
                 document.getElementById('filaDescuento').classList.remove('hidden');
-                document.getElementById('descPorcentajeText').innerText = descuentoPorcentaje;
-                document.getElementById('descuentoMontoText').innerText = `-$${montoDescuento.toLocaleString()}`;
+                document.getElementById('descuentoMontoText').innerText = `-$${descuentoTotal.toLocaleString()}`;
                 document.getElementById('totalAntesTachado').classList.remove('hidden');
                 document.getElementById('totalAntesTachado').innerText = `$${subtotal.toLocaleString()}`;
             } else {
@@ -2320,7 +2359,7 @@
             const btn = document.getElementById('btnRealizarOrden');
 
             if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Inicia sesión primero.');
-            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto.');
+            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto o combo.');
             if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente.');
 
             btn.disabled = true;
@@ -2336,7 +2375,7 @@
                         usuario_id: usuarioActual.id, 
                         cliente, 
                         items, 
-                        descuento_porcentaje: (modoPrecioFabrica || tieneProductosSinDescuento()) ? 0 : descuentoPorcentaje,
+                        descuento_porcentaje: modoPrecioFabrica ? 0 : descuentoPorcentaje,
                         es_precio_fabrica: modoPrecioFabrica,
                         fecha_local
                     })
@@ -2348,11 +2387,7 @@
                     reproducirSonidoGlobalVenta(data.total, tieneV12);
 
                     if (typeof confetti === 'function') {
-                        confetti({
-                            particleCount: 90,
-                            spread: 75,
-                            origin: { y: 0.6 }
-                        });
+                        confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
                     }
 
                     document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
@@ -2369,7 +2404,6 @@
                     document.getElementById('checkPrecioFabrica').checked = false;
                     document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
                     document.getElementById('nombreCliente').value = '';
-                    document.getElementById('inputDescuentoManual').value = '';
                     
                     catalogo.forEach(p => sincronizarBotonItem(p.id));
                     actualizarCarrito();
