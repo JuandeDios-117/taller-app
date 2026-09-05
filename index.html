@@ -876,7 +876,6 @@
 
         function formatearFechaConZona(fechaStr) {
             if (!fechaStr) return '--:--';
-            
             let d = new Date(fechaStr);
             if (typeof fechaStr === 'string' && !fechaStr.endsWith('Z') && !fechaStr.includes('+') && !fechaStr.includes('T')) {
                 d = new Date(fechaStr.replace(' ', 'T'));
@@ -895,7 +894,6 @@
         function actualizarRelojesMultiZona() {
             const ahora = new Date();
             const opciones = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            
             document.getElementById('relojMexico').innerText = ahora.toLocaleTimeString('es-MX', { ...opciones, timeZone: 'America/Mexico_City' });
             document.getElementById('relojEspana').innerText = ahora.toLocaleTimeString('es-ES', { ...opciones, timeZone: 'Europe/Madrid' });
             document.getElementById('relojArgentina').innerText = ahora.toLocaleTimeString('es-AR', { ...opciones, timeZone: 'America/Argentina/Buenos_Aires' });
@@ -907,7 +905,6 @@
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const ahora = audioCtx.currentTime;
-
                 const emitirTono = (freq, inicio, duracion, tipo = 'triangle', ganancia = 0.2) => {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
@@ -2170,223 +2167,6 @@
             });
             container.innerHTML = htmlTotal;
             catalogoRenderizado = true;
-        }
-
-        function sincronizarBotonItem(id) {
-            const cont = document.getElementById(`btn-container-${id}`);
-            if (!cont) return;
-            const p = catalogo.find(x => x.id === id);
-            const conf = categoriaConfig[p.categoria] || {};
-            const cant = carrito[id] ? carrito[id].cantidad : 0;
-
-            if (cant === 0) {
-                cont.innerHTML = `<button onclick="agregar(${id})" class="${conf.colorBtn || 'btn-white'} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">+ Añadir</button>`;
-            } else {
-                cont.innerHTML = `
-                    <div class="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black rounded-xl px-2.5 py-1.5 shadow-lg shadow-cyan-500/20">
-                        <button onclick="restar(${id})" class="px-1.5 text-black hover:opacity-75 transition font-black text-sm">—</button>
-                        <span class="text-sm font-black text-black px-1">${cant}</span>
-                        <button onclick="agregar(${id})" class="px-1.5 text-black hover:opacity-75 transition font-black text-sm">+</button>
-                    </div>
-                `;
-            }
-        }
-
-        function agregar(id) {
-            const p = catalogo.find(x => x.id === id);
-            if (!carrito[id]) carrito[id] = { ...p, cantidad: 1 };
-            else carrito[id].cantidad++;
-
-            sincronizarBotonItem(id);
-
-            if (!modoPrecioFabrica && tieneProductosSinDescuento() && descuentoPorcentaje > 0) {
-                descuentoPorcentaje = 0;
-                document.getElementById('inputDescuentoManual').value = '';
-                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-                mostrarAviso('Descuento Desactivado', 'Los Combos, Paquetes Especiales y el Motor V12 no admiten descuento.');
-            }
-
-            actualizarCarrito();
-        }
-
-        function restar(id) {
-            if (carrito[id]) {
-                carrito[id].cantidad--;
-                if (carrito[id].cantidad <= 0) delete carrito[id];
-            }
-            sincronizarBotonItem(id);
-            actualizarCarrito();
-        }
-
-        function eliminar(id) {
-            delete carrito[id];
-            sincronizarBotonItem(id);
-            actualizarCarrito();
-        }
-
-        function aplicarDescuento(porcentaje) {
-            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
-            if (porcentaje > 0 && tieneProductosSinDescuento()) {
-                return mostrarAviso('No Permitido', 'No se puede aplicar descuento porque la orden contiene Combos, Paquetes Especiales o Motor V12.');
-            }
-
-            descuentoPorcentaje = porcentaje;
-            document.getElementById('inputDescuentoManual').value = '';
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            if (porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
-                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-cyan-400');
-            }
-            actualizarCarrito();
-        }
-
-        function aplicarDescuentoManual() {
-            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
-            if (tieneProductosSinDescuento()) {
-                return mostrarAviso('No Permitido', 'No se puede aplicar descuento porque la orden contiene Combos, Paquetes Especiales o Motor V12.');
-            }
-
-            const val = parseFloat(document.getElementById('inputDescuentoManual').value);
-            if (isNaN(val) || val < 0 || val > 100) return mostrarAviso('Inválido', 'Ingresa entre 0% y 100%.');
-            
-            descuentoPorcentaje = val;
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            actualizarCarrito();
-        }
-
-        function actualizarCarrito() {
-            const container = document.getElementById('carritoItems');
-            const items = Object.values(carrito);
-            let subtotal = 0;
-            let totalCantidad = 0;
-
-            if (items.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>';
-            } else {
-                let html = '';
-                items.forEach(item => {
-                    const conf = categoriaConfig[item.categoria] || {};
-                    const precioUnitario = modoPrecioFabrica ? item.costo : item.venta;
-                    const itemTotal = precioUnitario * item.cantidad;
-                    subtotal += itemTotal;
-                    totalCantidad += item.cantidad;
-                    html += `
-                        <div class="flex justify-between items-center text-xs bg-zinc-950 p-2.5 rounded-xl border border-zinc-800/80">
-                            <div>
-                                <h4 class="font-black text-white text-xs">${item.nombre}</h4>
-                                <p class="text-zinc-400 mt-0.5">${item.cantidad} × $${precioUnitario.toLocaleString()} ${modoPrecioFabrica ? '<span class="text-rose-400 font-bold">(Fábrica)</span>' : ''}</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-black ${conf.colorVenta || 'text-cyan-400'} text-xs">$${itemTotal.toLocaleString()}</span>
-                                <button onclick="eliminar(${item.id})" class="text-zinc-600 hover:text-rose-400 transition ml-1 text-sm">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            }
-
-            if (modoPrecioFabrica || tieneProductosSinDescuento()) descuentoPorcentaje = 0;
-
-            const montoDescuento = subtotal * (descuentoPorcentaje / 100);
-            const totalFinal = subtotal - montoDescuento;
-
-            document.getElementById('cantItems').innerText = totalCantidad;
-            document.getElementById('labelSubtotal').innerText = modoPrecioFabrica ? 'Subtotal (Fábrica):' : 'Subtotal:';
-            document.getElementById('subtotalText').innerText = `$${subtotal.toLocaleString()}`;
-
-            if (descuentoPorcentaje > 0 && subtotal > 0) {
-                document.getElementById('filaDescuento').classList.remove('hidden');
-                document.getElementById('descPorcentajeText').innerText = descuentoPorcentaje;
-                document.getElementById('descuentoMontoText').innerText = `-$${montoDescuento.toLocaleString()}`;
-                document.getElementById('totalAntesTachado').classList.remove('hidden');
-                document.getElementById('totalAntesTachado').innerText = `$${subtotal.toLocaleString()}`;
-            } else {
-                document.getElementById('filaDescuento').classList.add('hidden');
-                document.getElementById('totalAntesTachado').classList.add('hidden');
-            }
-
-            document.getElementById('totalVentaText').innerText = `$${totalFinal.toLocaleString()}`;
-            const cliente = document.getElementById('nombreCliente').value;
-            document.getElementById('nombreClienteText').innerText = cliente || '--';
-        }
-
-        document.getElementById('nombreCliente').addEventListener('input', (e) => {
-            document.getElementById('nombreClienteText').innerText = e.target.value || '--';
-        });
-
-        async function realizarOrden() {
-            const items = Object.values(carrito);
-            const cliente = document.getElementById('nombreCliente').value.trim();
-            const btn = document.getElementById('btnRealizarOrden');
-
-            if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Inicia sesión primero.');
-            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto.');
-            if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente.');
-
-            btn.disabled = true;
-            btn.innerText = 'Procesando orden...';
-
-            const fecha_local = new Date().toISOString();
-
-            try {
-                const res = await fetch('/api/facturas', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        usuario_id: usuarioActual.id, 
-                        cliente, 
-                        items, 
-                        descuento_porcentaje: (modoPrecioFabrica || tieneProductosSinDescuento()) ? 0 : descuentoPorcentaje,
-                        es_precio_fabrica: modoPrecioFabrica,
-                        fecha_local
-                    })
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    let tieneV12 = items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
-                    reproducirSonidoGlobalVenta(data.total, tieneV12);
-
-                    if (typeof confetti === 'function') {
-                        confetti({
-                            particleCount: 90,
-                            spread: 75,
-                            origin: { y: 0.6 }
-                        });
-                    }
-
-                    document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
-                    document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente} ${data.es_precio_fabrica ? '(A Precio Fábrica)' : ''}`;
-                    document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
-                    document.getElementById('modalPorcentajeComision').innerText = data.porcentaje_aplicado;
-                    document.getElementById('modalComision').innerText = `$${data.comision.toLocaleString()}`;
-                    
-                    document.getElementById('modalExito').classList.remove('hidden');
-
-                    carrito = {};
-                    descuentoPorcentaje = 0;
-                    modoPrecioFabrica = false;
-                    document.getElementById('checkPrecioFabrica').checked = false;
-                    document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
-                    document.getElementById('nombreCliente').value = '';
-                    document.getElementById('inputDescuentoManual').value = '';
-                    
-                    catalogo.forEach(p => sincronizarBotonItem(p.id));
-                    actualizarCarrito();
-                    actualizarBarraNivelHeader();
-                } else {
-                    mostrarAviso('Almacén Insuficiente', data.error, true);
-                }
-            } catch (err) {
-                mostrarAviso('Error de Conexión', 'Hubo un error comunicándose con el servidor.');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Completar Orden';
-            }
-        }
-
-        function cerrarModal() {
-            document.getElementById('modalExito').classList.add('hidden');
         }
 
         actualizarVistaUsuario();
