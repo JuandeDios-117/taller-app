@@ -295,10 +295,11 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA (CON HORA LOCAL DE MÉXICO)
+// 13. REGISTRAR FACTURA (CÁLCULO INDIVIDUAL DE DESCUENTO RESPETANDO MOTOR V12)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
+    if (!items || !Array.isArray(items) || items.length === 0) return res.status(400).json({ error: "No hay productos en la orden." });
 
     try {
         const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [usuario_id] });
@@ -306,13 +307,14 @@ app.post('/api/facturas', async (req, res) => {
         const user = userRes.rows[0];
 
         const aplicarFabrica = es_precio_fabrica && (user.rol === 'admin' || user.rol === 'jefe');
+        const pctDescuentoGeneral = aplicarFabrica ? 0 : Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
 
         let v8Necesarios = 0;
         let v12Necesarios = 0;
 
         items.forEach(item => {
-            if (item.id === 8 || item.id === 18 || item.id === 19) v8Necesarios += item.cantidad;
-            if (item.id === 7 || item.id === 20 || item.id === 21) v12Necesarios += item.cantidad;
+            if (item.id === 8) v8Necesarios += item.cantidad;
+            if (item.id === 7) v12Necesarios += item.cantidad;
         });
 
         const estadoRes = await db.execute("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1");
@@ -322,27 +324,45 @@ app.post('/api/facturas', async (req, res) => {
             return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12 y solo hay ${estado.stock_v12} en stock.` });
         }
 
-        const pctComision = user.comision / 100;
-        let subtotal_cliente = 0;
+        let total_cliente = 0;
         let coste_fabrica_total = 0;
+        let subtotal_bruto = 0;
 
-        items.forEach(item => {
-            const precioCobrado = aplicarFabrica ? item.costo : item.venta;
-            subtotal_cliente += precioCobrado * item.cantidad;
+        // Cada ítem se calcula de forma individual
+        const itemsDetallados = items.map(item => {
+            const precioBase = aplicarFabrica ? item.costo : item.venta;
+            const subtotalLinea = precioBase * item.cantidad;
             coste_fabrica_total += item.costo * item.cantidad;
+            subtotal_bruto += subtotalLinea;
+
+            // REGLA: El Motor V12 (id: 7) nunca recibe descuento
+            const admiteDescuento = !aplicarFabrica && item.id !== 7 && pctDescuentoGeneral > 0;
+            const pctLinea = admiteDescuento ? pctDescuentoGeneral : 0;
+            const descuentoMontoLinea = subtotalLinea * (pctLinea / 100);
+            const totalFinalLinea = subtotalLinea - descuentoMontoLinea;
+
+            total_cliente += totalFinalLinea;
+
+            return {
+                ...item,
+                precioCobrado: precioBase,
+                subtotalLinea,
+                descuentoPorcentajeLinea: pctLinea,
+                descuentoMontoLinea,
+                totalFinalLinea
+            };
         });
 
-        const descuento = aplicarFabrica ? 0 : subtotal_cliente * ((descuento_porcentaje || 0) / 100);
-        const total_cliente = subtotal_cliente - descuento;
         const ganancia_neta = total_cliente - coste_fabrica_total;
+        const pctComision = user.comision / 100;
         const comision_empleado = ganancia_neta > 0 ? ganancia_neta * pctComision : 0;
-        const itemsJSON = JSON.stringify(items);
+        const itemsJSON = JSON.stringify(itemsDetallados);
         const fechaLocalMx = new Date().toLocaleString('sv', { timeZone: 'America/Mexico_City' }).replace('T', ' ');
 
         const sql = `INSERT INTO facturas (usuario_id, cliente, total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje, items_json, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const insertRes = await db.execute({
             sql,
-            args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, aplicarFabrica ? 0 : (descuento_porcentaje || 0), itemsJSON, fechaLocalMx]
+            args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, pctDescuentoGeneral, itemsJSON, fechaLocalMx]
         });
 
         const facturaId = Number(insertRes.lastInsertRowid);
@@ -364,12 +384,12 @@ app.post('/api/facturas', async (req, res) => {
             usuario_nombre: user.nombre, 
             cliente: cliente || 'Cliente General', 
             total: total_cliente,
-            items: items
+            items: itemsDetallados
         });
 
         res.json({
             id: facturaId,
-            subtotal: subtotal_cliente,
+            subtotal: subtotal_bruto,
             total: total_cliente,
             comision: comision_empleado,
             porcentaje_aplicado: user.comision,
