@@ -1222,39 +1222,7 @@
             actualizarCarrito();
         }
 
-        function actualizarCarrito() {
-            const container = document.getElementById('carritoItems');
-            const items = Object.values(carrito);
-            let subtotal = 0;
-            let totalCantidad = 0;
-
-            if (items.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>';
-            } else {
-                let html = '';
-                items.forEach(item => {
-                    const conf = categoriaConfig[item.categoria] || {};
-                    const precioUnitario = modoPrecioFabrica ? item.costo : item.venta;
-                    const itemTotal = precioUnitario * item.cantidad;
-                    subtotal += itemTotal;
-                    totalCantidad += item.cantidad;
-
-                    html += `
-                        <div class="flex justify-between items-center text-xs bg-zinc-950 p-2.5 rounded-xl border border-zinc-800/80">
-                            <div>
-                                <h4 class="font-black text-white text-xs">${item.nombre}</h4>
-                                <p class="text-zinc-400 mt-0.5">${item.cantidad} × $${precioUnitario.toLocaleString()}</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-black ${conf.colorVenta || 'text-cyan-400'} text-xs">$${itemTotal.toLocaleString()}</span>
-                                <button onclick="eliminar(${item.id})" class="text-zinc-600 hover:text-rose-400 transition ml-1 text-sm">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            }
-            async function realizarOrden() {
+        async function realizarOrden() {
             const items = Object.values(carrito);
             const cliente = document.getElementById('nombreCliente').value.trim();
             const btn = document.getElementById('btnRealizarOrden');
@@ -1345,7 +1313,7 @@
             document.getElementById('totalVentaText').innerText = `$${totalFinal.toLocaleString()}`;
             const cliente = document.getElementById('nombreCliente').value;
             document.getElementById('nombreClienteText').innerText = cliente || '--';
-        }
+        
 
         function restar(id) {
             if (carrito[id]) {
