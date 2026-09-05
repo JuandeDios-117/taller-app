@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoExotic - Gestión & Facturación</title>
+    <!-- FAVICON DINÁMICO CIRCULAR -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <!-- LIBRERÍA DE CONFETI -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { 
@@ -83,9 +85,7 @@
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
         }
-        .top-medal-badge:hover {
-            transform: translateY(-2px) scale(1.05);
-        }
+        .top-medal-badge:hover { transform: translateY(-2px) scale(1.05); }
 
         .ribbon-bar {
             display: inline-flex;
@@ -112,7 +112,7 @@
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-4">
         
-        <!-- BARRA SUPERIOR DE RELOJES -->
+        <!-- BARRA SUPERIOR DE RELOJES CON BANDERAS EN SVG -->
         <div class="card-dark px-4 py-2.5 rounded-xl flex flex-wrap justify-between items-center text-xs border-b border-zinc-800 gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-base">🕒</span>
@@ -120,26 +120,17 @@
             </div>
             <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-emerald-500/40 shadow-sm">
-                    <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
-                        <path fill="#006847" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ce1126" d="M426.7 0H640v480H426.7z"/>
-                        <circle cx="320" cy="240" r="32" fill="#8c6239" opacity="0.85"/>
-                    </svg>
+                    <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480"><path fill="#006847" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ce1126" d="M426.7 0H640v480H426.7z"/><circle cx="320" cy="240" r="32" fill="#8c6239" opacity="0.85"/></svg>
                     <span class="font-bold text-emerald-400">México:</span>
                     <span id="relojMexico" class="text-white font-black tracking-wider text-xs">--:--:--</span>
                 </div>
-
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-yellow-500/40 shadow-sm">
-                    <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
-                        <path fill="#aa151b" d="M0 0h640v480H0z"/><path fill="#f1bf00" d="M0 120h640v240H0z"/><path fill="#aa151b" d="M140 200h40v80h-40z" opacity="0.9"/>
-                    </svg>
+                    <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480"><path fill="#aa151b" d="M0 0h640v480H0z"/><path fill="#f1bf00" d="M0 120h640v240H0z"/><path fill="#aa151b" d="M140 200h40v80h-40z" opacity="0.9"/></svg>
                     <span class="font-bold text-yellow-400">España:</span>
                     <span id="relojEspana" class="text-white font-black tracking-wider text-xs">--:--:--</span>
                 </div>
-
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-cyan-500/40 shadow-sm">
-                    <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
-                        <path fill="#74acdf" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><circle cx="320" cy="240" r="28" fill="#f6b40e"/>
-                    </svg>
+                    <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480"><path fill="#74acdf" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><circle cx="320" cy="240" r="28" fill="#f6b40e"/></svg>
                     <span class="font-bold text-cyan-400">Argentina:</span>
                     <span id="relojArgentina" class="text-white font-black tracking-wider text-xs">--:--:--</span>
                 </div>
@@ -169,7 +160,7 @@
 
             <!-- BARRA DE NIVEL, CRESTA Y RACHA -->
             <div class="flex flex-wrap items-center gap-3 z-10">
-                <div id="badgeRachaHeader" class="hidden items-center gap-1.5 bg-orange-950/40 border border-orange-500/40 px-3 py-1.5 rounded-xl shadow-inner text-xs font-black text-orange-400">
+                <div id="badgeRachaHeader" class="hidden items-center gap-1.5 bg-orange-950/40 border border-orange-500/40 px-3 py-1.5 rounded-xl text-xs font-black text-orange-400 shadow-inner">
                     <span>🔥</span>
                     <span id="txtRachaHeader">1 día</span>
                 </div>
@@ -252,7 +243,8 @@
         <!-- CALCULADORA -->
         <div id="seccion-calculadora" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
             <div class="lg:col-span-2 space-y-6">
-                <!-- CLIENTE -->
+                
+                <!-- CLIENTE Y CONVENIOS ACTIVOS -->
                 <div class="card-dark p-5 rounded-2xl space-y-4 border-l-4 border-cyan-500">
                     <div>
                         <label class="block text-xs font-black text-cyan-300 uppercase mb-2 tracking-wider flex items-center gap-1.5">
@@ -261,12 +253,23 @@
                         <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-dark px-4 py-3 rounded-xl font-bold uppercase text-cyan-300 placeholder:text-zinc-600 focus:border-cyan-400">
                     </div>
 
+                    <!-- APARTADO CONVENIOS CON FACCIONES -->
+                    <div class="pt-3 border-t border-zinc-800">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <span>🤝</span> CONVENIOS DE FACCIÓN / ALIANZAS
+                            </label>
+                            <span id="tagConvenioSeleccionado" class="text-[11px] font-bold text-zinc-400">Ningún convenio aplicado</span>
+                        </div>
+                        <div id="contenedorBotonesConvenios" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"></div>
+                    </div>
+
                     <div id="contenedorModoFabrica" class="hidden pt-2 border-t border-zinc-800/80">
                         <label class="flex items-center gap-3 p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl cursor-pointer hover:bg-rose-500/20 transition">
                             <input type="checkbox" id="checkPrecioFabrica" onchange="togglePrecioFabrica()" class="w-4 h-4 text-rose-500 rounded bg-black border-zinc-700 focus:ring-rose-500">
                             <div>
                                 <div class="text-xs font-black text-rose-400 uppercase flex items-center gap-1.5">🛡️ Cobrar a Precio de Fábrica (Modo Admin)</div>
-                                <p class="text-[11px] text-zinc-400">Calcula piezas a costo de almacén (Sin ganancia de taller ni comisiones).</p>
+                                <p class="text-[11px] text-zinc-400">Calcula piezas a costo de almacén (Sin comisiones).</p>
                             </div>
                         </label>
                     </div>
@@ -289,25 +292,26 @@
                 <div class="card-dark p-6 rounded-2xl space-y-5 sticky top-6 border-t-4 border-cyan-400">
                     <div class="flex justify-between items-center border-b border-zinc-800/80 pb-3">
                         <h2 class="text-xs font-black text-cyan-300 uppercase flex items-center gap-2 tracking-wider">
-                            🛒 RESUMEN (<span id="cantItems" class="text-cyan-400 font-extrabold">0</span> PIEZAS)
+                            🛒 RESUMEN (<span id="cantItems" class="text-cyan-400 font-extrabold">0</span> ITEMS)
                         </h2>
+                        <button onclick="limpiarCarrito()" class="text-[11px] text-zinc-500 hover:text-rose-400 font-bold transition">Vaciar</button>
                     </div>
 
-                    <div id="carritoItems" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                    <div id="carritoItems" class="space-y-3 max-h-96 overflow-y-auto pr-1">
                         <p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>
                     </div>
 
                     <div class="border-t border-zinc-800/80 pt-4 space-y-2.5">
                         <div class="flex justify-between text-xs text-zinc-400">
-                            <span id="labelSubtotal">Subtotal Base:</span>
+                            <span id="labelSubtotal">Subtotal Base Oficial:</span>
                             <span id="subtotalText" class="font-bold text-zinc-200">$0</span>
                         </div>
                         <div id="filaDescuento" class="flex justify-between text-xs text-rose-400 font-bold hidden">
-                            <span>Descuento (<span id="descPorcentajeText">0</span>% en piezas aplicables):</span>
+                            <span>Descuento (<span id="descPorcentajeText">0</span>%):</span>
                             <span id="descuentoMontoText">-$0</span>
                         </div>
                         <div class="flex justify-between items-baseline pt-3 border-t border-zinc-800">
-                            <span class="text-xs font-black text-zinc-300 uppercase tracking-wider">TOTAL COBRADO</span>
+                            <span class="text-xs font-black text-zinc-300 uppercase tracking-wider">TOTAL A COBRAR</span>
                             <div class="text-right">
                                 <div id="totalAntesTachado" class="text-xs text-zinc-500 line-through hidden">$0</div>
                                 <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 tracking-tight" id="totalVentaText">$0</div>
@@ -323,11 +327,11 @@
                         Completar Orden
                     </button>
 
-                    <!-- SECCIÓN DE DESCUENTOS -->
+                    <!-- DESCUENTO DIRECTO / MANUAL -->
                     <div id="seccionDescuentosContenedor" class="border-t border-zinc-800/80 pt-4 space-y-3">
                         <div class="flex justify-between items-center">
-                            <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-wider">Aplicar Descuento</label>
-                            <span class="text-[10px] text-amber-400 font-bold">V12 se mantiene fijo en $500K</span>
+                            <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-wider">Descuento Directo</label>
+                            <span class="text-[10px] text-amber-400 font-bold">Motor V12 fijo en $500K</span>
                         </div>
                         <div class="grid grid-cols-4 gap-2">
                             <button onclick="aplicarDescuento(10)" id="btn-10" class="btn-desc bg-zinc-900 border border-zinc-700/60 text-xs font-black py-2 rounded-xl text-zinc-200 hover:border-cyan-400 hover:text-cyan-300 transition">10%</button>
@@ -354,20 +358,20 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="card-dark p-5 rounded-xl border-l-4 border-emerald-400">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Capital en Caja</p>
-                    <p class="text-3xl font-black text-emerald-400 mt-1 tracking-tight" id="almCapital">$0</p>
+                    <p class="text-3xl font-black text-emerald-400 mt-1" id="almCapital">$0</p>
                 </div>
                 <div class="card-dark p-5 rounded-xl border-l-4 border-blue-400">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Stock Motores V8</p>
-                    <p class="text-3xl font-black text-white mt-1" id="almStockV8">0 <span class="text-xs text-zinc-500 font-normal">unidades</span></p>
+                    <p class="text-3xl font-black text-white mt-1" id="almStockV8">0</p>
                 </div>
                 <div class="card-dark p-5 rounded-xl border-l-4 border-purple-400">
                     <p class="text-xs text-zinc-400 font-bold uppercase">Stock Motores V12</p>
-                    <p class="text-3xl font-black text-purple-400 mt-1" id="almStockV12">0 <span class="text-xs text-zinc-500 font-normal">unidades</span></p>
+                    <p class="text-3xl font-black text-purple-400 mt-1" id="almStockV12">0</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- INGRESAR CAPITAL -->
+                <!-- INYECTAR CAPITAL -->
                 <div class="card-dark p-6 rounded-xl space-y-4">
                     <h3 class="text-sm font-black text-white uppercase flex items-center gap-2">💵 Inyectar Capital</h3>
                     <div class="space-y-3">
@@ -434,8 +438,8 @@
         <!-- COMBOS Y PIEZAS (TABLA OFICIAL) -->
         <div id="seccion-combos" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
-                <h2 class="text-2xl font-black text-cyan-400 uppercase">🛠️ COMPONENTES POR COMBO (DESGLOSE AUTOMÁTICO)</h2>
-                <p class="text-xs text-zinc-400">Al pulsar en cualquier combo de la calculadora, el sistema desglosa estas piezas individualmente en el resumen.</p>
+                <h2 class="text-2xl font-black text-cyan-400 uppercase">🛠️ COMPONENTES POR COMBO OFICIAL</h2>
+                <p class="text-xs text-zinc-400">Los combos cobran su precio cerrado oficial ($100k, $140k, $550k, $580k). En caso de descuento, en combos V12 los $500,000 del motor no tienen rebaja.</p>
             </div>
 
             <div class="overflow-x-auto">
@@ -599,8 +603,9 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL ADMIN -->
+        <!-- PANEL ADMIN (INCLUYE GESTIÓN DE CONVENIOS) -->
         <div id="seccion-admin" class="space-y-6 hidden">
+            <!-- REINICIAR SEMANA -->
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h3 class="text-lg font-black text-rose-400 uppercase flex items-center gap-2">🚨 CORTE SEMANAL Y REINICIO DE FACTURAS</h3>
@@ -611,26 +616,54 @@
                 </button>
             </div>
 
+            <!-- GESTOR DE CONVENIOS CON FACCIONES -->
+            <div class="card-dark p-6 rounded-xl border border-amber-500/40 space-y-4">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                    <div>
+                        <h3 class="text-lg font-black text-amber-400 uppercase flex items-center gap-2">
+                            🤝 ADMINISTRAR CONVENIOS CON FACCIONES
+                        </h3>
+                        <p class="text-xs text-zinc-400">Agrega o retira convenios oficiales. El descuento seleccionado se aplicará automáticamente en la orden.</p>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO NUEVO CONVENIO -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-black/60 p-4 rounded-xl border border-zinc-800">
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Nombre de la Facción</label>
+                        <input type="text" id="inpNombreConvenio" placeholder="Ej. LSPD / EMS / Sheriff" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Porcentaje de Descuento (%)</label>
+                        <input type="number" id="inpPorcentajeConvenio" min="1" max="50" placeholder="Ej. 10, 15, 20" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold text-amber-400">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="guardarNuevoConvenio()" class="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-2 rounded-lg text-xs uppercase tracking-wider transition">
+                            + Agregar Convenio
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LISTA DE CONVENIOS EN ADMIN -->
+                <div id="listaConveniosAdmin" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2"></div>
+            </div>
+
+            <!-- GESTIÓN Y JERARQUÍA -->
             <div class="card-dark p-6 rounded-xl space-y-6">
                 <div>
-                    <h2 class="text-2xl font-black text-white uppercase">👑 JERARQUÍA, RANGOS Y NIVELES (ADMIN)</h2>
-                    <p class="text-xs text-zinc-400 mt-0.5">Controla rangos, comisiones y medallas para cada trabajador.</p>
+                    <h2 class="text-2xl font-black text-white uppercase">👑 JERARQUÍA & RANGOS (ADMIN)</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">Controla rangos, comisiones, niveles y medallas para cada trabajador.</p>
                 </div>
                 <div id="contenedorSeccionesRangos" class="space-y-6"></div>
             </div>
 
+            <!-- HISTORIAL GLOBAL -->
             <div class="card-dark p-6 rounded-xl space-y-6">
-                <div class="flex flex-wrap justify-between items-center gap-4 border-b border-zinc-800 pb-4">
-                    <div>
-                        <h3 class="text-lg font-black text-white uppercase">📦 HISTORIAL GLOBAL & TRANSFERENCIAS</h3>
-                        <p class="text-xs text-zinc-400">Reasigna o elimina órdenes en tiempo real.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <label class="text-xs font-bold text-zinc-400 uppercase">Filtrar:</label>
-                        <select id="selectFiltroTrabajador" onchange="filtrarHistorialAdmin()" class="input-dark px-3 py-1.5 rounded-lg text-xs font-medium">
-                            <option value="todos">Todos los trabajadores</option>
-                        </select>
-                    </div>
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
+                    <h3 class="text-lg font-black text-white uppercase">📦 HISTORIAL GLOBAL</h3>
+                    <select id="selectFiltroTrabajador" onchange="filtrarHistorialAdmin()" class="input-dark px-3 py-1.5 rounded-lg text-xs font-medium">
+                        <option value="todos">Todos los trabajadores</option>
+                    </select>
                 </div>
                 <div id="historialAdminContenedor" class="space-y-4"></div>
             </div>
@@ -653,18 +686,19 @@
         </div>
     </div>
 
-    <!-- MODALES DE ALERTA Y ÉXITO -->
+    <!-- MODAL AVISO -->
     <div id="modalAviso" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl text-center">
             <div id="modalAvisoIcono" class="w-12 h-12 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">⚠️</div>
             <div>
                 <h3 class="text-lg font-black text-white uppercase" id="modalAvisoTitulo">Atención</h3>
-                <p class="text-xs text-zinc-400 mt-1" id="modalAvisoMensaje">Mensaje de aviso.</p>
+                <p class="text-xs text-zinc-400 mt-1" id="modalAvisoMensaje"></p>
             </div>
-            <button onclick="cerrarModalAviso()" class="w-full btn-ae-action py-2.5 rounded-xl transition text-sm uppercase">Aceptar</button>
+            <button onclick="cerrarModalAviso()" class="w-full btn-ae-action py-2.5 rounded-xl uppercase">Aceptar</button>
         </div>
     </div>
 
+    <!-- MODAL REGISTRO -->
     <div id="modalRegistro" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
         <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-zinc-700 shadow-2xl text-center">
             <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">👷</div>
@@ -676,24 +710,16 @@
         </div>
     </div>
 
+    <!-- MODAL ÉXITO -->
     <div id="modalExito" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
-        <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-5 border border-emerald-500/30 shadow-2xl text-center">
+        <div class="card-dark p-6 rounded-2xl max-w-sm w-full space-y-4 border border-emerald-500/30 text-center">
             <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
-            <div>
-                <h3 class="text-lg font-black text-white uppercase" id="modalTitulo">¡Orden Realizada!</h3>
-                <p class="text-xs text-zinc-400 mt-1" id="modalSubtitulo">El registro se completó correctamente.</p>
+            <h3 class="text-lg font-black text-white uppercase" id="modalTitulo">¡Orden Realizada!</h3>
+            <div class="bg-black/80 p-4 rounded-xl space-y-2 text-left text-xs border border-zinc-800">
+                <div class="flex justify-between text-zinc-400"><span>Total Cobrado:</span><strong class="text-white text-sm" id="modalTotal">$0</strong></div>
+                <div class="flex justify-between text-zinc-400 border-t border-zinc-800 pt-2"><span>Tu Comisión:</span><strong class="text-emerald-400 text-sm" id="modalComision">$0</strong></div>
             </div>
-            <div class="bg-black/80 p-4 rounded-xl space-y-2 border border-zinc-800 text-left text-xs">
-                <div class="flex justify-between text-zinc-400">
-                    <span>Total Cobrado:</span>
-                    <strong class="text-white text-sm" id="modalTotal">$0</strong>
-                </div>
-                <div class="flex justify-between text-zinc-400 border-t border-zinc-800 pt-2">
-                    <span>Tu Comisión (<span id="modalPorcentajeComision">30</span>%):</span>
-                    <strong class="text-emerald-400 text-sm" id="modalComision">$0</strong>
-                </div>
-            </div>
-            <button onclick="cerrarModal()" class="w-full btn-ae-action py-2.5 rounded-xl transition text-sm uppercase">Entendido</button>
+            <button onclick="cerrarModal()" class="w-full btn-ae-action py-2.5 rounded-xl uppercase">Entendido</button>
         </div>
     </div>
 
@@ -777,37 +803,6 @@
         }
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
-
-        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const ahora = audioCtx.currentTime;
-                const emitirTono = (freq, inicio, duracion, tipo = 'triangle', ganancia = 0.2) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = tipo;
-                    osc.frequency.setValueAtTime(freq, ahora + inicio);
-                    gain.gain.setValueAtTime(ganancia, ahora + inicio);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ahora + inicio + duracion);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(ahora + inicio);
-                    osc.stop(ahora + inicio + duracion);
-                };
-
-                if (total >= 1000000) {
-                    [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => emitirTono(f, i * 0.12, 0.5, 'sine', 0.25));
-                } else if (total >= 500000 || tieneV12) {
-                    [220, 329.63, 440, 554.37, 659.25].forEach((f) => emitirTono(f, 0, 0.8, 'sawtooth', 0.12));
-                } else if (total >= 100000) {
-                    emitirTono(880, 0, 0.15, 'triangle', 0.2);
-                    emitirTono(1318.51, 0.12, 0.4, 'triangle', 0.2);
-                } else {
-                    emitirTono(659.25, 0, 0.1, 'sine', 0.15);
-                    emitirTono(880, 0.08, 0.25, 'sine', 0.15);
-                }
-            } catch (e) {}
-        }
 
         const socket = io();
 
@@ -968,40 +963,39 @@
         }
 
         const categoriaConfig = {
-            'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
-            'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
-            'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
-            'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
-            'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
-            'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30 hover:border-teal-400/60', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
-            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
-            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
+            'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
+            'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
+            'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
+            'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
+            'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
+            'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
+            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
+            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
         };
 
-        // CATÁLOGO: id 7 (Motor V12) tiene admiteDescuento: false
         const catalogo = [
-            { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250, admiteDescuento: true },
-            { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000, admiteDescuento: true },
-            { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000, admiteDescuento: true },
-            { id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500, admiteDescuento: true },
-            { id: 4, categoria: 'GENERAL', nombre: 'Piezas Cosméticas', venta: 3000, costo: 2000, admiteDescuento: true },
-            { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500, admiteDescuento: true },
-            { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500, admiteDescuento: true },
-            { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000, admiteDescuento: true },
-            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000, admiteDescuento: true },
-            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000, admiteDescuento: true },
-            { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000, admiteDescuento: true },
+            { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
+            { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
+            { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
+            { id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500 },
+            { id: 4, categoria: 'GENERAL', nombre: 'Piezas Cosméticas', venta: 3000, costo: 2000 },
+            { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
+            { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
+            { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
+            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
+            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
+            { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
             { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000, admiteDescuento: false },
-            { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000, admiteDescuento: true },
-            { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000, admiteDescuento: true },
-            { id: 9, categoria: 'TRACCIÓN', nombre: 'Tracción AWD', venta: 12500, costo: 8000, admiteDescuento: true },
-            { id: 10, categoria: 'TRACCIÓN', nombre: 'Tracción RWD', venta: 11500, costo: 7000, admiteDescuento: true },
-            { id: 11, categoria: 'TRACCIÓN', nombre: 'Tracción FWD', venta: 10500, costo: 8500, admiteDescuento: true },
-            { id: 12, categoria: 'NEUMÁTICOS', nombre: 'Slick', venta: 6000, costo: 4000, admiteDescuento: true },
-            { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500, admiteDescuento: true },
-            { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500, admiteDescuento: true },
-            
-            // DEFINICIÓN DE COMBOS CON SUS PIEZAS COMPONENTES
+            { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000 },
+            { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
+            { id: 9, categoria: 'TRACCIÓN', nombre: 'Tracción AWD', venta: 12500, costo: 8000 },
+            { id: 10, categoria: 'TRACCIÓN', nombre: 'Tracción RWD', venta: 11500, costo: 7000 },
+            { id: 11, categoria: 'TRACCIÓN', nombre: 'Tracción FWD', venta: 10500, costo: 8500 },
+            { id: 12, categoria: 'NEUMÁTICOS', nombre: 'Slick', venta: 6000, costo: 4000 },
+            { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
+            { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
+
+            // COMBOS: MANTIENEN SU PRECIO OFICIAL EXACTO Y LISTA DE COMPONENTES
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1009,13 +1003,7 @@
                 venta: 140000, 
                 costo: 95000,
                 esCombo: true,
-                componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 1, cantidad: 4 }   // 4x Piezas Rendimiento
-                ]
+                desglosePiezas: '1x Motor V8, 1x Frenos Cerámicos, 1x AWD, 1x Slick, 4x Rendimiento'
             },
             { 
                 id: 19, 
@@ -1024,13 +1012,7 @@
                 venta: 100000, 
                 costo: 67000,
                 esCombo: true,
-                componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 1, cantidad: 1 }   // 1x Piezas Rendimiento
-                ]
+                desglosePiezas: '1x Motor V8, 1x Frenos Cerámicos, 1x AWD, 1x Slick, 1x Rendimiento'
             },
             { 
                 id: 20, 
@@ -1039,13 +1021,8 @@
                 venta: 550000, 
                 costo: 327000,
                 esCombo: true,
-                componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12 (Sin Descuento)
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 1, cantidad: 1 }   // 1x Pieza Rendimiento (Turbo)
-                ]
+                tieneV12Fijo: true, // Protege $500,000 del motor ante descuento
+                desglosePiezas: '1x Motor V12 (Fijo $500K), 1x Frenos Cerámicos, 1x AWD, 1x Slick, 1x Rendimiento'
             },
             { 
                 id: 21, 
@@ -1054,13 +1031,8 @@
                 venta: 580000, 
                 costo: 348000,
                 esCombo: true,
-                componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12 (Sin Descuento)
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 1, cantidad: 4 }   // 4x Piezas Rendimiento
-                ]
+                tieneV12Fijo: true,
+                desglosePiezas: '1x Motor V12 (Fijo $500K), 1x Frenos Cerámicos, 1x AWD, 1x Slick, 4x Rendimiento'
             },
             { 
                 id: 22, 
@@ -1069,10 +1041,7 @@
                 venta: 1350000, 
                 costo: 600000,
                 esCombo: true,
-                componentes: [
-                    { id: 25, cantidad: 1 }, // Kit de Nitro
-                    { id: 26, cantidad: 3 }  // 3 Botellas de Nitro
-                ]
+                desglosePiezas: '1x Kit Nitro, 3x Botellas de Nitro'
             },
             { 
                 id: 23, 
@@ -1081,19 +1050,17 @@
                 venta: 2900000, 
                 costo: 1800000,
                 esCombo: true,
-                componentes: [
-                    { id: 24, cantidad: 1 }, // Kit Drift
-                    { id: 25, cantidad: 1 }, // Kit Nitro
-                    { id: 26, cantidad: 3 }  // 3 Botellas
-                ]
+                desglosePiezas: '1x Kit Drift, 1x Kit Nitro, 3x Botellas'
             }
         ];
 
         let usuarioActual = null;
         let pestanaActiva = 'calculadora';
         let esModoRegistro = false;
-        let carrito = {}; // Guarda piezas individuales desglosadas { [id]: { ...pieza, cantidad } }
+        let carrito = {}; // Almacena ítems y combos por ID
         let descuentoPorcentaje = 0;
+        let convenioActivo = null;
+        let listaConvenios = [];
         let modoPrecioFabrica = false;
         let facturasAdminGlobal = [];
         let usuariosAdminGlobal = [];
@@ -1136,62 +1103,388 @@
             return 'text-emerald-300 font-bold';
         }
 
-        let debounceTimer = null;
-        socket.on('online_users_update', (onlineList) => {
-            actualizarBarraOnline(onlineList);
-            if (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe') && pestanaActiva === 'admin') cargarGestionAdmin();
-            if (pestanaActiva === 'top') cargarTop();
-        });
+        // CONVENIOS
+        async function cargarConvenios() {
+            try {
+                const res = await fetch('/api/convenios');
+                listaConvenios = await res.json();
+                renderizarConveniosCalculadora();
+                renderizarConveniosAdmin();
+            } catch (e) {}
+        }
 
-        socket.on('db_update', (data) => {
-            if (data.evento === 'nueva_factura' && data.total) {
-                let tieneV12 = false;
-                if (data.items && Array.isArray(data.items)) {
-                    tieneV12 = data.items.some(it => it.id === 7);
-                }
-                reproducirSonidoGlobalVenta(data.total, tieneV12);
-                mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
+        function renderizarConveniosCalculadora() {
+            const container = document.getElementById('contenedorBotonesConvenios');
+            if (!container) return;
 
-                if (data.total >= 500000 || tieneV12) {
-                    mostrarAviso(
-                        '🔥 ¡VENTA ÉPICA REGISTRADA!', 
-                        `👷 ${data.usuario_nombre} acaba de cerrar una orden de $${data.total.toLocaleString()} para ${data.cliente}`
-                    );
-                    if (typeof confetti === 'function') {
-                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+            let html = `
+                <button onclick="seleccionarConvenio(null)" class="px-3 py-2 rounded-xl text-xs font-black border transition ${!convenioActivo ? 'bg-cyan-600 text-white border-cyan-400' : 'bg-black/60 text-zinc-400 border-zinc-800 hover:text-white'}">
+                    ❌ Sin Convenio
+                </button>
+            `;
+
+            listaConvenios.forEach(conv => {
+                const activo = convenioActivo && convenioActivo.id === conv.id;
+                html += `
+                    <button onclick="seleccionarConvenio(${conv.id})" class="px-3 py-2 rounded-xl text-xs font-black border transition flex items-center justify-between gap-1.5 ${activo ? 'bg-amber-500 text-black border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]' : 'bg-black/60 text-amber-300 border-amber-500/30 hover:border-amber-400'}">
+                        <span class="truncate">${conv.faccion}</span>
+                        <span class="px-1.5 py-0.5 rounded text-[10px] ${activo ? 'bg-black text-amber-400' : 'bg-amber-500/20 text-amber-300'} font-black">${conv.porcentaje}%</span>
+                    </button>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function seleccionarConvenio(id) {
+            if (id === null) {
+                convenioActivo = null;
+                document.getElementById('tagConvenioSeleccionado').innerText = 'Ningún convenio aplicado';
+                aplicarDescuento(0);
+            } else {
+                const conv = listaConvenios.find(c => c.id === id);
+                if (conv) {
+                    convenioActivo = conv;
+                    document.getElementById('tagConvenioSeleccionado').innerHTML = `Convenio: <strong class="text-amber-400 uppercase">${conv.faccion} (${conv.porcentaje}%)</strong>`;
+                    
+                    const inputCliente = document.getElementById('nombreCliente');
+                    if (!inputCliente.value.includes(conv.faccion)) {
+                        inputCliente.value = `${conv.faccion} - ${inputCliente.value}`.trim().replace(/^ - /, '');
+                        document.getElementById('nombreClienteText').innerText = inputCliente.value;
                     }
+                    aplicarDescuento(conv.porcentaje);
                 }
             }
+            renderizarConveniosCalculadora();
+        }
 
-            if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
-                usuarioActual = null;
-                actualizarVistaUsuario();
+        function renderizarConveniosAdmin() {
+            const container = document.getElementById('listaConveniosAdmin');
+            if (!container) return;
+
+            if (listaConvenios.length === 0) {
+                container.innerHTML = '<p class="text-xs text-zinc-500 italic col-span-full">No hay convenios registrados.</p>';
                 return;
             }
 
-            if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                usuarioActual.comision_porcentaje = data.comision_porcentaje;
-                usuarioActual.rol = data.rol;
-                actualizarVistaUsuario();
+            let html = '';
+            listaConvenios.forEach(conv => {
+                html += `
+                    <div class="flex justify-between items-center bg-black/80 p-3.5 rounded-xl border border-zinc-800">
+                        <div>
+                            <span class="font-bold text-white text-xs uppercase">${conv.faccion}</span>
+                            <span class="ml-2 text-xs font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">${conv.porcentaje}% DCTO</span>
+                        </div>
+                        <button onclick="eliminarConvenio(${conv.id})" class="text-rose-400 hover:text-rose-300 text-xs font-bold px-2 py-1 bg-rose-500/10 rounded-lg border border-rose-500/20">
+                            🗑️ Retirar
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        async function guardarNuevoConvenio() {
+            const faccion = document.getElementById('inpNombreConvenio').value.trim();
+            const porcentaje = parseInt(document.getElementById('inpPorcentajeConvenio').value);
+
+            if (!faccion || isNaN(porcentaje) || porcentaje <= 0 || porcentaje > 50) {
+                return mostrarAviso('Datos Inválidos', 'Ingresa el nombre de la facción y un porcentaje entre 1% y 50%.');
             }
 
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                if (pestanaActiva === 'historial') cargarHistorial();
-                if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
-                if (pestanaActiva === 'top') cargarTop();
-                if (pestanaActiva === 'admin' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarGestionAdmin();
-                actualizarBarraNivelHeader();
-            }, 250);
+            const res = await fetch('/api/convenios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ faccion, porcentaje, usuario_nombre: usuarioActual.nombre })
+            });
+
+            if (res.ok) {
+                document.getElementById('inpNombreConvenio').value = '';
+                document.getElementById('inpPorcentajeConvenio').value = '';
+                mostrarAviso('Convenio Creado', `Convenio de ${porcentaje}% guardado para ${faccion}.`);
+                cargarConvenios();
+            } else {
+                const data = await res.json();
+                mostrarAviso('Error', data.error, true);
+            }
+        }
+
+        async function eliminarConvenio(id) {
+            if (!confirm('¿Deseas retirar este convenio?')) return;
+            const res = await fetch(`/api/convenios/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                if (convenioActivo && convenioActivo.id === id) seleccionarConvenio(null);
+                cargarConvenios();
+            }
+        }
+
+        // AGREGAR ÍTEM / COMBO AL CARRITO
+        function agregar(id) {
+            const item = catalogo.find(x => x.id === id);
+            if (!item) return;
+
+            if (!carrito[id]) {
+                carrito[id] = { ...item, cantidad: 1 };
+            } else {
+                carrito[id].cantidad++;
+            }
+            sincronizarBotonItem(id);
+            actualizarCarrito();
+        }
+
+        function restar(id) {
+            if (carrito[id]) {
+                carrito[id].cantidad--;
+                if (carrito[id].cantidad <= 0) delete carrito[id];
+            }
+            sincronizarBotonItem(id);
+            actualizarCarrito();
+        }
+
+        function eliminar(id) {
+            delete carrito[id];
+            sincronizarBotonItem(id);
+            actualizarCarrito();
+        }
+
+        function limpiarCarrito() {
+            carrito = {};
+            catalogo.forEach(p => sincronizarBotonItem(p.id));
+            actualizarCarrito();
+        }
+
+        function sincronizarBotonItem(id) {
+            const cont = document.getElementById(`btn-container-${id}`);
+            if (!cont) return;
+            const cant = carrito[id] ? carrito[id].cantidad : 0;
+            const p = catalogo.find(x => x.id === id);
+            const conf = categoriaConfig[p.categoria] || {};
+
+            if (cant === 0) {
+                cont.innerHTML = `<button onclick="agregar(${id})" class="${conf.colorBtn} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">+ Añadir</button>`;
+            } else {
+                cont.innerHTML = `
+                    <div class="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black rounded-xl px-2.5 py-1.5 shadow-lg">
+                        <button onclick="restar(${id})" class="px-1.5 text-black hover:opacity-75 font-black text-sm">—</button>
+                        <span class="text-sm font-black text-black px-1">${cant}</span>
+                        <button onclick="agregar(${id})" class="px-1.5 text-black hover:opacity-75 font-black text-sm">+</button>
+                    </div>
+                `;
+            }
+        }
+
+        function aplicarDescuento(porcentaje) {
+            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
+            descuentoPorcentaje = porcentaje;
+            document.getElementById('inputDescuentoManual').value = '';
+            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
+            if (porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
+                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-cyan-400');
+            }
+            actualizarCarrito();
+        }
+
+        function aplicarDescuentoManual() {
+            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
+            const val = parseFloat(document.getElementById('inputDescuentoManual').value);
+            if (isNaN(val) || val < 0 || val > 100) return mostrarAviso('Inválido', 'Ingresa entre 0% y 100%.');
+            
+            descuentoPorcentaje = val;
+            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
+            actualizarCarrito();
+        }
+
+        function actualizarCarrito() {
+            const container = document.getElementById('carritoItems');
+            const items = Object.values(carrito);
+            let subtotalBruto = 0;
+            let totalDescuentoCalculado = 0;
+            let totalLineas = 0;
+
+            if (items.length === 0) {
+                container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>';
+            } else {
+                let html = '';
+                items.forEach(item => {
+                    totalLineas += item.cantidad;
+                    const precioUnitario = modoPrecioFabrica ? item.costo : item.venta;
+                    const subtotalItem = precioUnitario * item.cantidad;
+                    subtotalBruto += subtotalItem;
+
+                    // CÁLCULO DEL DESCUENTO
+                    let descuentoItem = 0;
+                    let notaV12 = '';
+
+                    if (!modoPrecioFabrica && descuentoPorcentaje > 0) {
+                        if (item.id === 7) {
+                            descuentoItem = 0;
+                            notaV12 = '<span class="text-[10px] text-amber-400 font-bold ml-1">(Motor V12 Fijo: Sin descuento)</span>';
+                        } else if (item.tieneV12Fijo) {
+                            const baseConDescuento = Math.max(0, precioUnitario - 500000);
+                            descuentoItem = (baseConDescuento * item.cantidad) * (descuentoPorcentaje / 100);
+                            notaV12 = `<span class="text-[10px] text-amber-400 font-bold ml-1">(-${descuentoPorcentaje}% en piezas anexas, Motor V12 protegido a $500K)</span>`;
+                        } else {
+                            descuentoItem = subtotalItem * (descuentoPorcentaje / 100);
+                        }
+                    }
+
+                    totalDescuentoCalculado += descuentoItem;
+                    const totalCobradoItem = subtotalItem - descuentoItem;
+
+                    html += `
+                        <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800/80 space-y-1.5">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-black text-white text-xs">${item.nombre}</h4>
+                                    <p class="text-[11px] text-zinc-400">${item.cantidad} × $${precioUnitario.toLocaleString()} ${notaV12}</p>
+                                </div>
+                                <div class="text-right">
+                                    ${descuentoItem > 0 ? `<div class="text-[10px] text-zinc-500 line-through">$${subtotalItem.toLocaleString()}</div>` : ''}
+                                    <div class="font-black text-sm text-cyan-300">$${totalCobradoItem.toLocaleString()}</div>
+                                </div>
+                            </div>
+                            ${item.desglosePiezas ? `
+                                <div class="text-[10px] bg-black/60 p-2 rounded-lg border border-zinc-800 text-zinc-400">
+                                    <strong class="text-cyan-400">Piezas instaladas:</strong> ${item.desglosePiezas}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            const totalFinal = subtotalBruto - totalDescuentoCalculado;
+
+            document.getElementById('cantItems').innerText = totalLineas;
+            document.getElementById('subtotalText').innerText = `$${subtotalBruto.toLocaleString()}`;
+
+            if (totalDescuentoCalculado > 0) {
+                document.getElementById('filaDescuento').classList.remove('hidden');
+                document.getElementById('descPorcentajeText').innerText = descuentoPorcentaje;
+                document.getElementById('descuentoMontoText').innerText = `-$${totalDescuentoCalculado.toLocaleString()}`;
+                document.getElementById('totalAntesTachado').classList.remove('hidden');
+                document.getElementById('totalAntesTachado').innerText = `$${subtotalBruto.toLocaleString()}`;
+            } else {
+                document.getElementById('filaDescuento').classList.add('hidden');
+                document.getElementById('totalAntesTachado').classList.add('hidden');
+            }
+
+            document.getElementById('totalVentaText').innerText = `$${totalFinal.toLocaleString()}`;
+        }
+
+        function renderCatalogo() {
+            if (catalogoRenderizado) return;
+            const container = document.getElementById('listaProductos');
+            const categorias = [...new Set(catalogo.map(item => item.categoria))];
+            let htmlTotal = '';
+
+            categorias.forEach(cat => {
+                const conf = categoriaConfig[cat] || {};
+                const productosCat = catalogo.filter(p => p.categoria === cat);
+                htmlTotal += `
+                    <div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-black uppercase tracking-wider ${conf.colorBadge}">
+                                <span>${conf.icon}</span> ${cat}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                `;
+
+                productosCat.forEach(p => {
+                    htmlTotal += `
+                        <div class="flex items-center justify-between p-3.5 rounded-xl border ${conf.bordeCard} ${conf.bgCard} transition">
+                            <div class="pr-2">
+                                <h4 class="font-black text-white text-xs leading-tight">${p.nombre}</h4>
+                                <p class="text-xs text-zinc-400 mt-1">
+                                    Venta Oficial: <span class="${conf.colorVenta} font-black text-sm">$${p.venta.toLocaleString()}</span> 
+                                    · <span class="text-zinc-500 font-medium">Costo: $${p.costo.toLocaleString()}</span>
+                                </p>
+                            </div>
+                            <div id="btn-container-${p.id}" class="shrink-0">
+                                <button onclick="agregar(${p.id})" class="${conf.colorBtn} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">+ Añadir</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                htmlTotal += `</div></div>`;
+            });
+            container.innerHTML = htmlTotal;
+            catalogoRenderizado = true;
+        }
+
+        document.getElementById('nombreCliente').addEventListener('input', (e) => {
+            document.getElementById('nombreClienteText').innerText = e.target.value || '--';
         });
 
-        function mostrarLiveFeedVenta(trabajador, cliente, total) {
-            const feed = document.getElementById('liveFeedVentas');
-            const texto = document.getElementById('liveFeedTexto');
-            texto.innerText = `¡${trabajador} acaba de cerrar una orden de $${total.toLocaleString()} para ${cliente}!`;
-            feed.classList.remove('hidden');
-            setTimeout(() => { feed.classList.add('hidden'); }, 6500);
+        async function realizarOrden() {
+            const items = Object.values(carrito);
+            const cliente = document.getElementById('nombreCliente').value.trim();
+            const btn = document.getElementById('btnRealizarOrden');
+
+            if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Inicia sesión primero.');
+            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto o combo.');
+            if (!cliente) return mostrarAviso('Falta Cliente', 'Ingresa el nombre del cliente.');
+
+            btn.disabled = true;
+            btn.innerText = 'Procesando orden...';
+
+            try {
+                const res = await fetch('/api/facturas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario_id: usuarioActual.id,
+                        cliente,
+                        items,
+                        descuento_porcentaje: modoPrecioFabrica ? 0 : descuentoPorcentaje,
+                        es_precio_fabrica: modoPrecioFabrica
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
+                    document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Registrada!`;
+                    document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
+                    document.getElementById('modalComision').innerText = `$${data.comision.toLocaleString()}`;
+                    document.getElementById('modalExito').classList.remove('hidden');
+
+                    limpiarCarrito();
+                    seleccionarConvenio(null);
+                    document.getElementById('nombreCliente').value = '';
+                    document.getElementById('nombreClienteText').innerText = '--';
+                    actualizarBarraNivelHeader();
+                } else {
+                    mostrarAviso('Almacén Insuficiente', data.error, true);
+                }
+            } catch (err) {
+                mostrarAviso('Error de Conexión', 'No se pudo comunicar con el servidor.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Completar Orden';
+            }
+        }
+
+        function togglePrecioFabrica() {
+            const esAdmin = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
+            if (!esAdmin) {
+                document.getElementById('checkPrecioFabrica').checked = false;
+                modoPrecioFabrica = false;
+                return mostrarAviso('Acceso Restringido', 'Solo administradores y jefes pueden cobrar a fábrica.', true);
+            }
+
+            modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
+            if (modoPrecioFabrica) {
+                descuentoPorcentaje = 0;
+                document.getElementById('inputDescuentoManual').value = '';
+                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
+            }
+
+            document.getElementById('seccionDescuentosContenedor').classList.toggle('opacity-40', modoPrecioFabrica);
+            document.getElementById('seccionDescuentosContenedor').classList.toggle('pointer-events-none', modoPrecioFabrica);
+            actualizarCarrito();
         }
 
         async function actualizarBarraNivelHeader() {
@@ -1230,11 +1523,11 @@
             document.getElementById('modalAviso').classList.remove('hidden');
         }
 
-        function cerrarModalAviso() {
-            document.getElementById('modalAviso').classList.add('hidden');
-        }
+        function cerrarModalAviso() { document.getElementById('modalAviso').classList.add('hidden'); }
+        function cerrarModalRegistro() { document.getElementById('modalRegistro').classList.add('hidden'); toggleModoAuth(); }
+        function cerrarModal() { document.getElementById('modalExito').classList.add('hidden'); }
 
-        function actualizarBarraOnline(onlineList) {
+        socket.on('online_users_update', (onlineList) => {
             usuariosOnlineSet = new Set(onlineList.map(u => Number(u.id)));
             document.getElementById('txtOnlineCount').innerText = `${onlineList.length} en línea`;
             const contenedor = document.getElementById('listaUsuariosOnlineChips');
@@ -1254,7 +1547,7 @@
                 chipsHTML += `
                     <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
                         <img src="${avatar}" class="w-5 h-5 rounded-full object-cover" />
-                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                         <span class="${colorClase}">${u.nombre}</span>
                         ${esAdminOJefe ? '<span class="text-[9px] text-amber-400 font-bold">👑</span>' : ''}
                         <span class="text-[10px] text-zinc-500">(@${u.usuario})</span>
@@ -1262,83 +1555,23 @@
                 `;
             });
             contenedor.innerHTML = chipsHTML;
-        }
+        });
 
-        function togglePrecioFabrica() {
-            const esAdminOJefe = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
-            if (!esAdminOJefe) {
-                document.getElementById('checkPrecioFabrica').checked = false;
-                modoPrecioFabrica = false;
-                return mostrarAviso('Acceso Restringido', 'Solo administradores y jefes pueden cobrar a precio de fábrica.', true);
-            }
-
-            modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
-            if (modoPrecioFabrica) {
-                descuentoPorcentaje = 0;
-                document.getElementById('inputDescuentoManual').value = '';
-                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            }
-
-            document.getElementById('seccionDescuentosContenedor').classList.toggle('opacity-40', modoPrecioFabrica);
-            document.getElementById('seccionDescuentosContenedor').classList.toggle('pointer-events-none', modoPrecioFabrica);
-            actualizarCarrito();
-        }
-
-        function actualizarVistaUsuario() {
-            const container = document.getElementById('userInfo');
-            const btnAdmin = document.getElementById('tab-admin');
-            const btnAlmacen = document.getElementById('tab-almacen');
-            const contModoFabrica = document.getElementById('contenedorModoFabrica');
-
-            if (usuarioActual) {
-                const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
-                if (esAdminOJefe) {
-                    btnAdmin.classList.remove('hidden');
-                    btnAlmacen.classList.remove('hidden');
-                    contModoFabrica.classList.remove('hidden');
-                } else {
-                    btnAdmin.classList.add('hidden');
-                    btnAlmacen.classList.add('hidden');
-                    contModoFabrica.classList.add('hidden');
-                    modoPrecioFabrica = false;
-                    document.getElementById('checkPrecioFabrica').checked = false;
-                }
-
-                container.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
-                        ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
-                    </div>
-                    <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
-                `;
-                document.getElementById('seccion-auth').classList.add('hidden');
-                cambiarPestana('calculadora');
-                cambiarZonaHorariaFacturas(zonaHorariaActiva);
+        socket.on('db_update', (data) => {
+            if (data.evento === 'convenios_actualizados') cargarConvenios();
+            if (data.evento === 'nueva_factura') {
+                if (pestanaActiva === 'historial') cargarHistorial();
+                if (pestanaActiva === 'top') cargarTop();
+                if (pestanaActiva === 'admin') cargarGestionAdmin();
                 actualizarBarraNivelHeader();
-
-                socket.emit('user_connected', usuarioActual);
-            } else {
-                btnAdmin.classList.add('hidden');
-                btnAlmacen.classList.add('hidden');
-                contModoFabrica.classList.add('hidden');
-                modoPrecioFabrica = false;
-                document.getElementById('barraUsuariosOnline').classList.add('hidden');
-                document.getElementById('badgeNivelHeader').classList.add('hidden');
-                document.getElementById('badgeRachaHeader').classList.add('hidden');
-                container.innerHTML = `<span>No has iniciado sesión</span>`;
-                document.getElementById('seccion-auth').classList.remove('hidden');
-                ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
-                    const el = document.getElementById(`seccion-${s}`);
-                    if (el) el.classList.add('hidden');
-                });
             }
-        }
+        });
 
         function toggleModoAuth() {
             esModoRegistro = !esModoRegistro;
             document.getElementById('campoNombre').classList.toggle('hidden', !esModoRegistro);
             document.getElementById('authTitle').innerText = esModoRegistro ? 'Crear Cuenta' : 'Acceso AutoExotic';
-            document.getElementById('btnAuth').innerText = esModoRegistro ? 'Registrar Trabajador' : 'Ingresar al Sistema';
+            document.getElementById('btnAuth').innerText = esModoRegistro ? 'Registrar' : 'Ingresar al Sistema';
             document.getElementById('toggleText').innerText = esModoRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
             document.getElementById('toggleBtn').innerText = esModoRegistro ? 'Ingresa aquí' : 'Regístrate';
         }
@@ -1354,11 +1587,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nombre, usuario, password })
                 });
-                const data = await res.json();
                 if (res.ok) {
-                    document.getElementById('modalRegistroMensaje').innerText = `El trabajador "${nombre}" (@${usuario}) ha sido creado con éxito.`;
+                    document.getElementById('modalRegistroMensaje').innerText = `El trabajador "${nombre}" (@${usuario}) ha sido creado.`;
                     document.getElementById('modalRegistro').classList.remove('hidden');
-                } else mostrarAviso('Error de Registro', data.error, true);
+                } else {
+                    const data = await res.json();
+                    mostrarAviso('Error', data.error, true);
+                }
             } else {
                 const res = await fetch('/api/login', {
                     method: 'POST',
@@ -1369,13 +1604,47 @@
                 if (res.ok) {
                     usuarioActual = data;
                     actualizarVistaUsuario();
-                } else mostrarAviso('Error de Acceso', data.error, true);
+                } else {
+                    mostrarAviso('Error de Acceso', data.error, true);
+                }
             }
         }
 
-        function cerrarModalRegistro() {
-            document.getElementById('modalRegistro').classList.add('hidden');
-            toggleModoAuth();
+        function actualizarVistaUsuario() {
+            const container = document.getElementById('userInfo');
+            const btnAdmin = document.getElementById('tab-admin');
+            const btnAlmacen = document.getElementById('tab-almacen');
+            const contModoFabrica = document.getElementById('contenedorModoFabrica');
+
+            if (usuarioActual) {
+                const esAdmin = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
+                btnAdmin.classList.toggle('hidden', !esAdmin);
+                btnAlmacen.classList.toggle('hidden', !esAdmin);
+                contModoFabrica.classList.toggle('hidden', !esAdmin);
+
+                container.innerHTML = `
+                    <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
+                    ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
+                    <button onclick="cerrarSesion()" class="text-rose-400 hover:underline font-bold ml-2">Salir</button>
+                `;
+                document.getElementById('seccion-auth').classList.add('hidden');
+                cambiarPestana('calculadora');
+                actualizarBarraNivelHeader();
+                cargarConvenios();
+                socket.emit('user_connected', usuarioActual);
+            } else {
+                btnAdmin.classList.add('hidden');
+                btnAlmacen.classList.add('hidden');
+                contModoFabrica.classList.add('hidden');
+                document.getElementById('barraUsuariosOnline').classList.add('hidden');
+                document.getElementById('badgeNivelHeader').classList.add('hidden');
+                document.getElementById('badgeRachaHeader').classList.add('hidden');
+                container.innerHTML = '';
+                document.getElementById('seccion-auth').classList.remove('hidden');
+                ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
+                    document.getElementById(`seccion-${s}`).classList.add('hidden');
+                });
+            }
         }
 
         function cerrarSesion() {
@@ -1386,11 +1655,10 @@
         }
 
         function cambiarPestana(pestana) {
-            if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
-
-            const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
-            if ((pestana === 'admin' || pestana === 'almacen') && !esAdminOJefe) {
-                return mostrarAviso('Acceso Denegado', 'Solo administradores y jefes pueden acceder.', true);
+            if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero.');
+            const esAdmin = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
+            if ((pestana === 'admin' || pestana === 'almacen') && !esAdmin) {
+                return mostrarAviso('Acceso Denegado', 'Permisos insuficientes.', true);
             }
 
             pestanaActiva = pestana;
@@ -1402,11 +1670,11 @@
             const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
             if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
 
-            ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
-                const el = document.getElementById(`seccion-${s}`);
+            ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(sec => {
+                const el = document.getElementById(`seccion-${sec}`);
                 if (el) {
                     el.classList.remove('tab-content-anim');
-                    if (s === pestana) {
+                    if (sec === pestana) {
                         el.classList.remove('hidden');
                         void el.offsetWidth;
                         el.classList.add('tab-content-anim');
@@ -1416,10 +1684,10 @@
                 }
             });
 
-            if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
+            if (pestana === 'almacen') cargarAlmacen();
             if (pestana === 'historial') cargarHistorial();
             if (pestana === 'top') cargarTop();
-            if (pestana === 'admin' && esAdminOJefe) cargarGestionAdmin();
+            if (pestana === 'admin') { cargarGestionAdmin(); cargarConvenios(); }
         }
 
         async function cargarAlmacen() {
@@ -1432,9 +1700,8 @@
             const v12 = data.estado.stock_v12 || 0;
 
             document.getElementById('almCapital').innerText = `$${cap.toLocaleString()}`;
-            document.getElementById('almStockV8').innerHTML = `${v8} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
-            document.getElementById('almStockV12').innerHTML = `${v12} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
-
+            document.getElementById('almStockV8').innerText = v8;
+            document.getElementById('almStockV12').innerText = v12;
             document.getElementById('inpManualCapital').value = cap;
             document.getElementById('inpManualV8').value = v8;
             document.getElementById('inpManualV12').value = v12;
@@ -1478,12 +1745,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ monto, descripcion, usuario_nombre: usuarioActual.nombre })
             });
-            const data = await res.json();
             if (res.ok) {
-                mostrarAviso('Capital Agregado', `Se ingresaron $${parseFloat(monto).toLocaleString()} al capital del taller.`);
+                mostrarAviso('Capital Agregado', 'Monto inyectado con éxito.');
                 document.getElementById('inpIngresoCapital').value = '';
                 document.getElementById('inpConceptoCapital').value = '';
-            } else mostrarAviso('Error', data.error, true);
+                cargarAlmacen();
+            }
         }
 
         async function ejecutarCompraMotor() {
@@ -1499,7 +1766,8 @@
             const data = await res.json();
             if (res.ok) {
                 mostrarAviso('Compra Exitosa', data.message);
-            } else mostrarAviso('Error en Compra', data.error, true);
+                cargarAlmacen();
+            } else mostrarAviso('Error', data.error, true);
         }
 
         async function ejecutarAjusteManualAlmacen() {
@@ -1507,460 +1775,73 @@
             const stock_v8 = document.getElementById('inpManualV8').value;
             const stock_v12 = document.getElementById('inpManualV12').value;
 
-            if (capital === '' || stock_v8 === '' || stock_v12 === '') {
-                return mostrarAviso('Campos Vacíos', 'Por favor llena los 3 campos con números válidos.');
-            }
-
             const res = await fetch('/api/almacen/ajuste-manual', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ capital, stock_v8, stock_v12, usuario_nombre: usuarioActual.nombre })
             });
-            const data = await res.json();
             if (res.ok) {
-                mostrarAviso('Almacén Actualizado', 'Los valores de capital y stock han sido actualizados correctamente.');
+                mostrarAviso('Actualizado', 'Valores guardados.');
                 cargarAlmacen();
-            } else {
-                mostrarAviso('Error de Ajuste', data.error, true);
             }
         }
 
         async function ejecutarReinicioSemanal() {
-            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción liquidará TODAS las facturas.\n\nEscribe 'REINICIAR' para confirmar:");
-            if (confirmacion !== 'REINICIAR') return mostrarAviso('Acción Cancelada', 'No se realizaron cambios.');
+            const confirmacion = prompt("Escribe 'REINICIAR' para confirmar el corte semanal:");
+            if (confirmacion !== 'REINICIAR') return;
 
             const res = await fetch('/api/admin/reiniciar-semana', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ usuario_nombre: usuarioActual.nombre })
             });
-            const data = await res.json();
             if (res.ok) {
-                mostrarAviso('¡Semana Reiniciada!', 'Todas las facturas se han liquidado a $0.');
+                mostrarAviso('¡Semana Reiniciada!', 'Facturas en $0.');
                 cargarGestionAdmin();
-                cargarTop();
-            } else {
-                mostrarAviso('Error', data.error, true);
             }
-        }
-
-        async function cargarGestionAdmin() {
-            const res = await fetch('/api/usuarios');
-            usuariosAdminGlobal = await res.json();
-            const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
-            const selectFiltro = document.getElementById('selectFiltroTrabajador');
-            const valorPrevio = selectFiltro.value;
-            let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
-
-            const secciones = [
-                { key: 'jefe', titulo: '👑 JEFES (0% COMISIÓN - DIRECCIÓN GENERAL)', borde: 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]', texto: 'text-amber-300', bg: 'bg-amber-950/20' },
-                { key: 'subjefe', titulo: '🛡️ SUBJEFES (0% COMISIÓN - GANAN DE CAPITAL)', borde: 'border-rose-500/40', texto: 'text-rose-400', bg: 'bg-rose-950/10' },
-                { key: 'encargado', titulo: '👔 ENCARGADOS (45% COMISIÓN)', borde: 'border-yellow-500/40', texto: 'text-yellow-400', bg: 'bg-yellow-950/10' },
-                { key: 'experto', titulo: '⭐ MECÁNICOS EXPERTOS (40% COMISIÓN)', borde: 'border-purple-500/40', texto: 'text-purple-400', bg: 'bg-purple-950/10' },
-                { key: 'mecanico', titulo: '🔧 MECÁNICOS (35% COMISIÓN)', borde: 'border-zinc-700', texto: 'text-zinc-300', bg: 'bg-zinc-900/40' },
-                { key: 'pruebas', titulo: '🔰 MECÁNICOS EN PRUEBAS (30% COMISIÓN)', borde: 'border-emerald-500/40', texto: 'text-emerald-400', bg: 'bg-emerald-950/10' }
-            ];
-
-            let htmlFinal = '';
-            secciones.forEach(sec => {
-                const usuariosEnRango = usuariosAdminGlobal.filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
-                let filas = '';
-                usuariosEnRango.forEach(u => {
-                    const estaOnline = usuariosOnlineSet.has(Number(u.id));
-                    const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
-                    const presetActual = obtenerClaveRango(u.rol, u.comision_porcentaje);
-                    const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
-                    const avatar = obtenerAvatarTrabajador(u.id);
-
-                    const customLvl = localStorage.getItem(`ae_custom_lvl_${u.id}`) || '';
-                    const customBadges = JSON.parse(localStorage.getItem(`ae_custom_badges_${u.id}`)) || {};
-
-                    filas += `
-                        <tr class="hover:bg-zinc-900/40 transition">
-                            <td class="p-3">
-                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
-                                    <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                    ${estaOnline ? 'En Línea' : 'Desconectado'}
-                                </span>
-                            </td>
-                            <td class="p-3">
-                                <div class="flex items-center gap-2">
-                                    <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
-                                    <div>
-                                        <span class="${colorClase}">${u.nombre}</span>
-                                        ${esAdminOJefe ? '<span class="text-xs">👑</span>' : ''}
-                                        <div class="text-[11px] text-zinc-500">@${u.usuario}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-3">
-                                <select id="rangoPreset-${u.id}" class="input-dark px-2.5 py-1 rounded-xl text-xs font-bold w-full max-w-[170px]">
-                                    <option value="jefe" ${presetActual === 'jefe' ? 'selected' : ''}>👑 Jefe (0%)</option>
-                                    <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0%)</option>
-                                    <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45%)</option>
-                                    <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ M. Experto (40%)</option>
-                                    <option value="mecanico" ${presetActual === 'mecanico' ? 'selected' : ''}>🔧 Mecánico (35%)</option>
-                                    <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 En Pruebas (30%)</option>
-                                </select>
-                            </td>
-                            <td class="p-3">
-                                <select id="permisoAdmin-${u.id}" class="input-dark px-2 py-1 rounded-xl text-xs font-bold ${esAdminOJefe ? 'text-amber-400 border-amber-500/40 font-black' : 'text-zinc-300'}">
-                                    <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
-                                    <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>👑 Acceso Admin</option>
-                                    <option value="jefe" ${u.rol === 'jefe' ? 'selected' : ''}>👑 Acceso Jefe</option>
-                                </select>
-                            </td>
-                            <td class="p-3">
-                                <div class="flex items-center gap-1">
-                                    <input type="number" id="inputCustomLvl-${u.id}" value="${customLvl}" placeholder="Auto" min="1" max="100" class="w-16 input-dark px-2 py-1 rounded-lg text-xs font-bold text-center text-cyan-300" />
-                                    <span class="text-[10px] text-zinc-500">Lvl</span>
-                                </div>
-                            </td>
-                            <td class="p-3">
-                                <div class="grid grid-cols-4 gap-1 text-[11px]">
-                                    <label title="Rey V12" class="cursor-pointer"><input type="checkbox" id="badge_m1_${u.id}" ${customBadges.m1 ? 'checked' : ''} class="w-3 h-3 text-amber-500 rounded bg-black"> 👑</label>
-                                    <label title="Nitro" class="cursor-pointer"><input type="checkbox" id="badge_m2_${u.id}" ${customBadges.m2 ? 'checked' : ''} class="w-3 h-3 text-cyan-500 rounded bg-black"> 💨</label>
-                                    <label title="Drift" class="cursor-pointer"><input type="checkbox" id="badge_m3_${u.id}" ${customBadges.m3 ? 'checked' : ''} class="w-3 h-3 text-fuchsia-500 rounded bg-black"> 🏎️</label>
-                                    <label title="Mente V8" class="cursor-pointer"><input type="checkbox" id="badge_m4_${u.id}" ${customBadges.m4 ? 'checked' : ''} class="w-3 h-3 text-blue-500 rounded bg-black"> ⚙️</label>
-                                    <label title="Detallador" class="cursor-pointer"><input type="checkbox" id="badge_m5_${u.id}" ${customBadges.m5 ? 'checked' : ''} class="w-3 h-3 text-emerald-500 rounded bg-black"> 🧼</label>
-                                    <label title="Gran Negocio" class="cursor-pointer"><input type="checkbox" id="badge_m6_${u.id}" ${customBadges.m6 ? 'checked' : ''} class="w-3 h-3 text-yellow-400 rounded bg-black"> ⚡</label>
-                                    <label title="Medio Millón" class="cursor-pointer"><input type="checkbox" id="badge_m7_${u.id}" ${customBadges.m7 ? 'checked' : ''} class="w-3 h-3 text-teal-400 rounded bg-black"> 💎</label>
-                                    <label title="Millonario" class="cursor-pointer"><input type="checkbox" id="badge_m8_${u.id}" ${customBadges.m8 ? 'checked' : ''} class="w-3 h-3 text-rose-500 rounded bg-black"> 💰</label>
-                                </div>
-                            </td>
-                            <td class="p-3 text-right space-x-1">
-                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-ae-action text-xs px-3 py-1 rounded-xl transition shadow">Guardar</button>
-                                ${u.id !== usuarioActual.id ? `
-                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2.5 py-1 rounded-xl border border-rose-500/30 transition">🗑️</button>
-                                ` : ''}
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                htmlFinal += `
-                    <div class="card-dark rounded-xl overflow-hidden border ${sec.borde}">
-                        <div class="p-3.5 ${sec.bg} border-b border-zinc-800/80 flex justify-between items-center">
-                            <h3 class="text-xs font-black uppercase tracking-wider ${sec.texto}">${sec.titulo}</h3>
-                            <span class="text-xs text-zinc-400 font-bold bg-black/60 px-2.5 py-0.5 rounded-lg border border-zinc-800">${usuariosEnRango.length} miembros</span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-sm">
-                                <thead>
-                                    <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[11px]">
-                                        <th class="p-3">Estado</th><th class="p-3">Trabajador</th><th class="p-3">Rango</th><th class="p-3">Permiso</th><th class="p-3">Nivel XP</th><th class="p-3">Medallas</th><th class="p-3 text-right">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-zinc-800/60">
-                                    ${filas || '<tr><td colspan="7" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            });
-
-            usuariosAdminGlobal.forEach(u => {
-                optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-            });
-
-            contenedorSecciones.innerHTML = htmlFinal;
-            selectFiltro.innerHTML = optionsHTML;
-            if (valorPrevio) selectFiltro.value = valorPrevio;
-
-            const resFacturas = await fetch('/api/admin/todas-facturas');
-            facturasAdminGlobal = await resFacturas.json();
-            filtrarHistorialAdmin();
-        }
-
-        async function guardarCambiosUsuario(usuario_id) {
-            const preset = document.getElementById(`rangoPreset-${usuario_id}`).value;
-            let rol = document.getElementById(`permisoAdmin-${usuario_id}`).value;
-            let comision_porcentaje = 30;
-
-            if (preset === 'jefe') {
-                comision_porcentaje = 0;
-                if (rol === 'empleado') rol = 'jefe';
-            } else if (preset === 'subjefe') comision_porcentaje = 0;
-            else if (preset === 'encargado') comision_porcentaje = 45;
-            else if (preset === 'experto') comision_porcentaje = 40;
-            else if (preset === 'mecanico') comision_porcentaje = 35;
-            else if (preset === 'pruebas') comision_porcentaje = 30;
-
-            const customLvlVal = document.getElementById(`inputCustomLvl-${usuario_id}`).value.trim();
-            if (customLvlVal) localStorage.setItem(`ae_custom_lvl_${usuario_id}`, customLvlVal);
-            else localStorage.removeItem(`ae_custom_lvl_${usuario_id}`);
-
-            const badgesObj = {
-                m1: document.getElementById(`badge_m1_${usuario_id}`).checked,
-                m2: document.getElementById(`badge_m2_${usuario_id}`).checked,
-                m3: document.getElementById(`badge_m3_${usuario_id}`).checked,
-                m4: document.getElementById(`badge_m4_${usuario_id}`).checked,
-                m5: document.getElementById(`badge_m5_${usuario_id}`).checked,
-                m6: document.getElementById(`badge_m6_${usuario_id}`).checked,
-                m7: document.getElementById(`badge_m7_${usuario_id}`).checked,
-                m8: document.getElementById(`badge_m8_${usuario_id}`).checked
-            };
-            localStorage.setItem(`ae_custom_badges_${usuario_id}`, JSON.stringify(badgesObj));
-
-            const res = await fetch('/api/usuarios/modificar', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
-            });
-
-            if (res.ok) {
-                mostrarAviso('Usuario Actualizado', `¡Rango (${preset.toUpperCase()}) guardado con éxito!`);
-                actualizarBarraNivelHeader();
-            } else mostrarAviso('Error', 'Error al actualizar el usuario.', true);
-        }
-
-        async function eliminarCuentaUsuario(id, nombre) {
-            if (!confirm(`¿Eliminar la cuenta de "${nombre}"?`)) return;
-            const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
-            if (res.ok) mostrarAviso('Cuenta Eliminada', `La cuenta de ${nombre} fue eliminada.`);
-            else mostrarAviso('Error', 'No se pudo eliminar la cuenta.', true);
-        }
-
-        function abrirModalTransferir(facturaId, cliente, trabajadorActual) {
-            facturaIdParaTransferir = facturaId;
-            document.getElementById('txtTransferirDetalle').innerText = `Transferir Orden #${facturaId} (Cliente: ${cliente}) de ${trabajadorActual}.`;
-            const sel = document.getElementById('selNuevoTrabajador');
-            let opts = '';
-            usuariosAdminGlobal.forEach(u => {
-                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-            });
-            sel.innerHTML = opts;
-            document.getElementById('modalTransferir').classList.remove('hidden');
-        }
-
-        function cerrarModalTransferir() {
-            document.getElementById('modalTransferir').classList.add('hidden');
-            facturaIdParaTransferir = null;
-        }
-
-        async function confirmarTransferencia() {
-            if (!facturaIdParaTransferir) return;
-            const nuevo_usuario_id = document.getElementById('selNuevoTrabajador').value;
-            const res = await fetch(`/api/facturas/${facturaIdParaTransferir}/transferir`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nuevo_usuario_id })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                cerrarModalTransferir();
-                mostrarAviso('Orden Transferida', 'La orden y comisiones se reasignaron.');
-            } else mostrarAviso('Error', data.error, true);
-        }
-
-        async function eliminarFactura(facturaId) {
-            if (!confirm(`¿Eliminar Orden #${facturaId}?`)) return;
-            const res = await fetch(`/api/facturas/${facturaId}`, { method: 'DELETE' });
-            if (res.ok) mostrarAviso('Orden Eliminada', `La Orden #${facturaId} ha sido eliminada.`);
-            else mostrarAviso('Error', 'No se pudo eliminar la factura.', true);
-        }
-
-        function filtrarHistorialAdmin() {
-            const filtroId = document.getElementById('selectFiltroTrabajador').value;
-            const container = document.getElementById('historialAdminContenedor');
-            const filtradas = filtroId === 'todos' ? facturasAdminGlobal : facturasAdminGlobal.filter(f => f.usuario_id == filtroId);
-
-            if (filtradas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">No hay órdenes registradas para este filtro.</p>`;
-                return;
-            }
-
-            let html = '';
-            filtradas.forEach(f => {
-                const fecha = formatearFechaConZona(f.fecha);
-                const avatar = obtenerAvatarTrabajador(f.usuario_id);
-                let itemsHTML = '';
-                if (f.items_json) {
-                    try {
-                        const parsedItems = JSON.parse(f.items_json);
-                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
-                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">DETALLE DE PIEZAS INSTALADAS</p>';
-                        parsedItems.forEach(item => {
-                            const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
-                            const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
-                            itemsHTML += `
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-bold text-zinc-300">${item.nombre} ${item.id === 7 ? '<span class="text-amber-400 text-[10px] font-black uppercase">(Sin Desc.)</span>' : ''}</span>
-                                    <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
-                                </div>
-                            `;
-                        });
-                        itemsHTML += '</div>';
-                    } catch(e) {}
-                }
-
-                html += `
-                    <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2">
-                                <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
-                                <div>
-                                    <span class="font-bold text-cyan-300 text-sm">👷 ${f.trabajador_nombre}</span>
-                                    <span class="text-xs text-zinc-400 ml-1 font-mono">(${fecha})</span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
-                                <div class="text-xs text-zinc-400">Total Cobrado</div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
-                            <div>
-                                <span class="text-zinc-400 font-medium">Ganancia Taller:</span>
-                                <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <span class="text-zinc-400 font-medium">Comisión Trabajador:</span>
-                                <div class="text-sm font-bold text-cyan-400">+$${f.comision_empleado.toLocaleString()}</div>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-wrap justify-between items-center text-xs pt-1 gap-2">
-                            <div>
-                                <span>Cliente: <strong class="text-zinc-200">${f.cliente}</strong></span>
-                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-rose-400 font-bold">Desc. General: ${f.descuento_porcentaje}%</span>` : ''}
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-900 hover:bg-zinc-800 text-cyan-300 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">🔁 Transferir</button>
-                                <button onclick="eliminarFactura(${f.id})" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 transition">🗑️ Eliminar</button>
-                            </div>
-                        </div>
-                        ${itemsHTML}
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        async function cargarTop() {
-            const res = await fetch('/api/top-trabajadores');
-            const lista = await res.json();
-            const container = document.getElementById('topContenedor');
-            const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
-
-            let html = '';
-            for (let index = 0; index < lista.length; index++) {
-                const item = lista[index];
-                const badge = insignias[index] || `PUESTO #${index + 1}`;
-                const estaOnline = usuariosOnlineSet.has(Number(item.id));
-                const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
-                const stats = calcularNivelYProgreso(item.total_vendido, item.id);
-                const avatar = obtenerAvatarTrabajador(item.id);
-                const medallas = generarMedallas([], item.total_vendido, item.id);
-                const medallasTopHTML = generarMedallasTopHTML(medallas);
-                const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
-
-                html += `
-                    <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
-                        <div class="flex items-center gap-3.5">
-                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                            <div class="shrink-0">${avatarClean}</div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                    <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
-                                    <span class="text-xs text-zinc-500">(@${item.usuario})</span>
-                                    <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
-                                    ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
-                                </div>
-                                <p class="text-xs text-zinc-400 mt-0.5">
-                                    XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
-                                    Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
-                                </p>
-                                ${medallasTopHTML}
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xs text-cyan-300 font-black">Comisiones: $${item.comision_ganada.toLocaleString()}</div>
-                            <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${item.ganancia_generada.toLocaleString()}</div>
-                        </div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
         }
 
         async function cargarHistorial() {
             if (!usuarioActual) return;
             const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
             const facturas = await res.json();
-
-            let totalVendido = 0;
-            let totalComision = 0;
+            let totalVendido = 0, totalComision = 0;
             const container = document.getElementById('misFacturasLista');
 
             if (facturas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Aún no has realizado ventas en esta semana.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Sin órdenes registradas.</p>`;
             }
 
             let html = '';
             facturas.forEach(f => {
                 totalVendido += f.total_cliente;
-                if (f.estado_pago === 'pendiente') totalComision += f.comision_empleado;
-
+                totalComision += f.comision_empleado;
                 const fecha = formatearFechaConZona(f.fecha);
-                let itemsHTML = '';
-                if (f.items_json) {
-                    try {
-                        const parsedItems = JSON.parse(f.items_json);
-                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
-                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">DETALLE DE PIEZAS INSTALADAS</p>';
-                        parsedItems.forEach(item => {
-                            const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
-                            const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
-                            itemsHTML += `
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-bold text-zinc-300">${item.nombre} ${item.id === 7 ? '<span class="text-amber-400 text-[10px] font-black uppercase">(Sin Desc.)</span>' : ''}</span>
-                                    <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
-                                </div>
-                            `;
-                        });
-                        itemsHTML += '</div>';
-                    } catch(e) {}
-                }
 
                 html += `
                     <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
                         <div class="flex justify-between items-center">
                             <div>
-                                <span class="font-bold text-white text-sm">Trabajador: ${usuarioActual.nombre}</span>
+                                <span class="font-bold text-white text-sm">Cliente: ${f.cliente}</span>
                                 <span class="text-xs text-zinc-400 ml-2 font-mono">(${fecha})</span>
                             </div>
-                            <div class="text-right">
-                                <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
-                                <div class="text-xs text-zinc-400">Total Vendido</div>
-                            </div>
+                            <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
                         </div>
-
                         <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
-                            <div>
-                                <span class="text-zinc-400 font-medium">Ganancia Neta Taller:</span>
-                                <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <span class="text-zinc-400 font-medium">Mi Comisión:</span>
-                                <div class="text-sm font-bold text-cyan-300">+$${f.comision_empleado.toLocaleString()}</div>
-                            </div>
+                            <div><span class="text-zinc-400">Ganancia Taller:</span> <strong class="text-emerald-400">$${f.ganancia_neta.toLocaleString()}</strong></div>
+                            <div><span class="text-zinc-400">Mi Comisión:</span> <strong class="text-cyan-300">+$${f.comision_empleado.toLocaleString()}</strong></div>
                         </div>
-
-                        <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
-                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado: ${f.descuento_porcentaje}% (Excepto Motor V12)</div>` : ''}
-                        ${itemsHTML}
                     </div>
                 `;
             });
 
-            const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
-            const racha = calcularRachaDiaria(usuarioActual.id);
-            const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
+            container.innerHTML = html;
+            document.getElementById('mTotalVendido').innerText = `$${totalVendido.toLocaleString()}`;
+            document.getElementById('mComisionesPendientes').innerText = `$${totalComision.toLocaleString()}`;
+            document.getElementById('mTotalFacturas').innerText = facturas.length;
 
+            const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
+            const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
             document.getElementById('profileAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 88);
             document.getElementById('lblPerfilNombre').innerText = usuarioActual.nombre;
             document.getElementById('lblPerfilUser').innerText = `@${usuarioActual.usuario}`;
@@ -1970,331 +1851,80 @@
             document.getElementById('lblPerfilNivel').innerText = `Nivel ${stats.nivel}`;
             document.getElementById('lblPerfilXP').innerText = `${stats.xpActualNivel.toLocaleString()} / ${stats.xpPorNivel.toLocaleString()} XP`;
             document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
-            document.getElementById('lblPerfilRacha').innerText = `${racha} ${racha === 1 ? 'día activo' : 'días activos'}`;
 
             const medallas = generarMedallas(facturas, totalVendido, usuarioActual.id);
             document.getElementById('perfilRibbonBar').innerHTML = generarRibbonBarHTML(medallas);
+        }
 
-            const contenedorMedallas = document.getElementById('contenedorMedallasPerfil');
-            let medallasHTML = '';
-            medallas.forEach(m => {
-                medallasHTML += `
-                    <div class="p-4 rounded-xl border-2 ${m.activa ? `bg-zinc-900/95 ${m.colorBorde} shadow-xl shadow-black/80` : 'bg-zinc-950/40 border-zinc-800/60 opacity-30'} flex items-center gap-3.5 transition hover:scale-102">
-                        <span class="text-3xl filter drop-shadow">${m.icon}</span>
-                        <div>
-                            <div class="text-xs font-black ${m.activa ? 'text-white' : 'text-zinc-500'} tracking-wide uppercase">${m.titulo}</div>
-                            <div class="text-[11px] text-zinc-400 mt-0.5">${m.desc}</div>
+        async function cargarTop() {
+            const res = await fetch('/api/top-trabajadores');
+            const lista = await res.json();
+            const container = document.getElementById('topContenedor');
+            let html = '';
+
+            lista.forEach((item, index) => {
+                const avatar = obtenerAvatarTrabajador(item.id);
+                const stats = calcularNivelYProgreso(item.total_vendido, item.id);
+                html += `
+                    <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">#${index + 1}</span>
+                            <div class="shrink-0">${renderLolAvatar(avatar, stats.nivel, 58)}</div>
+                            <div>
+                                <h3 class="font-bold text-white text-base">${item.nombre}</h3>
+                                <p class="text-xs text-zinc-400">Total Vendido: <strong class="text-cyan-400">$${item.total_vendido.toLocaleString()}</strong></p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-cyan-300 font-black">Comisión: $${item.comision_ganada.toLocaleString()}</div>
+                            <div class="text-xl font-black text-emerald-400">Ganancia: $${item.ganancia_generada.toLocaleString()}</div>
                         </div>
                     </div>
                 `;
             });
-            contenedorMedallas.innerHTML = medallasHTML;
-
             container.innerHTML = html;
-            document.getElementById('mTotalVendido').innerText = `$${totalVendido.toLocaleString()}`;
-            document.getElementById('mComisionesPendientes').innerText = `$${totalComision.toLocaleString()}`;
-            document.getElementById('mTotalFacturas').innerText = facturas.length;
         }
 
-        function renderCatalogo() {
-            if (catalogoRenderizado) return;
-            const container = document.getElementById('listaProductos');
-            const categorias = [...new Set(catalogo.map(item => item.categoria))];
+        async function cargarGestionAdmin() {
+            const res = await fetch('/api/usuarios');
+            usuariosAdminGlobal = await res.json();
+            const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
+            const selectFiltro = document.getElementById('selectFiltroTrabajador');
 
-            let htmlTotal = '';
-            categorias.forEach(cat => {
-                const conf = categoriaConfig[cat] || {
-                    colorBadge: 'bg-zinc-800 text-zinc-300 border-zinc-700',
-                    bordeCard: 'border-zinc-800',
-                    bgCard: 'bg-zinc-950/60',
-                    icon: '📦',
-                    colorVenta: 'text-zinc-200',
-                    colorBtn: 'bg-zinc-800 hover:bg-zinc-700 text-white'
-                };
+            let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
+            usuariosAdminGlobal.forEach(u => optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`);
+            selectFiltro.innerHTML = optionsHTML;
 
-                const productosCat = catalogo.filter(p => p.categoria === cat);
-                htmlTotal += `
-                    <div>
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-black uppercase tracking-wider ${conf.colorBadge}">
-                                <span>${conf.icon}</span> ${cat}
-                            </span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                `;
-
-                productosCat.forEach(p => {
-                    const esCombo = Boolean(p.esCombo);
-                    const avisoV12 = p.id === 7 ? '<span class="text-[10px] text-amber-400 font-bold ml-1.5">(Sin descuento)</span>' : '';
-                    htmlTotal += `
-                        <div class="flex items-center justify-between p-3.5 rounded-xl border ${conf.bordeCard} ${conf.bgCard} transition shadow-sm">
-                            <div class="pr-2">
-                                <h4 class="font-black text-white text-xs leading-tight flex items-center flex-wrap">
-                                    ${p.nombre}
-                                    ${avisoV12}
-                                </h4>
-                                <p class="text-xs text-zinc-400 mt-1">
-                                    Venta: <span class="${conf.colorVenta} font-black text-sm">$${p.venta.toLocaleString()}</span> 
-                                    · <span class="text-zinc-500 font-medium">Costo: $${p.costo.toLocaleString()}</span>
-                                </p>
-                            </div>
-                            <div id="btn-container-${p.id}" class="shrink-0">
-                                <button onclick="agregar(${p.id})" class="${conf.colorBtn} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">
-                                    ${esCombo ? '⚡ Desglosar Combo' : '+ Añadir'}
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                htmlTotal += `</div></div>`;
-            });
-            container.innerHTML = htmlTotal;
-            catalogoRenderizado = true;
+            const resFacturas = await fetch('/api/admin/todas-facturas');
+            facturasAdminGlobal = await resFacturas.json();
+            filtrarHistorialAdmin();
         }
 
-        function sincronizarBotonItem(id) {
-            const cont = document.getElementById(`btn-container-${id}`);
-            if (!cont) return;
-            const p = catalogo.find(x => x.id === id);
-            if (!p) return;
-            const conf = categoriaConfig[p.categoria] || {};
+        function filtrarHistorialAdmin() {
+            const filtroId = document.getElementById('selectFiltroTrabajador').value;
+            const container = document.getElementById('historialAdminContenedor');
+            const filtradas = filtroId === 'todos' ? facturasAdminGlobal : facturasAdminGlobal.filter(f => f.usuario_id == filtroId);
 
-            // Los combos son botones de acción para inyectar piezas
-            if (p.esCombo) {
-                cont.innerHTML = `<button onclick="agregar(${id})" class="${conf.colorBtn} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">⚡ Desglosar Combo</button>`;
+            if (filtradas.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Sin registros.</p>`;
                 return;
             }
 
-            const cant = carrito[id] ? carrito[id].cantidad : 0;
-            if (cant === 0) {
-                cont.innerHTML = `<button onclick="agregar(${id})" class="${conf.colorBtn || 'btn-white'} text-xs px-3.5 py-2 rounded-xl transition shadow hover:scale-105 active:scale-95">+ Añadir</button>`;
-            } else {
-                cont.innerHTML = `
-                    <div class="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black rounded-xl px-2.5 py-1.5 shadow-lg shadow-cyan-500/20">
-                        <button onclick="restar(${id})" class="px-1.5 text-black hover:opacity-75 transition font-black text-sm">—</button>
-                        <span class="text-sm font-black text-black px-1">${cant}</span>
-                        <button onclick="agregar(${id})" class="px-1.5 text-black hover:opacity-75 transition font-black text-sm">+</button>
+            let html = '';
+            filtradas.forEach(f => {
+                const fecha = formatearFechaConZona(f.fecha);
+                html += `
+                    <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <div><strong class="text-cyan-300">${f.trabajador_nombre}</strong> · Cliente: ${f.cliente} (${fecha})</div>
+                            <div class="text-base font-black text-white">$${f.total_cliente.toLocaleString()}</div>
+                        </div>
                     </div>
                 `;
-            }
+            });
+            container.innerHTML = html;
         }
 
-        // AGREGAR: Desglosa los combos en piezas individuales dentro del carrito
-        function agregar(id) {
-            const itemSeleccionado = catalogo.find(x => x.id === id);
-            if (!itemSeleccionado) return;
-
-            if (itemSeleccionado.esCombo && itemSeleccionado.componentes) {
-                itemSeleccionado.componentes.forEach(comp => {
-                    const piezaReal = catalogo.find(p => p.id === comp.id);
-                    if (piezaReal) {
-                        if (!carrito[piezaReal.id]) {
-                            carrito[piezaReal.id] = { ...piezaReal, cantidad: comp.cantidad };
-                        } else {
-                            carrito[piezaReal.id].cantidad += comp.cantidad;
-                        }
-                        sincronizarBotonItem(piezaReal.id);
-                    }
-                });
-            } else {
-                if (!carrito[id]) {
-                    carrito[id] = { ...itemSeleccionado, cantidad: 1 };
-                } else {
-                    carrito[id].cantidad++;
-                }
-                sincronizarBotonItem(id);
-            }
-
-            actualizarCarrito();
-        }
-
-        function restar(id) {
-            if (carrito[id]) {
-                carrito[id].cantidad--;
-                if (carrito[id].cantidad <= 0) delete carrito[id];
-            }
-            sincronizarBotonItem(id);
-            actualizarCarrito();
-        }
-
-        function eliminar(id) {
-            delete carrito[id];
-            sincronizarBotonItem(id);
-            actualizarCarrito();
-        }
-
-        function aplicarDescuento(porcentaje) {
-            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
-            descuentoPorcentaje = porcentaje;
-            document.getElementById('inputDescuentoManual').value = '';
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            if (porcentaje > 0 && document.getElementById(`btn-${porcentaje}`)) {
-                document.getElementById(`btn-${porcentaje}`).classList.add('ring-2', 'ring-cyan-400');
-            }
-            actualizarCarrito();
-        }
-
-        function aplicarDescuentoManual() {
-            if (modoPrecioFabrica) return mostrarAviso('No Permitido', 'No se aplican descuentos en modo fábrica.');
-            const val = parseFloat(document.getElementById('inputDescuentoManual').value);
-            if (isNaN(val) || val < 0 || val > 100) return mostrarAviso('Inválido', 'Ingresa entre 0% y 100%.');
-            
-            descuentoPorcentaje = val;
-            document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            actualizarCarrito();
-        }
-
-        function actualizarCarrito() {
-            const container = document.getElementById('carritoItems');
-            const items = Object.values(carrito);
-            let subtotalBruto = 0;
-            let totalDescuentoCalculado = 0;
-            let totalCantidad = 0;
-
-            if (items.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay productos seleccionados.</p>';
-            } else {
-                let html = '';
-                items.forEach(item => {
-                    const conf = categoriaConfig[item.categoria] || {};
-                    const precioUnitario = modoPrecioFabrica ? item.costo : item.venta;
-                    const subtotalLinea = precioUnitario * item.cantidad;
-                    
-                    // REGLA: El Motor V12 (id: 7) no tiene descuento
-                    const admiteDesc = !modoPrecioFabrica && item.id !== 7 && descuentoPorcentaje > 0;
-                    const pctLinea = admiteDesc ? descuentoPorcentaje : 0;
-                    const descuentoLinea = subtotalLinea * (pctLinea / 100);
-                    const totalLinea = subtotalLinea - descuentoLinea;
-
-                    subtotalBruto += subtotalLinea;
-                    totalDescuentoCalculado += descuentoLinea;
-                    totalCantidad += item.cantidad;
-
-                    html += `
-                        <div class="flex justify-between items-center text-xs bg-zinc-950 p-2.5 rounded-xl border border-zinc-800/80">
-                            <div>
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    <h4 class="font-black text-white text-xs">${item.nombre}</h4>
-                                    ${item.id === 7 ? '<span class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded font-black uppercase">Sin Descuento ($500K Fijo)</span>' : ''}
-                                </div>
-                                <p class="text-zinc-400 mt-0.5">
-                                    ${item.cantidad} × $${precioUnitario.toLocaleString()}
-                                    ${modoPrecioFabrica ? '<span class="text-rose-400 font-bold">(Fábrica)</span>' : ''}
-                                    ${pctLinea > 0 ? `<span class="text-rose-400 font-bold ml-1">(-${pctLinea}%: -$${descuentoLinea.toLocaleString()})</span>` : ''}
-                                </p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="text-right">
-                                    ${pctLinea > 0 ? `<div class="text-[10px] text-zinc-500 line-through">$${subtotalLinea.toLocaleString()}</div>` : ''}
-                                    <span class="font-black ${conf.colorVenta || 'text-cyan-400'} text-xs">$${totalLinea.toLocaleString()}</span>
-                                </div>
-                                <button onclick="eliminar(${item.id})" class="text-zinc-600 hover:text-rose-400 transition ml-1 text-sm">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            }
-
-            const totalFinal = subtotalBruto - totalDescuentoCalculado;
-
-            document.getElementById('cantItems').innerText = totalCantidad;
-            document.getElementById('labelSubtotal').innerText = modoPrecioFabrica ? 'Subtotal (Fábrica):' : 'Subtotal Base:';
-            document.getElementById('subtotalText').innerText = `$${subtotalBruto.toLocaleString()}`;
-
-            if (totalDescuentoCalculado > 0) {
-                document.getElementById('filaDescuento').classList.remove('hidden');
-                document.getElementById('descPorcentajeText').innerText = descuentoPorcentaje;
-                document.getElementById('descuentoMontoText').innerText = `-$${totalDescuentoCalculado.toLocaleString()}`;
-                document.getElementById('totalAntesTachado').classList.remove('hidden');
-                document.getElementById('totalAntesTachado').innerText = `$${subtotalBruto.toLocaleString()}`;
-            } else {
-                document.getElementById('filaDescuento').classList.add('hidden');
-                document.getElementById('totalAntesTachado').classList.add('hidden');
-            }
-
-            document.getElementById('totalVentaText').innerText = `$${totalFinal.toLocaleString()}`;
-            const cliente = document.getElementById('nombreCliente').value;
-            document.getElementById('nombreClienteText').innerText = cliente || '--';
-        }
-
-        document.getElementById('nombreCliente').addEventListener('input', (e) => {
-            document.getElementById('nombreClienteText').innerText = e.target.value || '--';
-        });
-
-        async function realizarOrden() {
-            const items = Object.values(carrito);
-            const cliente = document.getElementById('nombreCliente').value.trim();
-            const btn = document.getElementById('btnRealizarOrden');
-
-            if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Inicia sesión primero.');
-            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto.');
-            if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente.');
-
-            btn.disabled = true;
-            btn.innerText = 'Procesando orden...';
-
-            const fecha_local = new Date().toISOString();
-
-            try {
-                const res = await fetch('/api/facturas', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        usuario_id: usuarioActual.id, 
-                        cliente, 
-                        items, 
-                        descuento_porcentaje: modoPrecioFabrica ? 0 : descuentoPorcentaje,
-                        es_precio_fabrica: modoPrecioFabrica,
-                        fecha_local
-                    })
-                });
-
-                const data = await res.json();
-                if (res.ok) {
-                    let tieneV12 = items.some(it => it.id === 7);
-                    reproducirSonidoGlobalVenta(data.total, tieneV12);
-
-                    if (typeof confetti === 'function') {
-                        confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
-                    }
-
-                    document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
-                    document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente} ${data.es_precio_fabrica ? '(A Precio Fábrica)' : ''}`;
-                    document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
-                    document.getElementById('modalPorcentajeComision').innerText = data.porcentaje_aplicado;
-                    document.getElementById('modalComision').innerText = `$${data.comision.toLocaleString()}`;
-                    
-                    document.getElementById('modalExito').classList.remove('hidden');
-
-                    carrito = {};
-                    descuentoPorcentaje = 0;
-                    modoPrecioFabrica = false;
-                    document.getElementById('checkPrecioFabrica').checked = false;
-                    document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
-                    document.getElementById('nombreCliente').value = '';
-                    document.getElementById('inputDescuentoManual').value = '';
-                    document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-                    
-                    catalogo.forEach(p => sincronizarBotonItem(p.id));
-                    actualizarCarrito();
-                    actualizarBarraNivelHeader();
-                } else {
-                    mostrarAviso('Almacén Insuficiente', data.error, true);
-                }
-            } catch (err) {
-                mostrarAviso('Error de Conexión', 'Hubo un error comunicándose con el servidor.');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Completar Orden';
-            }
-        }
-
-        function cerrarModal() {
-            document.getElementById('modalExito').classList.add('hidden');
-        }
-
-        actualizarVistaUsuario();
         renderCatalogo();
     </script>
 </body>
