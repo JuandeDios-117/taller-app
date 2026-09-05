@@ -1254,6 +1254,76 @@
                 });
                 container.innerHTML = html;
             }
+            async function realizarOrden() {
+            const items = Object.values(carrito);
+            const cliente = document.getElementById('nombreCliente').value.trim();
+            const btn = document.getElementById('btnRealizarOrden');
+
+            if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Inicia sesión primero.');
+            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto.');
+            if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente.');
+
+            btn.disabled = true;
+            btn.innerText = 'Procesando orden...';
+
+            const fecha_local = new Date().toISOString();
+
+            try {
+                const res = await fetch('/api/facturas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        usuario_id: usuarioActual.id, 
+                        cliente, 
+                        items, 
+                        descuento_porcentaje: (modoPrecioFabrica || tieneProductosSinDescuento()) ? 0 : descuentoPorcentaje,
+                        es_precio_fabrica: modoPrecioFabrica,
+                        fecha_local
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    let tieneV12 = items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
+                    reproducirSonidoGlobalVenta(data.total, tieneV12);
+
+                    if (typeof confetti === 'function') {
+                        confetti({
+                            particleCount: 90,
+                            spread: 75,
+                            origin: { y: 0.6 }
+                        });
+                    }
+
+                    document.getElementById('modalTitulo').innerText = `¡Orden #${data.id} Realizada!`;
+                    document.getElementById('modalSubtitulo').innerText = `Cliente: ${cliente} ${data.es_precio_fabrica ? '(A Precio Fábrica)' : ''}`;
+                    document.getElementById('modalTotal').innerText = `$${data.total.toLocaleString()}`;
+                    document.getElementById('modalPorcentajeComision').innerText = data.porcentaje_aplicado;
+                    document.getElementById('modalComision').innerText = `$${data.comision.toLocaleString()}`;
+                    
+                    document.getElementById('modalExito').classList.remove('hidden');
+
+                    carrito = {};
+                    descuentoPorcentaje = 0;
+                    modoPrecioFabrica = false;
+                    document.getElementById('checkPrecioFabrica').checked = false;
+                    document.getElementById('seccionDescuentosContenedor').classList.remove('opacity-40', 'pointer-events-none');
+                    document.getElementById('nombreCliente').value = '';
+                    document.getElementById('inputDescuentoManual').value = '';
+                    
+                    catalogo.forEach(p => sincronizarBotonItem(p.id));
+                    actualizarCarrito();
+                    actualizarBarraNivelHeader();
+                } else {
+                    mostrarAviso('Almacén Insuficiente', data.error, true);
+                }
+            } catch (err) {
+                mostrarAviso('Error de Conexión', 'Hubo un error comunicándose con el servidor.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Completar Orden';
+            }
+        }
 
             const montoDescuento = subtotal * (descuentoPorcentaje / 100);
             const totalFinal = subtotal - montoDescuento;
