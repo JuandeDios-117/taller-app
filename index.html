@@ -319,7 +319,7 @@
 
             <!-- RESUMEN / ORDEN ACTUAL + CONVENIOS -->
             <div class="space-y-6">
-                <!-- TARJETA DE CONVENIOS CON FACCIONES -->
+                <!-- CONVENIOS -->
                 <div class="card-dark p-5 rounded-2xl space-y-3.5 border-t-4 border-indigo-500 bg-gradient-to-b from-indigo-950/20 to-zinc-950">
                     <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2.5">
                         <h3 class="text-xs font-black text-indigo-300 uppercase tracking-wider flex items-center gap-2">
@@ -335,7 +335,7 @@
                     </div>
                 </div>
 
-                <!-- RESUMEN DE COMPRA CON DESGLOSE VISUAL DETALLADO -->
+                <!-- RESUMEN DE COMPRA -->
                 <div class="card-dark p-6 rounded-2xl space-y-5 sticky top-6 border-t-4 border-cyan-400">
                     <div class="flex justify-between items-center border-b border-zinc-800/80 pb-3">
                         <h2 class="text-xs font-black text-cyan-300 uppercase flex items-center gap-2 tracking-wider">
@@ -666,7 +666,7 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- PANEL ADMIN (INCLUYE GESTOR DE CONVENIOS) -->
+        <!-- PANEL ADMIN -->
         <div id="seccion-admin" class="space-y-6 hidden">
             <!-- REINICIAR SEMANA -->
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
@@ -683,7 +683,7 @@
                 </button>
             </div>
 
-            <!-- GESTOR DE CONVENIOS CON FACCIONES (ADMIN) -->
+            <!-- GESTOR DE CONVENIOS -->
             <div class="card-dark p-6 rounded-xl space-y-5 border-l-4 border-indigo-500 bg-gradient-to-r from-indigo-950/20 via-zinc-950 to-zinc-950">
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
@@ -694,7 +694,6 @@
                     </div>
                 </div>
 
-                <!-- FORMULARIO AGREGAR CONVENIO -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-black/60 p-4 rounded-xl border border-zinc-800">
                     <div>
                         <label class="block text-[10px] font-black text-zinc-400 uppercase mb-1">Nombre Facción</label>
@@ -715,7 +714,6 @@
                     </div>
                 </div>
 
-                <!-- LISTA DE CONVENIOS EN PANEL ADMIN -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
@@ -1175,7 +1173,6 @@
                     conveniosGlobales = [];
                 }
             } catch (e) {
-                console.warn("No se pudieron cargar convenios:", e);
                 conveniosGlobales = [];
             }
             renderizarConveniosCalculadora();
@@ -1300,54 +1297,16 @@
             }
         }
 
-        // CATÁLOGO
-        const catalogo = [
-            { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
-            { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
-            { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
-            { id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500 },
-            { id: 4, categoria: 'GENERAL', nombre: 'Piezas Cosméticas', venta: 3000, costo: 2000 },
-            { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
-            { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
-            { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
-            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1000000 },
-            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
-            { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
-            { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000 },
-            { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000 },
-            { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
-            { id: 9, categoria: 'TRACCIÓN', nombre: 'Tracción AWD', venta: 12500, costo: 8000 },
-            { id: 10, categoria: 'TRACCIÓN', nombre: 'Tracción RWD', venta: 11500, costo: 7000 },
-            { id: 11, categoria: 'TRACCIÓN', nombre: 'Tracción FWD', venta: 10500, costo: 8500 },
-            { id: 12, categoria: 'NEUMÁTICOS', nombre: 'Slick', venta: 6000, costo: 4000 },
-            { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
-            { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
-            { id: 18, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V8 PRO', venta: 140000, costo: 95000 },
-            { id: 19, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V8', venta: 100000, costo: 67000 },
-            { id: 20, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12', venta: 550000, costo: 327000 },
-            { id: 21, categoria: 'COMBOS (PRECIOS FIJOS)', nombre: 'FULL TUNNING V12 PRO (RENDIMIENTOS)', venta: 580000, costo: 348000 },
-            { id: 22, categoria: 'PAQUETES ESPECIALES', nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', venta: 1350000, costo: 600000 },
-            { id: 23, categoria: 'PAQUETES ESPECIALES', nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', venta: 2700000, costo: 1600000 }
-        ];
-
-        const COMPONENTES_COMBOS = {
-            19: [ { id: 8, cantidad: 1 }, { id: 15, cantidad: 1 }, { id: 12, cantidad: 1 }, { id: 9, cantidad: 1 }, { id: 1, cantidad: 1 } ],
-            18: [ { id: 8, cantidad: 1 }, { id: 15, cantidad: 1 }, { id: 12, cantidad: 1 }, { id: 9, cantidad: 1 }, { id: 1, cantidad: 4 } ],
-            20: [ { id: 7, cantidad: 1 }, { id: 15, cantidad: 1 }, { id: 12, cantidad: 1 }, { id: 9, cantidad: 1 }, { id: 1, cantidad: 1 } ],
-            21: [ { id: 7, cantidad: 1 }, { id: 15, cantidad: 1 }, { id: 12, cantidad: 1 }, { id: 9, cantidad: 1 }, { id: 1, cantidad: 4 } ]
+        const categoriaConfig = {
+            'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
+            'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
+            'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
+            'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
+            'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
+            'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30 hover:border-teal-400/60', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
+            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
+            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
         };
-
-        let usuarioActual = null;
-        let pestanaActiva = 'calculadora';
-        let esModoRegistro = false;
-        let carrito = {};
-        let descuentoPorcentaje = 0;
-        let modoPrecioFabrica = false;
-        let facturasAdminGlobal = [];
-        let usuariosAdminGlobal = [];
-        let facturaIdParaTransferir = null;
-        let usuariosOnlineSet = new Set();
-        let catalogoRenderizado = false;
 
         function renderCatalogo() {
             if (catalogoRenderizado) return;
@@ -1658,7 +1617,6 @@
             document.getElementById('modalExito').classList.add('hidden');
         }
 
-        // CARGA BLINDADA DE HISTORIALES Y TOP TRABAJADORES
         async function cargarTop() {
             try {
                 const res = await fetch('/api/top-trabajadores');
@@ -1827,18 +1785,10 @@
             }
         }
 
-        // INICIALIZACIÓN SEGURA DE LA APLICACIÓN
-        try {
-            renderCatalogo();
-        } catch(e) { console.error(e); }
-
-        try {
-            actualizarVistaUsuario();
-        } catch(e) { console.error(e); }
-
-        try {
-            cargarConvenios();
-        } catch(e) { console.error(e); }
+        // INICIALIZACIÓN BLINDADA
+        try { renderCatalogo(); } catch(e) {}
+        try { actualizarVistaUsuario(); } catch(e) {}
+        try { cargarConvenios(); } catch(e) {}
     </script>
 </body>
 </html>
