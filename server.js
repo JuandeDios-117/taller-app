@@ -25,6 +25,25 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
+// INICIALIZAR TABLA DE CONVENIOS SI NO EXISTE
+(async () => {
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS convenios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL UNIQUE,
+                icono TEXT DEFAULT '🤝',
+                descuento INTEGER DEFAULT 10,
+                descripcion TEXT DEFAULT '',
+                creado_por TEXT DEFAULT 'Admin',
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+    } catch (e) {
+        console.error("Error al inicializar convenios:", e.message);
+    }
+})();
+
 const onlineSockets = new Map();
 
 io.on('connection', (socket) => {
@@ -104,7 +123,47 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3. ALMACÉN ESTADO
+// 3. RUTAS DE CONVENIOS CON FACCIONES
+app.get('/api/convenios', async (req, res) => {
+    try {
+        const result = await db.execute("SELECT * FROM convenios ORDER BY nombre ASC");
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/convenios', async (req, res) => {
+    const { nombre, icono, descuento, descripcion, creado_por } = req.body;
+    if (!nombre) return res.status(400).json({ error: "Ingresa el nombre de la facción." });
+
+    try {
+        const sql = `INSERT INTO convenios (nombre, icono, descuento, descripcion, creado_por) VALUES (?, ?, ?, ?, ?)`;
+        await db.execute({
+            sql,
+            args: [nombre.trim().toUpperCase(), icono || '🤝', parseInt(descuento) || 10, descripcion || '', creado_por || 'Admin']
+        });
+        notificarCambioGlobal('convenio_actualizado');
+        res.json({ message: "Convenio agregado exitosamente." });
+    } catch (err) {
+        if (err.message && err.message.includes('UNIQUE')) {
+            return res.status(400).json({ error: "Esa facción ya cuenta con un convenio registrado." });
+        }
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/convenios/:id', async (req, res) => {
+    try {
+        await db.execute({ sql: "DELETE FROM convenios WHERE id = ?", args: [req.params.id] });
+        notificarCambioGlobal('convenio_actualizado');
+        res.json({ message: "Convenio eliminado con éxito." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 4. ALMACÉN ESTADO
 app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
@@ -115,7 +174,7 @@ app.get('/api/almacen/estado', async (req, res) => {
     }
 });
 
-// 4. INGRESAR CAPITAL
+// 5. INGRESAR CAPITAL
 app.post('/api/almacen/ingresar-capital', async (req, res) => {
     const { monto, descripcion, usuario_nombre } = req.body;
     const montoNum = parseFloat(monto);
@@ -134,7 +193,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRA DE MOTORES A FÁBRICA
+// 6. COMPRA DE MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -167,7 +226,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// 6. AJUSTE MANUAL ALMACÉN
+// 7. AJUSTE MANUAL ALMACÉN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
     const capNum = parseFloat(capital);
@@ -196,22 +255,17 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// 7. LISTA DE USUARIOS
+// 8. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
-// 8. MODIFICAR RANGO Y PERMISOS DE USUARIO
+// 9. MODIFICAR RANGO Y PERMISOS DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -226,7 +280,7 @@ app.put('/api/usuarios/modificar', async (req, res) => {
     }
 });
 
-// 9. ELIMINAR USUARIO
+// 10. ELIMINAR USUARIO
 app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
@@ -239,7 +293,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     }
 });
 
-// 10. TRANSFERIR FACTURA
+// 11. TRANSFERIR FACTURA
 app.put('/api/facturas/:id/transferir', async (req, res) => {
     const factura_id = req.params.id;
     const { nuevo_usuario_id } = req.body;
@@ -267,7 +321,7 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
     }
 });
 
-// 11. ELIMINAR FACTURA
+// 12. ELIMINAR FACTURA
 app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
@@ -279,7 +333,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA
+// 13. REINICIAR SEMANA
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -295,7 +349,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA (CON HORA EXACTA DEL CLIENTE)
+// 14. REGISTRAR FACTURA (DESCUENTO BLINDADO AL MOTOR V12)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica, fecha_local } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -323,17 +377,19 @@ app.post('/api/facturas', async (req, res) => {
         }
 
         const pctComision = user.comision / 100;
-        let subtotal_cliente = 0;
         let coste_fabrica_total = 0;
+        let total_cliente = 0;
 
         items.forEach(item => {
-            const precioCobrado = aplicarFabrica ? item.costo : item.venta;
-            subtotal_cliente += precioCobrado * item.cantidad;
+            const precioBase = aplicarFabrica ? item.costo : item.venta;
+            const esV12 = (item.id === 7 || item.id === 20 || item.id === 21);
+            const descItem = (!aplicarFabrica && !esV12 && descuento_porcentaje > 0) ? (descuento_porcentaje / 100) : 0;
+            
+            const cobradoItem = precioBase * (1 - descItem);
+            total_cliente += cobradoItem * item.cantidad;
             coste_fabrica_total += item.costo * item.cantidad;
         });
 
-        const descuento = aplicarFabrica ? 0 : subtotal_cliente * ((descuento_porcentaje || 0) / 100);
-        const total_cliente = subtotal_cliente - descuento;
         const ganancia_neta = total_cliente - coste_fabrica_total;
         const comision_empleado = ganancia_neta > 0 ? ganancia_neta * pctComision : 0;
         const itemsJSON = JSON.stringify(items);
@@ -370,7 +426,6 @@ app.post('/api/facturas', async (req, res) => {
 
         res.json({
             id: facturaId,
-            subtotal: subtotal_cliente,
             total: total_cliente,
             comision: comision_empleado,
             porcentaje_aplicado: user.comision,
@@ -381,7 +436,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 14. HISTORIAL PERSONAL
+// 15. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -394,7 +449,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 15. HISTORIAL GLOBAL
+// 16. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -411,7 +466,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES
+// 17. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -428,22 +483,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const result = await db.execute(sql);
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
-                       COUNT(f.id) as total_facturas,
-                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
-                FROM usuarios u
-                LEFT JOIN facturas f ON u.id = f.usuario_id
-                GROUP BY u.id
-                ORDER BY ganancia_generada DESC
-            `);
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
