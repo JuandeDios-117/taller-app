@@ -25,78 +25,6 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// INICIALIZAR Y VERIFICAR TABLAS DE LA BASE DE DATOS
-(async () => {
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                usuario TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                comision_porcentaje INTEGER DEFAULT 30,
-                rol TEXT DEFAULT 'empleado',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS facturas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER,
-                cliente TEXT,
-                total_cliente REAL,
-                coste_fabrica_total REAL,
-                ganancia_neta REAL,
-                comision_empleado REAL,
-                descuento_porcentaje REAL,
-                items_json TEXT,
-                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS taller_estado (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                capital REAL DEFAULT 0,
-                stock_v8 INTEGER DEFAULT 0,
-                stock_v12 INTEGER DEFAULT 0
-            )
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS movimientos_capital (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tipo TEXT,
-                descripcion TEXT,
-                monto REAL,
-                usuario_nombre TEXT,
-                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS convenios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL UNIQUE,
-                icono TEXT DEFAULT '🤝',
-                descuento INTEGER DEFAULT 10,
-                descripcion TEXT DEFAULT '',
-                creado_por TEXT DEFAULT 'Admin',
-                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Asegurar estado inicial del taller
-        const checkTaller = await db.execute("SELECT COUNT(*) as total FROM taller_estado");
-        if (checkTaller.rows[0].total === 0) {
-            await db.execute("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 1000000, 10, 2)");
-        }
-    } catch (e) {
-        console.error("Error inicializando base de datos:", e.message);
-    }
-})();
-
 const onlineSockets = new Map();
 
 io.on('connection', (socket) => {
@@ -133,7 +61,7 @@ function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
 
-// REGISTRO
+// 1. REGISTRO
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -160,13 +88,13 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// LOGIN ROBUSTO
+// 2. LOGIN
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE LOWER(usuario) = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
@@ -176,47 +104,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// CONVENIOS
-app.get('/api/convenios', async (req, res) => {
-    try {
-        const result = await db.execute("SELECT * FROM convenios ORDER BY nombre ASC");
-        res.json(result.rows || []);
-    } catch (err) {
-        res.json([]);
-    }
-});
-
-app.post('/api/convenios', async (req, res) => {
-    const { nombre, icono, descuento, descripcion, creado_por } = req.body;
-    if (!nombre) return res.status(400).json({ error: "Ingresa el nombre de la facción." });
-
-    try {
-        const sql = `INSERT INTO convenios (nombre, icono, descuento, descripcion, creado_por) VALUES (?, ?, ?, ?, ?)`;
-        await db.execute({
-            sql,
-            args: [nombre.trim().toUpperCase(), icono || '🤝', parseInt(descuento) || 10, descripcion || '', creado_por || 'Admin']
-        });
-        notificarCambioGlobal('convenio_actualizado');
-        res.json({ message: "Convenio agregado exitosamente." });
-    } catch (err) {
-        if (err.message && err.message.includes('UNIQUE')) {
-            return res.status(400).json({ error: "Esa facción ya cuenta con un convenio registrado." });
-        }
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.delete('/api/convenios/:id', async (req, res) => {
-    try {
-        await db.execute({ sql: "DELETE FROM convenios WHERE id = ?", args: [req.params.id] });
-        notificarCambioGlobal('convenio_actualizado');
-        res.json({ message: "Convenio eliminado con éxito." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ALMACÉN ESTADO
+// 3. ALMACÉN ESTADO
 app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
@@ -227,7 +115,7 @@ app.get('/api/almacen/estado', async (req, res) => {
     }
 });
 
-// INGRESAR CAPITAL
+// 4. INGRESAR CAPITAL
 app.post('/api/almacen/ingresar-capital', async (req, res) => {
     const { monto, descripcion, usuario_nombre } = req.body;
     const montoNum = parseFloat(monto);
@@ -246,7 +134,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// COMPRA DE MOTORES
+// 5. COMPRA DE MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -279,7 +167,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// AJUSTE MANUAL
+// 6. AJUSTE MANUAL ALMACÉN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
     const capNum = parseFloat(capital);
@@ -308,16 +196,22 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// USUARIOS
+// 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
-        res.json(result.rows || []);
+        res.json(result.rows);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        try {
+            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
+            res.json(fallback.rows);
+        } catch (e2) {
+            res.status(500).json({ error: err.message });
+        }
     }
 });
 
+// 8. MODIFICAR RANGO Y PERMISOS DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -332,6 +226,7 @@ app.put('/api/usuarios/modificar', async (req, res) => {
     }
 });
 
+// 9. ELIMINAR USUARIO
 app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
@@ -344,7 +239,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     }
 });
 
-// TRANSFERIR FACTURA
+// 10. TRANSFERIR FACTURA
 app.put('/api/facturas/:id/transferir', async (req, res) => {
     const factura_id = req.params.id;
     const { nuevo_usuario_id } = req.body;
@@ -372,7 +267,7 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
     }
 });
 
-// ELIMINAR FACTURA
+// 11. ELIMINAR FACTURA
 app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
@@ -384,7 +279,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// REINICIAR SEMANA
+// 12. REINICIAR SEMANA
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -400,7 +295,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// REGISTRAR FACTURA (MOTOR V12 BLINDADO CONTRA DESCUENTOS)
+// 13. REGISTRAR FACTURA (CON HORA LOCAL)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica, fecha_local } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -428,23 +323,20 @@ app.post('/api/facturas', async (req, res) => {
         }
 
         const pctComision = user.comision / 100;
+        let subtotal_cliente = 0;
         let coste_fabrica_total = 0;
-        let total_cliente = 0;
 
         items.forEach(item => {
-            const precioBase = aplicarFabrica ? item.costo : item.venta;
-            const esV12 = (item.id === 7 || item.id === 20 || item.id === 21);
-            const descItem = (!aplicarFabrica && !esV12 && descuento_porcentaje > 0) ? (descuento_porcentaje / 100) : 0;
-            
-            const cobradoItem = precioBase * (1 - descItem);
-            total_cliente += cobradoItem * item.cantidad;
+            const precioCobrado = aplicarFabrica ? item.costo : item.venta;
+            subtotal_cliente += precioCobrado * item.cantidad;
             coste_fabrica_total += item.costo * item.cantidad;
         });
 
+        const descuento = aplicarFabrica ? 0 : subtotal_cliente * ((descuento_porcentaje || 0) / 100);
+        const total_cliente = subtotal_cliente - descuento;
         const ganancia_neta = total_cliente - coste_fabrica_total;
         const comision_empleado = ganancia_neta > 0 ? ganancia_neta * pctComision : 0;
         const itemsJSON = JSON.stringify(items);
-        
         const fechaFinalRegistro = fecha_local || new Date().toISOString();
 
         const sql = `INSERT INTO facturas (usuario_id, cliente, total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje, items_json, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -477,6 +369,7 @@ app.post('/api/facturas', async (req, res) => {
 
         res.json({
             id: facturaId,
+            subtotal: subtotal_cliente,
             total: total_cliente,
             comision: comision_empleado,
             porcentaje_aplicado: user.comision,
@@ -487,19 +380,20 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// HISTORIALES
+// 14. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
             sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60",
             args: [req.params.usuario_id]
         });
-        res.json(result.rows || []);
+        res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
+// 15. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -510,13 +404,13 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
             LIMIT 80
         `;
         const result = await db.execute(sql);
-        res.json(result.rows || []);
+        res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// TOP TRABAJADORES
+// 16. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -531,9 +425,24 @@ app.get('/api/top-trabajadores', async (req, res) => {
             ORDER BY ganancia_generada DESC
         `;
         const result = await db.execute(sql);
-        res.json(result.rows || []);
+        res.json(result.rows);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        try {
+            const fallback = await db.execute(`
+                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
+                       COUNT(f.id) as total_facturas,
+                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
+                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
+                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
+                FROM usuarios u
+                LEFT JOIN facturas f ON u.id = f.usuario_id
+                GROUP BY u.id
+                ORDER BY ganancia_generada DESC
+            `);
+            res.json(fallback.rows);
+        } catch (e2) {
+            res.status(500).json({ error: err.message });
+        }
     }
 });
 
