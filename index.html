@@ -1192,6 +1192,7 @@
             const cont = document.getElementById(`btn-container-${id}`);
             if (!cont) return;
             const p = catalogo.find(x => x.id === id);
+            if (!p) return;
             const conf = categoriaConfig[p.categoria] || {};
             const cant = carrito[id] ? carrito[id].cantidad : 0;
 
