@@ -1,5 +1,5 @@
 const express = require('express');
-const http = http = require('http');
+const http = require('http');
 const compression = require('compression');
 const { Server } = require('socket.io');
 const db = require('./database');
