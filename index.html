@@ -1429,6 +1429,7 @@
             }
         ];
 
+       // Catálogo de la tienda con puntos
         const catalogoTiendaPuntos = [
             { nombre: 'Kit de Limpieza (x2)', puntos: 2, icon: '🧼' },
             { nombre: 'Kit de Reparación', puntos: 2, icon: '🧰' },
@@ -1448,6 +1449,190 @@
             { nombre: 'Motor V12', puntos: 400, icon: '👑' },
             { nombre: 'Kit Tuning Drift', puntos: 800, icon: '🏎️' }
         ];
+
+        function calcularPuntosTrabajador(gananciaTaller, totalFacturas, puntosSaldo = 0) {
+            const ptsGanancia = Math.floor((Number(gananciaTaller) || 0) / 5000);
+            const ptsOrdenes = Number(totalFacturas) || 0;
+            return Math.max(0, ptsGanancia + ptsOrdenes + (Number(puntosSaldo) || 0));
+        }
+
+        async function cargarTiendaYRuleta() {
+            if (!usuarioActual) return;
+            try {
+                const gridTienda = document.getElementById('gridItemsTienda');
+                let misPuntos = 0;
+
+                const resTop = await fetch('/api/top-trabajadores');
+                const ranking = await resTop.json();
+
+                if (Array.isArray(ranking)) {
+                    const miRegistro = ranking.find(u => Number(u.id) === Number(usuarioActual.id));
+                    if (miRegistro) {
+                        misPuntos = calcularPuntosTrabajador(miRegistro.ganancia_generada, miRegistro.total_facturas, miRegistro.puntos_saldo);
+                    }
+
+                    const sel = document.getElementById('selDestinoPuntos');
+                    if (sel) {
+                        let opts = '';
+                        ranking.forEach(u => {
+                            if (Number(u.id) !== Number(usuarioActual.id)) {
+                                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
+                            }
+                        });
+                        sel.innerHTML = opts || '<option value="">Sin compañeros disponibles</option>';
+                    }
+                }
+
+                const txtHeader = document.getElementById('txtPuntosHeader');
+                const lblSaldo = document.getElementById('lblSaldoPuntosTienda');
+                if (txtHeader) txtHeader.innerText = `${misPuntos.toLocaleString()} Pts`;
+                if (lblSaldo) lblSaldo.innerText = `${misPuntos.toLocaleString()} Puntos`;
+
+                if (gridTienda) {
+                    let htmlTienda = '';
+                    catalogoTiendaPuntos.forEach(it => {
+                        const puede = misPuntos >= it.puntos;
+                        htmlTienda += `
+                            <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 flex flex-col justify-between space-y-3 hover:border-cyan-500/40 transition">
+                                <div class="space-y-1">
+                                    <div class="text-2xl">${it.icon}</div>
+                                    <h4 class="font-black text-white text-xs leading-tight">${it.nombre}</h4>
+                                    <div class="text-cyan-400 font-black text-sm">${it.puntos} Puntos</div>
+                                </div>
+                                <button onclick="canjearItemTienda('${it.nombre}', ${it.puntos})" class="w-full py-2 rounded-xl text-xs font-black uppercase transition ${puede ? 'btn-ae-action' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}" ${!puede ? 'disabled' : ''}>
+                                    ${puede ? 'Canjear' : 'Puntos Insuficientes'}
+                                </button>
+                            </div>
+                        `;
+                    });
+                    gridTienda.innerHTML = htmlTienda;
+                }
+
+                const resCanjes = await fetch('/api/tienda/canjes');
+                const canjes = await resCanjes.json();
+                const contMisCanjes = document.getElementById('listaMisCanjes');
+
+                if (contMisCanjes && Array.isArray(canjes)) {
+                    const misCanjes = canjes.filter(c => Number(c.usuario_id) === Number(usuarioActual.id));
+                    if (misCanjes.length === 0) {
+                        contMisCanjes.innerHTML = '<p class="text-zinc-500 italic">No has canjeado piezas aún.</p>';
+                    } else {
+                        let htmlMis = '';
+                        misCanjes.forEach(c => {
+                            const pendiente = c.estado === 'pendiente';
+                            htmlMis += `
+                                <div class="flex justify-between items-center p-2.5 rounded-xl border border-zinc-800 bg-black/60">
+                                    <div>
+                                        <div class="font-bold text-white">${c.item_nombre}</div>
+                                        <div class="text-[10px] text-zinc-500">${c.puntos_gastados} Pts · ${formatearFechaConZona(c.fecha)}</div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${pendiente ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300'}">
+                                        ${pendiente ? 'Por entregar' : 'Entregado'}
+                                    </span>
+                                </div>
+                            `;
+                        });
+                        contMisCanjes.innerHTML = htmlMis;
+                    }
+
+                    if (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe') {
+                        const contAdmin = document.getElementById('listaCanjesAdmin');
+                        if (contAdmin) {
+                            if (canjes.length === 0) {
+                                contAdmin.innerHTML = '<p class="text-zinc-500 italic">No hay canjes registrados.</p>';
+                            } else {
+                                let htmlAdm = '';
+                                canjes.forEach(c => {
+                                    const pendiente = c.estado === 'pendiente';
+                                    htmlAdm += `
+                                        <div class="flex justify-between items-center bg-black/80 p-3 rounded-xl border border-zinc-800">
+                                            <div>
+                                                <div class="font-bold text-cyan-300">${c.trabajador_nombre} <span class="text-white font-normal">canjeó</span> ${c.item_nombre}</div>
+                                                <div class="text-[10px] text-zinc-500">${c.puntos_gastados} Puntos · ${formatearFechaConZona(c.fecha)}</div>
+                                            </div>
+                                            <div>
+                                                ${pendiente ? `
+                                                    <button onclick="marcarCanjeEntregado(${c.id})" class="bg-emerald-500 hover:bg-emerald-400 text-black font-black px-3 py-1 rounded-lg text-xs uppercase">
+                                                        ✓ Marcar Entregado
+                                                    </button>
+                                                ` : '<span class="text-emerald-400 font-bold text-xs">Entregado in-game</span>'}
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                contAdmin.innerHTML = htmlAdm;
+                            }
+                        }
+                    }
+                }
+
+                actualizarEstadoRuletaCooldown();
+            } catch (e) {
+                console.error("Error cargando tienda:", e);
+            }
+        }
+
+        async function cargarTop() {
+            const container = document.getElementById('topContenedor');
+            if (!container) return;
+            try {
+                const res = await fetch('/api/top-trabajadores');
+                const lista = await res.json();
+                if (!Array.isArray(lista) || lista.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay trabajadores registrados.</p>';
+                    return;
+                }
+
+                const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
+                let html = '';
+
+                for (let index = 0; index < lista.length; index++) {
+                    const item = lista[index];
+                    const badge = insignias[index] || `PUESTO #${index + 1}`;
+                    const estaOnline = usuariosOnlineSet.has(Number(item.id));
+                    const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
+                    const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica);
+                    const avatar = obtenerAvatarTrabajador(item.id);
+
+                    const medallas = generarMedallas([], item.total_vendido, item.id);
+                    const medallasTopHTML = generarMedallasTopHTML(medallas);
+                    const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
+
+                    const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo);
+
+                    html += `
+                        <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
+                            <div class="flex items-center gap-3.5">
+                                <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
+                                <div class="shrink-0">${avatarClean}</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
+                                        <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
+                                        <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                        <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
+                                        <span class="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-black">💎 ${misPuntos} PTS</span>
+                                        ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
+                                    </div>
+                                    <p class="text-xs text-zinc-400 mt-0.5">
+                                        XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
+                                        Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
+                                    </p>
+                                    ${medallasTopHTML}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-cyan-300 font-black">Comisiones: $${(Number(item.comision_ganada) || 0).toLocaleString()}</div>
+                                <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${(Number(item.ganancia_generada) || 0).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<p class="text-xs text-rose-400 italic">Error al cargar la lista del ranking.</p>';
+            }
+        }
 
         let usuarioActual = null;
         let pestanaActiva = 'calculadora';

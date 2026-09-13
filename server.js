@@ -604,7 +604,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES (100% BLINDADO A PRUEBA DE FALLOS)
+// TOP TRABAJADORES (CONSULTA DIRECTA ROBUSTA)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const usersRes = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios");
@@ -613,9 +613,9 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const users = usersRes.rows || [];
         const facturas = facturasRes.rows || [];
 
-        const mapaTotales = {};
+        const mapa = {};
         users.forEach(u => {
-            mapaTotales[u.id] = {
+            mapa[u.id] = {
                 id: u.id,
                 nombre: u.nombre,
                 usuario: u.usuario,
@@ -631,32 +631,29 @@ app.get('/api/top-trabajadores', async (req, res) => {
             };
         });
 
-        // Cargar saldo de puntos y xp histórica
+        // Cargar saldo de puntos y xp de forma segura
         for (let u of users) {
             try {
                 const s = await db.execute({ sql: "SELECT puntos_saldo, xp_historica FROM usuarios WHERE id = ?", args: [u.id] });
                 if (s.rows && s.rows[0]) {
-                    mapaTotales[u.id].puntos_saldo = Number(s.rows[0].puntos_saldo) || 0;
-                    mapaTotales[u.id].xp_historica = Number(s.rows[0].xp_historica) || 0;
+                    mapa[u.id].puntos_saldo = Number(s.rows[0].puntos_saldo) || 0;
+                    mapa[u.id].xp_historica = Number(s.rows[0].xp_historica) || 0;
                 }
             } catch (e) {}
         }
 
         facturas.forEach(f => {
-            if (mapaTotales[f.usuario_id]) {
-                mapaTotales[f.usuario_id].total_facturas++;
-                mapaTotales[f.usuario_id].total_vendido += Number(f.total_cliente) || 0;
-                mapaTotales[f.usuario_id].ganancia_generada += Number(f.ganancia_neta) || 0;
-                mapaTotales[f.usuario_id].comision_ganada += Number(f.comision_empleado) || 0;
+            if (mapa[f.usuario_id]) {
+                mapa[f.usuario_id].total_facturas++;
+                mapa[f.usuario_id].total_vendido += Number(f.total_cliente) || 0;
+                mapa[f.usuario_id].ganancia_generada += Number(f.ganancia_neta) || 0;
+                mapa[f.usuario_id].comision_ganada += Number(f.comision_empleado) || 0;
             }
         });
 
-        const listaFinal = Object.values(mapaTotales).sort((a, b) => b.ganancia_generada - a.ganancia_generada);
+        const listaFinal = Object.values(mapa).sort((a, b) => b.ganancia_generada - a.ganancia_generada);
         res.json(listaFinal);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor ejecutándose en el puerto ${PORT}`));
