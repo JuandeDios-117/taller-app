@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
+// Inicialización de la base de datos y tablas adicionales de manera segura
 (async function initDB() {
     try {
         await db.execute(`
@@ -42,6 +43,12 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 xp INTEGER DEFAULT 0,
                 ultimo_giro DATETIME
             )
+        `);
+
+        // Registrar automáticamente a los usuarios antiguos que ya estaban creados
+        await db.execute(`
+            INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp)
+            SELECT id, 0, 0 FROM usuarios
         `);
 
         await db.execute(`
@@ -455,7 +462,7 @@ app.post('/api/facturas', async (req, res) => {
             args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, pctDescuentoGeneral, itemsJSON, fechaLocalMx]
         });
 
-        const facturaId = Number(insertRes.lastInsertRowid || 1);
+        const facturaId = Number(insertRes.lastInsertRowid);
 
         const puntosGanados = Math.floor(total_cliente / 5000);
         const xpGanada = Math.floor(total_cliente / 100);
