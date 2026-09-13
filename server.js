@@ -23,7 +23,6 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización de la base de datos y tablas adicionales de manera segura
 (async function initDB() {
     try {
         await db.execute(`
@@ -45,7 +44,6 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
             )
         `);
 
-        // Registrar automáticamente a los usuarios antiguos que ya estaban creados
         await db.execute(`
             INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp)
             SELECT id, 0, 0 FROM usuarios
@@ -110,15 +108,15 @@ function notificarCambioGlobal(evento, data = {}) {
 async function queryRows(sql, args = []) {
     try {
         const res = await db.execute({ sql, args });
-        if (Array.isArray(res)) return res;
         if (res && Array.isArray(res.rows)) return res.rows;
-        if (res && typeof res === 'object') return [res];
+        if (Array.isArray(res)) return res;
+        if (res && res.rows && typeof res.rows[Symbol.iterator] === 'function') return [...res.rows];
         return [];
     } catch (e) {
         try {
             const res2 = await db.execute(sql);
-            if (Array.isArray(res2)) return res2;
             if (res2 && Array.isArray(res2.rows)) return res2.rows;
+            if (Array.isArray(res2)) return res2;
         } catch (err2) {}
         return [];
     }
@@ -308,6 +306,10 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
 
 app.get('/api/usuarios', async (req, res) => {
     try {
+        await db.execute(`
+            INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp)
+            SELECT id, 0, 0 FROM usuarios
+        `);
         const rows = await queryRows("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(rows);
     } catch (err) {
