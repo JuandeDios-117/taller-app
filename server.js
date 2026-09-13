@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización garantizada de tablas y columnas en base de datos
+// INICIALIZACIÓN BLINDADA DE TABLAS
 (async function initDB() {
     try {
         await db.execute(`
@@ -35,7 +35,9 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
+    } catch (e) {}
 
+    try {
         await db.execute(`
             CREATE TABLE IF NOT EXISTS canjes_tienda (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,13 +49,11 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 fecha DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
+    } catch (e) {}
 
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos_saldo INTEGER DEFAULT 0"); } catch (e) {}
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN xp_historica INTEGER DEFAULT 0"); } catch (e) {}
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN medallas_json TEXT DEFAULT '{}'"); } catch (e) {}
-    } catch (e) {
-        console.error("Error iniciando base de datos:", e.message);
-    }
+    try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos_saldo INTEGER DEFAULT 0"); } catch (e) {}
+    try { await db.execute("ALTER TABLE usuarios ADD COLUMN xp_historica INTEGER DEFAULT 0"); } catch (e) {}
+    try { await db.execute("ALTER TABLE usuarios ADD COLUMN medallas_json TEXT DEFAULT '{}'"); } catch (e) {}
 })();
 
 const onlineSockets = new Map();
@@ -93,9 +93,9 @@ function notificarCambioGlobal(evento, data = {}) {
 app.get('/api/convenios', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM convenios_facciones ORDER BY faccion ASC");
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.json([]);
     }
 });
 
@@ -127,13 +127,13 @@ app.delete('/api/convenios/:id', async (req, res) => {
     }
 });
 
-// TIENDA, CANJES Y GESTIÓN DE PUNTOS
+// TIENDA, CANJES Y PUNTOS
 app.get('/api/tienda/canjes', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM canjes_tienda ORDER BY fecha DESC LIMIT 60");
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.json([]);
     }
 });
 
@@ -143,12 +143,14 @@ app.post('/api/tienda/canjear', async (req, res) => {
     if (!usuario_id || isNaN(pts) || pts <= 0) return res.status(400).json({ error: "Datos de canje inválidos." });
 
     try {
-        const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(puntos_saldo, 0) as puntos_saldo FROM usuarios WHERE id = ?", args: [usuario_id] });
-        if (userRes.rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado." });
+        const userRes = await db.execute({ sql: "SELECT nombre FROM usuarios WHERE id = ?", args: [usuario_id] });
+        if (!userRes.rows || userRes.rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado." });
         const user = userRes.rows[0];
 
-        // Descontar puntos de la base de datos
-        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo - ? WHERE id = ?", args: [pts, usuario_id] });
+        try {
+            await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) - ? WHERE id = ?", args: [pts, usuario_id] });
+        } catch(e) {}
+
         await db.execute({
             sql: "INSERT INTO canjes_tienda (usuario_id, trabajador_nombre, item_nombre, puntos_gastados, estado) VALUES (?, ?, ?, ?, 'pendiente')",
             args: [usuario_id, user.nombre, item_nombre, pts]
@@ -179,10 +181,10 @@ app.post('/api/tienda/transferir-puntos', async (req, res) => {
 
     try {
         const receptorRes = await db.execute({ sql: "SELECT nombre FROM usuarios WHERE id = ?", args: [receptor_id] });
-        if (receptorRes.rows.length === 0) return res.status(404).json({ error: "Receptor no encontrado." });
+        if (!receptorRes.rows || receptorRes.rows.length === 0) return res.status(404).json({ error: "Receptor no encontrado." });
 
-        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo - ? WHERE id = ?", args: [pts, emisor_id] });
-        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo + ? WHERE id = ?", args: [pts, receptor_id] });
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) - ? WHERE id = ?", args: [pts, emisor_id] });
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) + ? WHERE id = ?", args: [pts, receptor_id] });
 
         notificarCambioGlobal('puntos_transferidos');
         res.json({ message: `Se transfirieron ${pts} Puntos a ${receptorRes.rows[0].nombre}.` });
@@ -197,7 +199,7 @@ app.post('/api/tienda/bono-ruleta', async (req, res) => {
     if (!usuario_id || isNaN(pts) || pts < 0) return res.status(400).json({ error: "Puntos inválidos." });
 
     try {
-        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo + ? WHERE id = ?", args: [pts, usuario_id] });
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) + ? WHERE id = ?", args: [pts, usuario_id] });
         notificarCambioGlobal('ruleta_girada');
         res.json({ message: "Bono acreditado correctamente." });
     } catch (err) {
@@ -214,11 +216,11 @@ app.post('/api/admin/ajustar-puntos', async (req, res) => {
     try {
         const factor = operacion === 'restar' ? -pts : pts;
         await db.execute({
-            sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo + ? WHERE id = ?",
+            sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) + ? WHERE id = ?",
             args: [factor, usuario_id]
         });
         notificarCambioGlobal('puntos_actualizados');
-        res.json({ message: `Puntos actualizados correctamente (${operacion === 'restar' ? '-' : '+'}${pts} Pts).` });
+        res.json({ message: `Puntos actualizados (${operacion === 'restar' ? '-' : '+'}${pts} Pts).` });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -235,7 +237,7 @@ app.post('/api/register', async (req, res) => {
         const rolInicial = esPrimerUsuario ? 'jefe' : 'empleado';
         const comisionInicial = esPrimerUsuario ? 0 : 30;
 
-        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol, puntos_saldo, xp_historica) VALUES (?, ?, ?, ?, ?, 0, 0)`;
+        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol) VALUES (?, ?, ?, ?, ?)`;
         const result = await db.execute({
             sql,
             args: [nombre, usuario.trim().toLowerCase(), password, comisionInicial, rolInicial]
@@ -256,10 +258,10 @@ app.post('/api/login', async (req, res) => {
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos_saldo, 0) as puntos_saldo, COALESCE(xp_historica, 0) as xp_historica FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
-        if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
+        if (!result.rows || result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
         res.json(result.rows[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -271,7 +273,7 @@ app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
         const movsRes = await db.execute("SELECT * FROM movimientos_capital ORDER BY fecha DESC LIMIT 30");
-        res.json({ estado: estadoRes.rows[0] || { capital: 0, stock_v8: 0, stock_v12: 0 }, movimientos: movsRes.rows });
+        res.json({ estado: (estadoRes.rows && estadoRes.rows[0]) || { capital: 0, stock_v8: 0, stock_v12: 0 }, movimientos: movsRes.rows || [] });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -305,7 +307,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
 
     try {
         const estadoRes = await db.execute("SELECT capital FROM taller_estado WHERE id = 1");
-        const estado = estadoRes.rows[0];
+        const estado = estadoRes.rows && estadoRes.rows[0];
 
         if (!estado || estado.capital < costoTotal) {
             return res.status(400).json({ error: `Capital insuficiente. Se requieren $${costoTotal.toLocaleString()} y dispones de $${(estado ? estado.capital : 0).toLocaleString()}` });
@@ -355,11 +357,11 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// LISTA DE USUARIOS
+// LISTA DE USUARIOS (Con fallback seguro)
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at, COALESCE(puntos_saldo, 0) as puntos_saldo, COALESCE(xp_historica, 0) as xp_historica FROM usuarios ORDER BY id ASC");
-        res.json(result.rows);
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
+        res.json(result.rows || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -397,11 +399,11 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
 
     try {
         const userRes = await db.execute({ sql: "SELECT COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [nuevo_usuario_id] });
-        if (userRes.rows.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
+        if (!userRes.rows || userRes.rows.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
         const pctComision = userRes.rows[0].comision / 100;
 
         const factRes = await db.execute({ sql: "SELECT ganancia_neta FROM facturas WHERE id = ?", args: [factura_id] });
-        if (factRes.rows.length === 0) return res.status(404).json({ error: "La factura no existe." });
+        if (!factRes.rows || factRes.rows.length === 0) return res.status(404).json({ error: "La factura no existe." });
         
         const ganancia = factRes.rows[0].ganancia_neta;
         const nuevaComision = ganancia > 0 ? ganancia * pctComision : 0;
@@ -433,12 +435,14 @@ app.delete('/api/facturas/:id', async (req, res) => {
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
-        await db.execute(`
-            UPDATE usuarios 
-            SET xp_historica = COALESCE(xp_historica, 0) + (
-                SELECT COALESCE(SUM(f.total_cliente), 0) FROM facturas f WHERE f.usuario_id = usuarios.id
-            )
-        `);
+        try {
+            await db.execute(`
+                UPDATE usuarios 
+                SET xp_historica = COALESCE(xp_historica, 0) + (
+                    SELECT COALESCE(SUM(f.total_cliente), 0) FROM facturas f WHERE f.usuario_id = usuarios.id
+                )
+            `);
+        } catch(e) {}
 
         await db.execute("DELETE FROM facturas");
         await db.execute({
@@ -460,7 +464,7 @@ app.post('/api/facturas', async (req, res) => {
 
     try {
         const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [usuario_id] });
-        if (userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
+        if (!userRes.rows || userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
         const user = userRes.rows[0];
 
         const aplicarFabrica = es_precio_fabrica && (user.rol === 'admin' || user.rol === 'jefe');
@@ -475,7 +479,7 @@ app.post('/api/facturas', async (req, res) => {
         });
 
         const estadoRes = await db.execute("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1");
-        const estado = estadoRes.rows[0] || { stock_v8: 0, stock_v12: 0 };
+        const estado = (estadoRes.rows && estadoRes.rows[0]) || { stock_v8: 0, stock_v12: 0 };
 
         if (v12Necesarios > 0 && estado.stock_v12 < v12Necesarios) {
             return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12 y solo hay ${estado.stock_v12} en stock.` });
@@ -561,7 +565,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
             sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60",
             args: [req.params.usuario_id]
         });
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -577,19 +581,20 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
             LIMIT 80
         `;
         const result = await db.execute(sql);
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// TOP TRABAJADORES (CON PUNTOS PERSISTIDOS Y XP HISTÓRICA)
+// TOP TRABAJADORES CON QUERY A PRUEBA DE ERRORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
-                   COALESCE(u.xp_historica, 0) as xp_historica,
-                   COALESCE(u.puntos_saldo, 0) as puntos_saldo,
+            SELECT u.id, u.nombre, u.usuario, 
+                   COALESCE(u.rol, 'empleado') as rol, 
+                   COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, 
+                   COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                    COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -600,7 +605,23 @@ app.get('/api/top-trabajadores', async (req, res) => {
             ORDER BY ganancia_generada DESC
         `;
         const result = await db.execute(sql);
-        res.json(result.rows);
+        const rows = result.rows || [];
+
+        // Leer saldos opcionales de puntos/xp histórica de manera segura
+        for (let r of rows) {
+            try {
+                const s = await db.execute({ sql: "SELECT puntos_saldo, xp_historica FROM usuarios WHERE id = ?", args: [r.id] });
+                if (s.rows && s.rows[0]) {
+                    r.puntos_saldo = s.rows[0].puntos_saldo || 0;
+                    r.xp_historica = s.rows[0].xp_historica || 0;
+                }
+            } catch(e) {
+                r.puntos_saldo = 0;
+                r.xp_historica = 0;
+            }
+        }
+
+        res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

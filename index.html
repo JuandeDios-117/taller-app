@@ -2663,55 +2663,64 @@
         }
 
         async function cargarTop() {
-            const res = await fetch('/api/top-trabajadores');
-            const lista = await res.json();
-            const container = document.getElementById('topContenedor');
-            const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
+            try {
+                const res = await fetch('/api/top-trabajadores');
+                const lista = await res.json();
+                const container = document.getElementById('topContenedor');
+                if (!Array.isArray(lista) || lista.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay trabajadores registrados.</p>';
+                    return;
+                }
 
-            let html = '';
-            for (let index = 0; index < lista.length; index++) {
-                const item = lista[index];
-                const badge = insignias[index] || `PUESTO #${index + 1}`;
-                const estaOnline = usuariosOnlineSet.has(Number(item.id));
-                const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
-                const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica);
-                const avatar = obtenerAvatarTrabajador(item.id);
+                const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
+                let html = '';
 
-                const medallas = generarMedallas([], item.total_vendido, item.id);
-                const medallasTopHTML = generarMedallasTopHTML(medallas);
-                const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
+                for (let index = 0; index < lista.length; index++) {
+                    const item = lista[index];
+                    const badge = insignias[index] || `PUESTO #${index + 1}`;
+                    const estaOnline = usuariosOnlineSet.has(Number(item.id));
+                    const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
+                    const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica);
+                    const avatar = obtenerAvatarTrabajador(item.id);
 
-                const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo);
+                    const medallas = generarMedallas([], item.total_vendido, item.id);
+                    const medallasTopHTML = generarMedallasTopHTML(medallas);
+                    const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
 
-                html += `
-                    <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
-                        <div class="flex items-center gap-3.5">
-                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                            <div class="shrink-0">${avatarClean}</div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                    <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
-                                    <span class="text-xs text-zinc-500">(@${item.usuario})</span>
-                                    <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
-                                    <span class="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-black">💎 ${misPuntos} PTS</span>
-                                    ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
+                    const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo);
+
+                    html += `
+                        <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
+                            <div class="flex items-center gap-3.5">
+                                <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
+                                <div class="shrink-0">${avatarClean}</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
+                                        <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
+                                        <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                        <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
+                                        <span class="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-black">💎 ${misPuntos} PTS</span>
+                                        ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
+                                    </div>
+                                    <p class="text-xs text-zinc-400 mt-0.5">
+                                        XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
+                                        Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
+                                    </p>
+                                    ${medallasTopHTML}
                                 </div>
-                                <p class="text-xs text-zinc-400 mt-0.5">
-                                    XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
-                                    Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
-                                </p>
-                                ${medallasTopHTML}
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-cyan-300 font-black">Comisiones: $${(item.comision_ganada || 0).toLocaleString()}</div>
+                                <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${(item.ganancia_generada || 0).toLocaleString()}</div>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-xs text-cyan-300 font-black">Comisiones: $${item.comision_ganada.toLocaleString()}</div>
-                            <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${item.ganancia_generada.toLocaleString()}</div>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
+                container.innerHTML = html;
+            } catch(e) {
+                console.error("Error al cargar Top:", e);
             }
-            container.innerHTML = html;
         }
 
         async function cargarHistorial() {
