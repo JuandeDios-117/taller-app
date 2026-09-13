@@ -112,18 +112,6 @@
             transition: transform 0.15s ease;
         }
         .ribbon-chip:hover { transform: scale(1.2); z-index: 10; }
-
-        /* RULETA */
-        .roulette-container {
-            position: relative;
-            width: 260px;
-            height: 260px;
-            border-radius: 50%;
-            border: 6px solid #38bdf8;
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
-            overflow: hidden;
-            transition: transform 4s cubic-bezier(0.15, 0.9, 0.25, 1);
-        }
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen">
@@ -193,13 +181,8 @@
                 </div>
             </div>
 
-            <!-- BARRA DE NIVEL, CRESTA, RACHA Y PUNTOS -->
+            <!-- BARRA DE NIVEL, CRESTA Y RACHA -->
             <div class="flex flex-wrap items-center gap-3 z-10">
-                <div onclick="cambiarPestana('tienda')" class="cursor-pointer flex items-center gap-1.5 bg-cyan-950/40 border border-cyan-500/40 px-3 py-1.5 rounded-xl shadow-inner text-xs font-black text-cyan-300 hover:border-cyan-400 transition">
-                    <span>💎</span>
-                    <span id="txtPuntosHeader">0 Pts</span>
-                </div>
-
                 <div id="badgeRachaHeader" class="hidden items-center gap-1.5 bg-orange-950/40 border border-orange-500/40 px-3 py-1.5 rounded-xl shadow-inner text-xs font-black text-orange-400">
                     <span>🔥</span>
                     <span id="txtRachaHeader">1 día</span>
@@ -231,9 +214,6 @@
             <div class="flex flex-wrap gap-2 w-full md:w-auto">
                 <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition">
                     🧮 CALCULADORA
-                </button>
-                <button onclick="cambiarPestana('tienda')" id="tab-tienda" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-cyan-300 hover:text-white hover:bg-zinc-800 transition border border-cyan-500/20">
-                    🛍️ TIENDA & RULETA
                 </button>
                 <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-rose-400 hover:text-rose-300 hover:bg-zinc-800 hidden transition border border-rose-500/20">
                     🏢 ALMACÉN Y CAPITAL
@@ -411,87 +391,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- TIENDA & RULETA DE PUNTOS -->
-        <div id="seccion-tienda" class="space-y-6 hidden">
-            <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-6 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/30 via-zinc-950 to-zinc-950">
-                <div>
-                    <h2 class="text-2xl font-black text-white uppercase flex items-center gap-2">🛍️ TIENDA DE PUNTOS AUTOEXOTIC</h2>
-                    <p class="text-xs text-zinc-400 mt-1">Canjea tus puntos por piezas directas del taller para tus autos personales o rol.</p>
-                </div>
-                <div class="flex items-center gap-4 bg-black/80 px-5 py-3 rounded-2xl border border-cyan-500/40">
-                    <span class="text-3xl">💎</span>
-                    <div>
-                        <div class="text-[10px] font-black uppercase text-zinc-400">Mis Puntos Disponibles</div>
-                        <div class="text-2xl font-black text-cyan-300" id="lblSaldoPuntosTienda">0 Puntos</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- RULETA -->
-                <div class="card-dark p-6 rounded-2xl space-y-4 flex flex-col items-center justify-center text-center border-t-4 border-amber-400">
-                    <h3 class="text-lg font-black text-amber-300 uppercase">🎡 RULETA DEL MECÁNICO (CADA 24H)</h3>
-                    <p class="text-xs text-zinc-400">Gira gratis una vez al día para ganar puntos extra.</p>
-                    <div class="relative flex items-center justify-center my-3">
-                        <div id="ruletaDisco" class="roulette-container flex items-center justify-center bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-950 text-center p-4 border-4 border-amber-400/80">
-                            <div id="ruletaPremioVisual" class="font-black text-amber-300 text-sm tracking-wider uppercase px-2">🎁 ¡Gira para ganar!</div>
-                        </div>
-                        <div class="absolute -top-3 text-2xl z-20 text-amber-400 font-black">▼</div>
-                    </div>
-                    <button id="btnGirarRuleta" onclick="girarRuletaDiaria()" class="w-full btn-ae-action py-3 rounded-xl uppercase tracking-wider text-xs font-black">🎰 Girar Ruleta Diaria</button>
-                    <p id="txtRuletaCooldown" class="text-[11px] text-zinc-500 font-semibold"></p>
-
-                    <div class="w-full pt-3 border-t border-zinc-800/80 text-left">
-                        <div class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">Premios posibles en la ruleta:</div>
-                        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +2 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +5 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +10 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +15 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-emerald-400 font-bold">🧼 Kit Limpieza (1 Pt)</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-emerald-400 font-bold">🧰 Reparación (2 Pts)</span>
-                            <span class="col-span-2 bg-amber-500/15 px-2 py-1 rounded border border-amber-500/40 text-amber-200 font-black text-center">⭐ ¡Jackpot: +25 Puntos!</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TRANSFERIR -->
-                <div class="card-dark p-6 rounded-2xl space-y-4 border-t-4 border-emerald-400">
-                    <h3 class="text-lg font-black text-emerald-400 uppercase">🤝 TRANSFERIR PUNTOS</h3>
-                    <p class="text-xs text-zinc-400">Apoya a otro mecánico transfiriéndole de tus puntos.</p>
-                    <div class="space-y-3 pt-2">
-                        <div>
-                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Mecánico Receptor</label>
-                            <select id="selDestinoPuntos" class="w-full input-dark px-3 py-2.5 rounded-xl text-xs font-bold text-white"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Cantidad de Puntos</label>
-                            <input type="number" id="inpCantidadPuntosTransferir" min="1" placeholder="Ej. 15, 50" class="w-full input-dark px-3 py-2 rounded-xl text-sm font-bold text-cyan-300">
-                        </div>
-                        <button onclick="ejecutarTransferenciaPuntos()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-2.5 rounded-xl text-xs uppercase tracking-wider transition">Transferir Puntos</button>
-                    </div>
-                </div>
-
-                <!-- HISTORIAL PROPIO -->
-                <div class="card-dark p-6 rounded-2xl space-y-3 border-t-4 border-cyan-400">
-                    <h3 class="text-sm font-black text-cyan-300 uppercase">📦 MIS CANJES REALIZADOS</h3>
-                    <p class="text-[11px] text-zinc-400">Estado de entrega de tus compras:</p>
-                    <div id="listaMisCanjes" class="space-y-2 max-h-72 overflow-y-auto text-xs pr-1">
-                        <p class="text-zinc-500 italic">No has canjeado piezas aún.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CATÁLOGO DE PIEZAS CANJEABLES -->
-            <div class="card-dark p-6 rounded-2xl space-y-4">
-                <div class="border-b border-zinc-800 pb-3 flex flex-wrap justify-between items-center gap-2">
-                    <h3 class="text-xs font-black text-cyan-400 uppercase tracking-widest">CATÁLOGO DE PIEZAS CANJEABLES CON PUNTOS</h3>
-                    <span class="text-xs text-zinc-500 font-bold">1 Pto por cada $5,000 generados + 1 Pto por Orden</span>
-                </div>
-                <div id="gridItemsTienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"></div>
             </div>
         </div>
 
@@ -783,54 +682,6 @@
                 <button onclick="ejecutarReinicioSemanal()" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/30">
                     🔄 Reiniciar Semana / Pagar
                 </button>
-            </div>
-
-            <!-- GESTOR MANUAL DE PUNTOS (ADMIN) -->
-            <div class="card-dark p-6 rounded-xl border border-cyan-500/40 space-y-4">
-                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                    <div>
-                        <h3 class="text-lg font-black text-cyan-400 uppercase flex items-center gap-2">
-                            💎 GESTIÓN MANUAL DE PUNTOS DE TRABAJADORES
-                        </h3>
-                        <p class="text-xs text-zinc-400">Añade o retira puntos de lealtad manualmente a cualquier mecánico.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-black/60 p-4 rounded-xl border border-zinc-800">
-                    <div>
-                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Trabajador</label>
-                        <select id="selAdminTrabajadorPuntos" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold text-white"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Acción</label>
-                        <select id="selAdminOperacionPuntos" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold text-amber-300">
-                            <option value="sumar">➕ Añadir Puntos</option>
-                            <option value="restar">➖ Restar Puntos</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Cantidad</label>
-                        <input type="number" id="inpAdminCantidadPuntos" min="1" placeholder="Ej. 20, 50" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold text-cyan-300">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="ejecutarAjustePuntosAdmin()" class="w-full btn-ae-action py-2 rounded-lg text-xs uppercase tracking-wider font-black">
-                            Guardar Puntos
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BANDEJA DE CANJES DE LA TIENDA PENDIENTES DE ENTREGA -->
-            <div class="card-dark p-6 rounded-xl border border-cyan-500/40 space-y-4">
-                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                    <div>
-                        <h3 class="text-lg font-black text-cyan-400 uppercase flex items-center gap-2">
-                            📦 PEDIDOS DE TIENDA POR ENTREGAR IN-GAME
-                        </h3>
-                        <p class="text-xs text-zinc-400">Revisa los canjes que hicieron los mecánicos en la tienda web para darles su pieza dentro del juego.</p>
-                    </div>
-                </div>
-                <div id="listaCanjesAdmin" class="space-y-2 max-h-72 overflow-y-auto text-xs"></div>
             </div>
 
             <!-- GESTOR DE CONVENIOS CON FACCIONES -->
@@ -1170,9 +1021,9 @@
             reader.readAsDataURL(file);
         }
 
-        function calcularNivelYProgreso(totalVendido, usuarioId, xpHistorica = 0) {
+        function calcularNivelYProgreso(totalVendido, usuarioId) {
             const overrideNivel = localStorage.getItem(`ae_custom_lvl_${usuarioId}`);
-            let xpTotal = Math.floor(((Number(totalVendido) || 0) + (Number(xpHistorica) || 0)) / 100);
+            let xpTotal = Math.floor((totalVendido || 0) / 100);
 
             if (overrideNivel !== null && overrideNivel !== '') {
                 const lvlNum = parseInt(overrideNivel);
@@ -1198,23 +1049,21 @@
             let totalDrift = 0;
             let totalLimpieza = 0;
 
-            if (Array.isArray(facturas)) {
-                facturas.forEach(f => {
-                    if (f.total_cliente >= 1000000) facturasGrandes++;
-                    if (f.items_json) {
-                        try {
-                            const items = JSON.parse(f.items_json);
-                            items.forEach(it => {
-                                if (it.id === 7 || it.id === 20 || it.id === 21) totalV12 += it.cantidad;
-                                if (it.id === 8 || it.id === 18 || it.id === 19) totalV8 += it.cantidad;
-                                if (it.id === 25 || it.id === 26 || it.id === 22 || it.id === 23) totalNitro += it.cantidad;
-                                if (it.id === 24 || it.id === 23) totalDrift += it.cantidad;
-                                if (it.id === 27) totalLimpieza += it.cantidad;
-                            });
-                        } catch (e) {}
-                    }
-                });
-            }
+            facturas.forEach(f => {
+                if (f.total_cliente >= 1000000) facturasGrandes++;
+                if (f.items_json) {
+                    try {
+                        const items = JSON.parse(f.items_json);
+                        items.forEach(it => {
+                            if (it.id === 7 || it.id === 20 || it.id === 21) totalV12 += it.cantidad;
+                            if (it.id === 8 || it.id === 18 || it.id === 19) totalV8 += it.cantidad;
+                            if (it.id === 25 || it.id === 26 || it.id === 22 || it.id === 23) totalNitro += it.cantidad;
+                            if (it.id === 24 || it.id === 23) totalDrift += it.cantidad;
+                            if (it.id === 27) totalLimpieza += it.cantidad;
+                        });
+                    } catch (e) {}
+                }
+            });
 
             const overrides = JSON.parse(localStorage.getItem(`ae_custom_badges_${usuarioId}`)) || {};
 
@@ -1263,33 +1112,6 @@
             return html;
         }
 
-        function calcularPuntosTrabajador(gananciaTaller, totalFacturas, puntosSaldo = 0) {
-            const ptsGanancia = Math.floor((Number(gananciaTaller) || 0) / 5000);
-            const ptsOrdenes = Number(totalFacturas) || 0;
-            return Math.max(0, ptsGanancia + ptsOrdenes + (Number(puntosSaldo) || 0));
-        }
-
-        const catalogoTiendaPuntos = [
-            { nombre: 'Kit de Limpieza (x2)', puntos: 2, icon: '🧼' },
-            { nombre: 'Kit de Reparación', puntos: 2, icon: '🧰' },
-            { nombre: 'Kit de Pintura', puntos: 3, icon: '🎨' },
-            { nombre: 'Piezas Cosméticas', puntos: 5, icon: '✨' },
-            { nombre: 'Kit Stance', puntos: 6, icon: '🏎️' },
-            { nombre: 'Kit Humo Neumáticos', puntos: 8, icon: '💨' },
-            { nombre: 'Neumáticos Semi-Slick', puntos: 12, icon: '🛞' },
-            { nombre: 'Neumáticos Slick', puntos: 15, icon: '🛞' },
-            { nombre: 'Turbo', puntos: 25, icon: '🌀' },
-            { nombre: 'Piezas de Rendimiento', puntos: 25, icon: '⚡' },
-            { nombre: 'Frenos Cerámicos', puntos: 30, icon: '🛑' },
-            { nombre: 'Tracción AWD', puntos: 30, icon: '⚡' },
-            { nombre: 'Motor V8', puntos: 120, icon: '⚙️' },
-            { nombre: 'Botella de Nitro', puntos: 180, icon: '🧪' },
-            { nombre: 'Kit Instalación Nitro', puntos: 350, icon: '🚀' },
-            { nombre: 'Motor V12', puntos: 400, icon: '👑' },
-            { nombre: 'Kit Tuning Drift', puntos: 800, icon: '🏎️' }
-        ];
-
-        // CATÁLOGO DE PIEZAS DE LA CALCULADORA
         const categoriaConfig = {
             'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
             'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
@@ -1435,7 +1257,6 @@
         let facturaIdParaTransferir = null;
         let usuariosOnlineSet = new Set();
         let catalogoRenderizado = false;
-        let ruletaGirando = false;
 
         function formatearFechaIngreso(fechaStr) {
             if (!fechaStr) return 'Reciente';
@@ -1606,10 +1427,6 @@
 
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
-            if (data.evento === 'canje_realizado' || data.evento === 'canje_actualizado' || data.evento === 'puntos_transferidos' || data.evento === 'puntos_actualizados') {
-                cargarTiendaYRuleta();
-                cargarTop();
-            }
 
             if (data.evento === 'nueva_factura' && data.total) {
                 let tieneV12 = false;
@@ -1649,7 +1466,6 @@
                 if (pestanaActiva === 'historial') cargarHistorial();
                 if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
                 if (pestanaActiva === 'top') cargarTop();
-                if (pestanaActiva === 'tienda') cargarTiendaYRuleta();
                 if (pestanaActiva === 'admin' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarGestionAdmin();
                 actualizarBarraNivelHeader();
             }, 250);
@@ -1669,14 +1485,9 @@
                 const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
                 const facturas = await res.json();
                 let totalVendido = 0;
-                if (Array.isArray(facturas)) facturas.forEach(f => totalVendido += f.total_cliente);
+                facturas.forEach(f => totalVendido += f.total_cliente);
                 
-                const resTop = await fetch('/api/top-trabajadores');
-                const ranking = await resTop.json();
-                const miReg = Array.isArray(ranking) ? ranking.find(u => Number(u.id) === Number(usuarioActual.id)) : null;
-                const xpHistorica = miReg ? miReg.xp_historica : 0;
-
-                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id, xpHistorica);
+                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
                 const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
 
                 document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 52);
@@ -1692,11 +1503,6 @@
                 document.getElementById('badgeRachaHeader').classList.remove('hidden');
                 document.getElementById('badgeRachaHeader').classList.add('flex');
                 document.getElementById('txtRachaHeader').innerText = `${racha} ${racha === 1 ? 'día' : 'días'}`;
-
-                if (miReg) {
-                    const pts = calcularPuntosTrabajador(miReg.ganancia_generada, miReg.total_facturas, miReg.puntos_saldo);
-                    document.getElementById('txtPuntosHeader').innerText = `${pts.toLocaleString()} Pts`;
-                }
             } catch (e) {}
         }
 
@@ -1797,7 +1603,6 @@
                 cambiarZonaHorariaFacturas(zonaHorariaActiva);
                 actualizarBarraNivelHeader();
                 cargarConvenios();
-                cargarTiendaYRuleta();
 
                 socket.emit('user_connected', usuarioActual);
             } else {
@@ -1810,7 +1615,7 @@
                 document.getElementById('badgeRachaHeader').classList.add('hidden');
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
-                ['calculadora', 'tienda', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
+                ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
                     const el = document.getElementById(`seccion-${s}`);
                     if (el) el.classList.add('hidden');
                 });
@@ -1878,7 +1683,7 @@
 
             pestanaActiva = pestana;
 
-            const tabs = ['calc', 'tienda', 'almacen', 'combos', 'hist', 'top', 'admin'];
+            const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition';
@@ -1887,7 +1692,7 @@
             const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
             if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
 
-            const secciones = ['calculadora', 'tienda', 'almacen', 'combos', 'historial', 'top', 'admin'];
+            const secciones = ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'];
             secciones.forEach(s => {
                 const el = document.getElementById(`seccion-${s}`);
                 if (el) {
@@ -1902,7 +1707,6 @@
                 }
             });
 
-            if (pestana === 'tienda') cargarTiendaYRuleta();
             if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
             if (pestana === 'historial') cargarHistorial();
             if (pestana === 'top') cargarTop();
@@ -2056,11 +1860,8 @@
             const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
 
             const selectFiltro = document.getElementById('selectFiltroTrabajador');
-            const valorPrevio = selectFiltro ? selectFiltro.value : null;
+            const valorPrevio = selectFiltro.value;
             let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
-
-            const selPuntos = document.getElementById('selAdminTrabajadorPuntos');
-            let optsPuntos = '';
 
             const secciones = [
                 { key: 'jefe', titulo: '👑 JEFES (0% COMISIÓN - DIRECCIÓN GENERAL)', borde: 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]', texto: 'text-amber-300', bg: 'bg-amber-950/20' },
@@ -2074,7 +1875,7 @@
             let htmlFinal = '';
 
             secciones.forEach(sec => {
-                const usuariosEnRango = (usuariosAdminGlobal || []).filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
+                const usuariosEnRango = usuariosAdminGlobal.filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
 
                 let filas = '';
                 usuariosEnRango.forEach(u => {
@@ -2182,15 +1983,13 @@
                 `;
             });
 
-            (usuariosAdminGlobal || []).forEach(u => {
+            usuariosAdminGlobal.forEach(u => {
                 optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-                optsPuntos += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
             });
 
-            if (contenedorSecciones) contenedorSecciones.innerHTML = htmlFinal;
-            if (selectFiltro) selectFiltro.innerHTML = optionsHTML;
-            if (selPuntos) selPuntos.innerHTML = optsPuntos;
-            if (valorPrevio && selectFiltro) selectFiltro.value = valorPrevio;
+            contenedorSecciones.innerHTML = htmlFinal;
+            selectFiltro.innerHTML = optionsHTML;
+            if (valorPrevio) selectFiltro.value = valorPrevio;
 
             const resFacturas = await fetch('/api/admin/todas-facturas');
             facturasAdminGlobal = await resFacturas.json();
@@ -2386,65 +2185,52 @@
         }
 
         async function cargarTop() {
+            const res = await fetch('/api/top-trabajadores');
+            const lista = await res.json();
             const container = document.getElementById('topContenedor');
-            if (!container) return;
-            try {
-                const res = await fetch('/api/top-trabajadores');
-                const lista = await res.json();
-                if (!Array.isArray(lista) || lista.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay trabajadores registrados.</p>';
-                    return;
-                }
+            const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
 
-                const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
-                let html = '';
+            let html = '';
+            for (let index = 0; index < lista.length; index++) {
+                const item = lista[index];
+                const badge = insignias[index] || `PUESTO #${index + 1}`;
+                const estaOnline = usuariosOnlineSet.has(Number(item.id));
+                const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
+                const stats = calcularNivelYProgreso(item.total_vendido, item.id);
+                const avatar = obtenerAvatarTrabajador(item.id);
 
-                for (let index = 0; index < lista.length; index++) {
-                    const item = lista[index];
-                    const badge = insignias[index] || `PUESTO #${index + 1}`;
-                    const estaOnline = usuariosOnlineSet.has(Number(item.id));
-                    const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
-                    const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica || 0);
-                    const avatar = obtenerAvatarTrabajador(item.id);
+                const medallas = generarMedallas([], item.total_vendido, item.id);
+                const medallasTopHTML = generarMedallasTopHTML(medallas);
+                const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
 
-                    const medallas = generarMedallas([], item.total_vendido, item.id);
-                    const medallasTopHTML = generarMedallasTopHTML(medallas);
-                    const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
-
-                    const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo || 0);
-
-                    html += `
-                        <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
-                            <div class="flex items-center gap-3.5">
-                                <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                                <div class="shrink-0">${avatarClean}</div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                        <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
-                                        <span class="text-xs text-zinc-500">(@${item.usuario})</span>
-                                        <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
-                                        <span class="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-black">💎 ${misPuntos} PTS</span>
-                                        ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
-                                    </div>
-                                    <p class="text-xs text-zinc-400 mt-0.5">
-                                        XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
-                                        Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
-                                    </p>
-                                    ${medallasTopHTML}
+                html += `
+                    <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
+                        <div class="flex items-center gap-3.5">
+                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
+                            <div class="shrink-0">${avatarClean}</div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
+                                    <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
+                                    <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                    <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
+                                    ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
                                 </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xs text-cyan-300 font-black">Comisiones: $${(Number(item.comision_ganada) || 0).toLocaleString()}</div>
-                                <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${(Number(item.ganancia_generada) || 0).toLocaleString()}</div>
+                                <p class="text-xs text-zinc-400 mt-0.5">
+                                    XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
+                                    Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
+                                </p>
+                                ${medallasTopHTML}
                             </div>
                         </div>
-                    `;
-                }
-                container.innerHTML = html;
-            } catch (err) {
-                container.innerHTML = '<p class="text-xs text-rose-400 italic">Error cargando el Top.</p>';
+                        <div class="text-right">
+                            <div class="text-xs text-cyan-300 font-black">Comisiones: $${item.comision_ganada.toLocaleString()}</div>
+                            <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${item.ganancia_generada.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
             }
+            container.innerHTML = html;
         }
 
         async function cargarHistorial() {
@@ -2457,74 +2243,68 @@
             let totalComision = 0;
             const container = document.getElementById('misFacturasLista');
 
-            if (!Array.isArray(facturas) || facturas.length === 0) {
+            if (facturas.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-500 italic">Aún no has realizado ventas en esta semana.</p>`;
-            } else {
-                let html = '';
-                facturas.forEach(f => {
-                    totalVendido += f.total_cliente;
-                    if (f.estado_pago === 'pendiente') totalComision += f.comision_empleado;
-
-                    const fecha = formatearFechaConZona(f.fecha);
-                    let itemsHTML = '';
-                    if (f.items_json) {
-                        try {
-                            const parsedItems = JSON.parse(f.items_json);
-                            itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
-                            itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
-                            parsedItems.forEach(item => {
-                                const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
-                                const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
-                                itemsHTML += `
-                                    <div class="flex justify-between items-center text-xs">
-                                        <span class="font-bold text-zinc-300">${item.nombre}</span>
-                                        <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
-                                    </div>
-                                `;
-                            });
-                            itemsHTML += '</div>';
-                        } catch(e) {}
-                    }
-
-                    html += `
-                        <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="font-bold text-white text-sm">Trabajador: ${usuarioActual.nombre}</span>
-                                    <span class="text-xs text-zinc-400 ml-2 font-mono">(${fecha})</span>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
-                                    <div class="text-xs text-zinc-400">Total Vendido</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
-                                <div>
-                                    <span class="text-zinc-400 font-medium">Ganancia Neta Taller:</span>
-                                    <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
-                                </div>
-                                <div>
-                                    <span class="text-zinc-400 font-medium">Mi Comisión:</span>
-                                    <div class="text-sm font-bold text-cyan-300">+$${f.comision_empleado.toLocaleString()}</div>
-                                </div>
-                            </div>
-
-                            <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
-                            ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado: ${f.descuento_porcentaje}% (V12 y Mano de Obra protegidos)</div>` : ''}
-                            ${itemsHTML}
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
             }
 
-            const resTop = await fetch('/api/top-trabajadores');
-            const ranking = await resTop.json();
-            const miReg = Array.isArray(ranking) ? ranking.find(u => Number(u.id) === Number(usuarioActual.id)) : null;
-            const xpHistorica = miReg ? miReg.xp_historica : 0;
+            let html = '';
+            facturas.forEach(f => {
+                totalVendido += f.total_cliente;
+                if (f.estado_pago === 'pendiente') totalComision += f.comision_empleado;
 
-            const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id, xpHistorica);
+                const fecha = formatearFechaConZona(f.fecha);
+                let itemsHTML = '';
+                if (f.items_json) {
+                    try {
+                        const parsedItems = JSON.parse(f.items_json);
+                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
+                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
+                        parsedItems.forEach(item => {
+                            const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
+                            const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
+                            itemsHTML += `
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="font-bold text-zinc-300">${item.nombre}</span>
+                                    <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
+                                </div>
+                            `;
+                        });
+                        itemsHTML += '</div>';
+                    } catch(e) {}
+                }
+
+                html += `
+                    <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-white text-sm">Trabajador: ${usuarioActual.nombre}</span>
+                                <span class="text-xs text-zinc-400 ml-2 font-mono">(${fecha})</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
+                                <div class="text-xs text-zinc-400">Total Vendido</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
+                            <div>
+                                <span class="text-zinc-400 font-medium">Ganancia Neta Taller:</span>
+                                <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
+                            </div>
+                            <div>
+                                <span class="text-zinc-400 font-medium">Mi Comisión:</span>
+                                <div class="text-sm font-bold text-cyan-300">+$${f.comision_empleado.toLocaleString()}</div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
+                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado: ${f.descuento_porcentaje}% (V12 y Mano de Obra protegidos)</div>` : ''}
+                        ${itemsHTML}
+                    </div>
+                `;
+            });
+
+            const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
             const racha = calcularRachaDiaria(usuarioActual.id);
             const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
 
@@ -2557,6 +2337,7 @@
             });
             contenedorMedallas.innerHTML = medallasHTML;
 
+            container.innerHTML = html;
             document.getElementById('mTotalVendido').innerText = `$${totalVendido.toLocaleString()}`;
             document.getElementById('mComisionesPendientes').innerText = `$${totalComision.toLocaleString()}`;
             document.getElementById('mTotalFacturas').innerText = facturas.length;
@@ -2877,7 +2658,6 @@
                     document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
                     
                     actualizarBarraNivelHeader();
-                    cargarTiendaYRuleta();
                 } else {
                     mostrarAviso('Almacén Insuficiente', data.error, true);
                 }
