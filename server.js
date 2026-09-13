@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tabla de convenios
+// Inicialización de tablas complementarias
 (async function initDB() {
     try {
         await db.execute(`
@@ -35,8 +35,25 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS canjes_tienda (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER NOT NULL,
+                trabajador_nombre TEXT NOT NULL,
+                item_nombre TEXT NOT NULL,
+                puntos_gastados INTEGER NOT NULL,
+                estado TEXT DEFAULT 'pendiente',
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Columnas opcionales para preservar XP y Puntos Gastados/Bono
+        try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos_saldo INTEGER DEFAULT 0"); } catch (e) {}
+        try { await db.execute("ALTER TABLE usuarios ADD COLUMN xp_historica INTEGER DEFAULT 0"); } catch (e) {}
+        try { await db.execute("ALTER TABLE usuarios ADD COLUMN medallas_json TEXT DEFAULT '{}'"); } catch (e) {}
     } catch (e) {
-        console.error("Error iniciando tabla convenios:", e.message);
+        console.error("Error iniciando base de datos:", e.message);
     }
 })();
 
@@ -111,6 +128,85 @@ app.delete('/api/convenios/:id', async (req, res) => {
     }
 });
 
+// CANJES TIENDA Y TRANSFERENCIA DE PUNTOS
+app.get('/api/tienda/canjes', async (req, res) => {
+    try {
+        const result = await db.execute("SELECT * FROM canjes_tienda ORDER BY fecha DESC LIMIT 50");
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/tienda/canjear', async (req, res) => {
+    const { usuario_id, item_nombre, costo_puntos } = req.body;
+    const pts = parseInt(costo_puntos);
+    if (!usuario_id || isNaN(pts) || pts <= 0) return res.status(400).json({ error: "Datos de canje inválidos." });
+
+    try {
+        const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(puntos_saldo, 0) as puntos_saldo FROM usuarios WHERE id = ?", args: [usuario_id] });
+        if (userRes.rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado." });
+        const user = userRes.rows[0];
+
+        // Se descuentan los puntos del balance de bonos/saldo
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo - ? WHERE id = ?", args: [pts, usuario_id] });
+        await db.execute({
+            sql: "INSERT INTO canjes_tienda (usuario_id, trabajador_nombre, item_nombre, puntos_gastados, estado) VALUES (?, ?, ?, ?, 'pendiente')",
+            args: [usuario_id, user.nombre, item_nombre, pts]
+        });
+
+        notificarCambioGlobal('canje_realizado');
+        res.json({ message: `¡Canje realizado con éxito! Un Administrador te entregará tu ${item_nombre} en el juego.` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/tienda/canjes/:id/entregar', async (req, res) => {
+    try {
+        await db.execute({ sql: "UPDATE canjes_tienda SET estado = 'entregado' WHERE id = ?", args: [req.params.id] });
+        notificarCambioGlobal('canje_actualizado');
+        res.json({ message: "Canje marcado como entregado." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/tienda/transferir-puntos', async (req, res) => {
+    const { emisor_id, receptor_id, puntos } = req.body;
+    const pts = parseInt(puntos);
+    if (!emisor_id || !receptor_id || isNaN(pts) || pts <= 0) return res.status(400).json({ error: "Datos de transferencia inválidos." });
+    if (emisor_id === receptor_id) return res.status(400).json({ error: "No puedes transferirte puntos a ti mismo." });
+
+    try {
+        const emisorRes = await db.execute({ sql: "SELECT nombre FROM usuarios WHERE id = ?", args: [emisor_id] });
+        const receptorRes = await db.execute({ sql: "SELECT nombre FROM usuarios WHERE id = ?", args: [receptor_id] });
+        if (emisorRes.rows.length === 0 || receptorRes.rows.length === 0) return res.status(404).json({ error: "Usuario emisor o receptor no encontrado." });
+
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo - ? WHERE id = ?", args: [pts, emisor_id] });
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo + ? WHERE id = ?", args: [pts, receptor_id] });
+
+        notificarCambioGlobal('puntos_transferidos');
+        res.json({ message: `Se transfirieron ${pts} Puntos a ${receptorRes.rows[0].nombre} con éxito.` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/tienda/bono-ruleta', async (req, res) => {
+    const { usuario_id, puntos } = req.body;
+    const pts = parseInt(puntos);
+    if (!usuario_id || isNaN(pts) || pts < 0) return res.status(400).json({ error: "Puntos inválidos." });
+
+    try {
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = puntos_saldo + ? WHERE id = ?", args: [pts, usuario_id] });
+        notificarCambioGlobal('ruleta_girada');
+        res.json({ message: `Puntos sumados correctamente.` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // 1. REGISTRO
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
@@ -144,7 +240,7 @@ app.post('/api/login', async (req, res) => {
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos_saldo, 0) as puntos_saldo FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
@@ -249,15 +345,10 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
 // 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at, COALESCE(puntos_saldo, 0) as puntos_saldo, COALESCE(xp_historica, 0) as xp_historica FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -329,23 +420,31 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA
+// 12. REINICIAR SEMANA (CONSERVA LA EXPERIENCIA, NIVELES Y MEDALLAS DE TODOS LOS TRABAJADORES)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
+        // Antes de borrar facturas, consolidamos el total vendido en xp_historica para que no pierdan su nivel
+        await db.execute(`
+            UPDATE usuarios 
+            SET xp_historica = COALESCE(xp_historica, 0) + (
+                SELECT COALESCE(SUM(f.total_cliente), 0) FROM facturas f WHERE f.usuario_id = usuarios.id
+            )
+        `);
+
         await db.execute("DELETE FROM facturas");
         await db.execute({
-            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas.', 0, ?)",
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas. Niveles y medallas conservados.', 0, ?)",
             args: [usuario_nombre || 'Admin']
         });
         notificarCambioGlobal('reinicio_semana');
-        res.json({ message: "Semana reiniciada correctamente." });
+        res.json({ message: "Semana reiniciada correctamente. Los niveles y medallas de los trabajadores han sido preservados." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 13. REGISTRAR FACTURA (CÁLCULO INDIVIDUAL DE DESCUENTO RESPETANDO V12 Y MANO DE OBRA)
+// 13. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -384,7 +483,6 @@ app.post('/api/facturas', async (req, res) => {
             coste_fabrica_total += item.costo * item.cantidad;
             subtotal_bruto += subtotalLinea;
 
-            // REGLAS: Ni el Motor V12 (id: 7) ni la Mano de Obra (noDescuento) admiten descuento
             const admiteDescuento = !aplicarFabrica && !item.noDescuento && item.id !== 7 && pctDescuentoGeneral > 0;
             const pctLinea = admiteDescuento ? pctDescuentoGeneral : 0;
             const descuentoMontoLinea = subtotalLinea * (pctLinea / 100);
@@ -479,11 +577,13 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES
+// 16. TOP TRABAJADORES (CON PUNTOS MODELO EXACTO Y XP HISTÓRICA)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
             SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
+                   COALESCE(u.xp_historica, 0) as xp_historica,
+                   COALESCE(u.puntos_saldo, 0) as puntos_saldo,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                    COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -496,22 +596,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const result = await db.execute(sql);
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
-                       COUNT(f.id) as total_facturas,
-                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
-                FROM usuarios u
-                LEFT JOIN facturas f ON u.id = f.usuario_id
-                GROUP BY u.id
-                ORDER BY ganancia_generada DESC
-            `);
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
