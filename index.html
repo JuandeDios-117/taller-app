@@ -946,6 +946,38 @@
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
 
+        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const ahora = audioCtx.currentTime;
+
+                const emitirTono = (freq, inicio, duracion, tipo = 'triangle', ganancia = 0.2) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = tipo;
+                    osc.frequency.setValueAtTime(freq, ahora + inicio);
+                    gain.gain.setValueAtTime(ganancia, ahora + inicio);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ahora + inicio + duracion);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(ahora + inicio);
+                    osc.stop(ahora + inicio + duracion);
+                };
+
+                if (total >= 1000000) {
+                    [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => emitirTono(f, i * 0.12, 0.5, 'sine', 0.25));
+                } else if (total >= 500000 || tieneV12) {
+                    [220, 329.63, 440, 554.37, 659.25].forEach((f) => emitirTono(f, 0, 0.8, 'sawtooth', 0.12));
+                } else if (total >= 100000) {
+                    emitirTono(880, 0, 0.15, 'triangle', 0.2);
+                    emitirTono(1318.51, 0.12, 0.4, 'triangle', 0.2);
+                } else {
+                    emitirTono(659.25, 0, 0.1, 'sine', 0.15);
+                    emitirTono(880, 0.08, 0.25, 'sine', 0.15);
+                }
+            } catch (e) {}
+        }
+
         const socket = io();
 
         function calcularRachaDiaria(usuarioId) {
@@ -2425,6 +2457,7 @@
             }
         }
 
+        // AGREGAR: Desglosa los combos en piezas individuales + Mano de Obra para cuadrar el precio total oficial
         function agregar(id) {
             const itemSeleccionado = catalogo.find(x => x.id === id);
             if (!itemSeleccionado) return;
@@ -2432,6 +2465,7 @@
             if (itemSeleccionado.esCombo && itemSeleccionado.componentes) {
                 itemSeleccionado.componentes.forEach(comp => {
                     if (comp.id === 99) {
+                        // Ítem de mano de obra
                         const idManoObra = `mano_obra_${id}`;
                         if (!carrito[idManoObra]) {
                             carrito[idManoObra] = {
@@ -2532,6 +2566,7 @@
                     subtotalBruto += subtotalLinea;
                     totalCantidad += item.cantidad;
 
+                    // REGLA: Motor V12 (id: 7) y Mano de Obra (noDescuento) están protegidos
                     const admiteDescuento = !modoPrecioFabrica && !item.noDescuento && item.id !== 7 && descuentoPorcentaje > 0;
                     const pctLinea = admiteDescuento ? descuentoPorcentaje : 0;
                     const descuentoLinea = subtotalLinea * (pctLinea / 100);
