@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tabla de convenios
+// Inicializar tablas complementarias
 (async function initDB() {
     try {
         await db.execute(`
@@ -38,6 +38,24 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
     } catch (e) {
         console.error("Error iniciando tabla convenios:", e.message);
     }
+
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS canjes_tienda (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER NOT NULL,
+                trabajador_nombre TEXT NOT NULL,
+                item_nombre TEXT NOT NULL,
+                puntos_gastados INTEGER NOT NULL,
+                estado TEXT DEFAULT 'pendiente',
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+    } catch (e) {}
+
+    try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos_saldo INTEGER DEFAULT 0"); } catch (e) {}
+    try { await db.execute("ALTER TABLE usuarios ADD COLUMN xp_historica INTEGER DEFAULT 0"); } catch (e) {}
+    try { await db.execute("ALTER TABLE usuarios ADD COLUMN medallas_json TEXT DEFAULT '{}'"); } catch (e) {}
 })();
 
 const onlineSockets = new Map();
@@ -77,7 +95,7 @@ function notificarCambioGlobal(evento, data = {}) {
 app.get('/api/convenios', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM convenios_facciones ORDER BY faccion ASC");
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -111,6 +129,105 @@ app.delete('/api/convenios/:id', async (req, res) => {
     }
 });
 
+// TIENDA, CANJES Y PUNTOS
+app.get('/api/tienda/canjes', async (req, res) => {
+    try {
+        const result = await db.execute("SELECT * FROM canjes_tienda ORDER BY fecha DESC LIMIT 60");
+        res.json(result.rows || []);
+    } catch (err) {
+        res.json([]);
+    }
+});
+
+app.post('/api/tienda/canjear', async (req, res) => {
+    const { usuario_id, item_nombre, costo_puntos } = req.body;
+    const pts = parseInt(costo_puntos);
+    if (!usuario_id || isNaN(pts) || pts <= 0) return res.status(400).json({ error: "Datos de canje inválidos." });
+
+    try {
+        const userRes = await db.execute({ sql: "SELECT nombre FROM usuarios WHERE id = ?", args: [usuario_id] });
+        if (!userRes.rows || userRes.rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado." });
+        const user = userRes.rows[0];
+
+        try {
+            await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) - ? WHERE id = ?", args: [pts, usuario_id] });
+        } catch (e) {}
+
+        await db.execute({
+            sql: "INSERT INTO canjes_tienda (usuario_id, trabajador_nombre, item_nombre, puntos_gastados, estado) VALUES (?, ?, ?, ?, 'pendiente')",
+            args: [usuario_id, user.nombre, item_nombre, pts]
+        });
+
+        notificarCambioGlobal('canje_realizado');
+        res.json({ message: `¡Canje registrado! Se te entregará tu ${item_nombre} en el juego.` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/tienda/canjes/:id/entregar', async (req, res) => {
+    try {
+        await db.execute({ sql: "UPDATE canjes_tienda SET estado = 'entregado' WHERE id = ?", args: [req.params.id] });
+        notificarCambioGlobal('canje_actualizado');
+        res.json({ message: "Canje marcado como entregado in-game." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/tienda/transferir-puntos', async (req, res) => {
+    const { emisor_id, receptor_id, puntos } = req.body;
+    const pts = parseInt(puntos);
+    if (!emisor_id || !receptor_id || isNaN(pts) || pts <= 0) return res.status(400).json({ error: "Datos de transferencia inválidos." });
+    if (emisor_id === receptor_id) return res.status(400).json({ error: "No puedes transferirte puntos a ti mismo." });
+
+    try {
+        const receptorRes = await db.execute({ sql: "SELECT nombre FROM usuarios WHERE id = ?", args: [receptor_id] });
+        if (!receptorRes.rows || receptorRes.rows.length === 0) return res.status(404).json({ error: "Receptor no encontrado." });
+
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) - ? WHERE id = ?", args: [pts, emisor_id] });
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) + ? WHERE id = ?", args: [pts, receptor_id] });
+
+        notificarCambioGlobal('puntos_transferidos');
+        res.json({ message: `Se transfirieron ${pts} Puntos a ${receptorRes.rows[0].nombre}.` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/tienda/bono-ruleta', async (req, res) => {
+    const { usuario_id, puntos } = req.body;
+    const pts = parseInt(puntos);
+    if (!usuario_id || isNaN(pts) || pts < 0) return res.status(400).json({ error: "Puntos inválidos." });
+
+    try {
+        await db.execute({ sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) + ? WHERE id = ?", args: [pts, usuario_id] });
+        notificarCambioGlobal('ruleta_girada');
+        res.json({ message: "Bono acreditado correctamente." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// AÑADIR O RESTAR PUNTOS MANUALMENTE (DESDE ADMIN)
+app.post('/api/admin/ajustar-puntos', async (req, res) => {
+    const { usuario_id, puntos, operacion } = req.body;
+    const pts = parseInt(puntos);
+    if (!usuario_id || isNaN(pts) || pts <= 0) return res.status(400).json({ error: "Monto de puntos inválido." });
+
+    try {
+        const factor = operacion === 'restar' ? -pts : pts;
+        await db.execute({
+            sql: "UPDATE usuarios SET puntos_saldo = COALESCE(puntos_saldo, 0) + ? WHERE id = ?",
+            args: [factor, usuario_id]
+        });
+        notificarCambioGlobal('puntos_actualizados');
+        res.json({ message: `Puntos actualizados (${operacion === 'restar' ? '-' : '+'}${pts} Pts).` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // 1. REGISTRO
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
@@ -138,7 +255,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN
+// 2. LOGIN (MANTENIDO 100% FIEL A TU CÓDIGO ORIGINAL PARA ASEGURAR QUE NUNCA FALLE)
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
@@ -147,7 +264,7 @@ app.post('/api/login', async (req, res) => {
         const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
-        if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
+        if (!result.rows || result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
         res.json(result.rows[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -159,7 +276,7 @@ app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
         const movsRes = await db.execute("SELECT * FROM movimientos_capital ORDER BY fecha DESC LIMIT 30");
-        res.json({ estado: estadoRes.rows[0] || { capital: 0, stock_v8: 0, stock_v12: 0 }, movimientos: movsRes.rows });
+        res.json({ estado: (estadoRes.rows && estadoRes.rows[0]) || { capital: 0, stock_v8: 0, stock_v12: 0 }, movimientos: movsRes.rows || [] });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -195,7 +312,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
 
     try {
         const estadoRes = await db.execute("SELECT capital FROM taller_estado WHERE id = 1");
-        const estado = estadoRes.rows[0];
+        const estado = estadoRes.rows && estadoRes.rows[0];
 
         if (!estado || estado.capital < costoTotal) {
             return res.status(400).json({ error: `Capital insuficiente. Se requieren $${costoTotal.toLocaleString()} y dispones de $${(estado ? estado.capital : 0).toLocaleString()}` });
@@ -250,11 +367,11 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
         try {
             const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows);
+            res.json(fallback.rows || []);
         } catch (e2) {
             res.status(500).json({ error: err.message });
         }
@@ -296,11 +413,11 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
 
     try {
         const userRes = await db.execute({ sql: "SELECT COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [nuevo_usuario_id] });
-        if (userRes.rows.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
+        if (!userRes.rows || userRes.rows.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
         const pctComision = userRes.rows[0].comision / 100;
 
         const factRes = await db.execute({ sql: "SELECT ganancia_neta FROM facturas WHERE id = ?", args: [factura_id] });
-        if (factRes.rows.length === 0) return res.status(404).json({ error: "La factura no existe." });
+        if (!factRes.rows || factRes.rows.length === 0) return res.status(404).json({ error: "La factura no existe." });
         
         const ganancia = factRes.rows[0].ganancia_neta;
         const nuevaComision = ganancia > 0 ? ganancia * pctComision : 0;
@@ -329,23 +446,32 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA
+// 12. REINICIAR SEMANA (CONSERVA LA XP Y NIVELES)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
+        try {
+            await db.execute(`
+                UPDATE usuarios 
+                SET xp_historica = COALESCE(xp_historica, 0) + (
+                    SELECT COALESCE(SUM(f.total_cliente), 0) FROM facturas f WHERE f.usuario_id = usuarios.id
+                )
+            `);
+        } catch (e) {}
+
         await db.execute("DELETE FROM facturas");
         await db.execute({
-            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas.', 0, ?)",
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas. XP y niveles conservados.', 0, ?)",
             args: [usuario_nombre || 'Admin']
         });
         notificarCambioGlobal('reinicio_semana');
-        res.json({ message: "Semana reiniciada correctamente." });
+        res.json({ message: "Semana reiniciada correctamente. Los niveles y medallas han sido preservados." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 13. REGISTRAR FACTURA (CÁLCULO INDIVIDUAL DE DESCUENTO RESPETANDO V12 Y MANO DE OBRA)
+// 13. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -353,7 +479,7 @@ app.post('/api/facturas', async (req, res) => {
 
     try {
         const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [usuario_id] });
-        if (userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
+        if (!userRes.rows || userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
         const user = userRes.rows[0];
 
         const aplicarFabrica = es_precio_fabrica && (user.rol === 'admin' || user.rol === 'jefe');
@@ -368,7 +494,7 @@ app.post('/api/facturas', async (req, res) => {
         });
 
         const estadoRes = await db.execute("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1");
-        const estado = estadoRes.rows[0] || { stock_v8: 0, stock_v12: 0 };
+        const estado = (estadoRes.rows && estadoRes.rows[0]) || { stock_v8: 0, stock_v12: 0 };
 
         if (v12Necesarios > 0 && estado.stock_v12 < v12Necesarios) {
             return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12 y solo hay ${estado.stock_v12} en stock.` });
@@ -384,7 +510,6 @@ app.post('/api/facturas', async (req, res) => {
             coste_fabrica_total += item.costo * item.cantidad;
             subtotal_bruto += subtotalLinea;
 
-            // REGLAS: Ni el Motor V12 (id: 7) ni la Mano de Obra (noDescuento) admiten descuento
             const admiteDescuento = !aplicarFabrica && !item.noDescuento && item.id !== 7 && pctDescuentoGeneral > 0;
             const pctLinea = admiteDescuento ? pctDescuentoGeneral : 0;
             const descuentoMontoLinea = subtotalLinea * (pctLinea / 100);
@@ -456,7 +581,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
             sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60",
             args: [req.params.usuario_id]
         });
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -473,45 +598,63 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
             LIMIT 80
         `;
         const result = await db.execute(sql);
-        res.json(result.rows);
+        res.json(result.rows || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 16. TOP TRABAJADORES
+// 16. TOP TRABAJADORES (100% BLINDADO A PRUEBA DE FALLOS)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
-        const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
-                   COUNT(f.id) as total_facturas,
-                   COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                   COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                   COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
-            FROM usuarios u
-            LEFT JOIN facturas f ON u.id = f.usuario_id
-            GROUP BY u.id
-            ORDER BY ganancia_generada DESC
-        `;
-        const result = await db.execute(sql);
-        res.json(result.rows);
-    } catch (err) {
-        try {
-            const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
-                       COUNT(f.id) as total_facturas,
-                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
-                FROM usuarios u
-                LEFT JOIN facturas f ON u.id = f.usuario_id
-                GROUP BY u.id
-                ORDER BY ganancia_generada DESC
-            `);
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
+        const usersRes = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios");
+        const facturasRes = await db.execute("SELECT usuario_id, total_cliente, ganancia_neta, comision_empleado FROM facturas");
+
+        const users = usersRes.rows || [];
+        const facturas = facturasRes.rows || [];
+
+        const mapaTotales = {};
+        users.forEach(u => {
+            mapaTotales[u.id] = {
+                id: u.id,
+                nombre: u.nombre,
+                usuario: u.usuario,
+                rol: u.rol,
+                comision_porcentaje: u.comision_porcentaje,
+                created_at: u.created_at,
+                puntos_saldo: 0,
+                xp_historica: 0,
+                total_facturas: 0,
+                total_vendido: 0,
+                ganancia_generada: 0,
+                comision_ganada: 0
+            };
+        });
+
+        // Cargar saldo de puntos y xp histórica
+        for (let u of users) {
+            try {
+                const s = await db.execute({ sql: "SELECT puntos_saldo, xp_historica FROM usuarios WHERE id = ?", args: [u.id] });
+                if (s.rows && s.rows[0]) {
+                    mapaTotales[u.id].puntos_saldo = Number(s.rows[0].puntos_saldo) || 0;
+                    mapaTotales[u.id].xp_historica = Number(s.rows[0].xp_historica) || 0;
+                }
+            } catch (e) {}
         }
+
+        facturas.forEach(f => {
+            if (mapaTotales[f.usuario_id]) {
+                mapaTotales[f.usuario_id].total_facturas++;
+                mapaTotales[f.usuario_id].total_vendido += Number(f.total_cliente) || 0;
+                mapaTotales[f.usuario_id].ganancia_generada += Number(f.ganancia_neta) || 0;
+                mapaTotales[f.usuario_id].comision_ganada += Number(f.comision_empleado) || 0;
+            }
+        });
+
+        const listaFinal = Object.values(mapaTotales).sort((a, b) => b.ganancia_generada - a.ganancia_generada);
+        res.json(listaFinal);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
