@@ -1388,14 +1388,15 @@
             return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        function obtenerClaveRango(rol, comision) {
-            if (rol === 'jefe' || comision == -1) return 'jefe';
-            if (comision == 0) return 'subjefe';
-            if (comision >= 45) return 'encargado';
-            if (comision >= 40) return 'experto';
-            if (comision >= 35) return 'mecanico';
-            return 'pruebas';
-        }
+      function obtenerClaveRango(rol, comision) {
+    if (rol === 'jefe' || Number(comision) === -1) return 'jefe';
+    if (Number(comision) === 0 && rol !== 'jefe') return 'subjefe';
+    if (Number(comision) >= 45) return 'encargado';
+    if (Number(comision) === 40) return 'experto';
+    if (Number(comision) === 35) return 'mecanico';
+    return 'pruebas';
+}
+        
 
         function obtenerBadgeRango(rol, comision) {
             let badgeAdmin = rol === 'admin' ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/40 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ml-1">👑 Admin</span>' : '';
