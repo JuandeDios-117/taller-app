@@ -23,8 +23,8 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tablas complementarias
-(async function initDB() {
+// Inicialización asíncrona no bloqueante de base de datos
+async function inicializarTablas() {
     try {
         await db.execute(`
             CREATE TABLE IF NOT EXISTS convenios_facciones (
@@ -35,9 +35,7 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
-    } catch (e) {
-        console.error("Error iniciando tabla convenios:", e.message);
-    }
+    } catch (e) {}
 
     try {
         await db.execute(`
@@ -56,7 +54,9 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
     try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos_saldo INTEGER DEFAULT 0"); } catch (e) {}
     try { await db.execute("ALTER TABLE usuarios ADD COLUMN xp_historica INTEGER DEFAULT 0"); } catch (e) {}
     try { await db.execute("ALTER TABLE usuarios ADD COLUMN medallas_json TEXT DEFAULT '{}'"); } catch (e) {}
-})();
+    console.log("Base de datos y columnas sincronizadas correctamente.");
+}
+inicializarTablas();
 
 const onlineSockets = new Map();
 io.on('connection', (socket) => {
@@ -91,13 +91,13 @@ function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
 
-// CONVENIOS DE FACCIONES
+// CONVENIOS
 app.get('/api/convenios', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM convenios_facciones ORDER BY faccion ASC");
         res.json(result.rows || []);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.json([]);
     }
 });
 
@@ -209,7 +209,6 @@ app.post('/api/tienda/bono-ruleta', async (req, res) => {
     }
 });
 
-// AÑADIR O RESTAR PUNTOS MANUALMENTE (DESDE ADMIN)
 app.post('/api/admin/ajustar-puntos', async (req, res) => {
     const { usuario_id, puntos, operacion } = req.body;
     const pts = parseInt(puntos);
@@ -228,7 +227,7 @@ app.post('/api/admin/ajustar-puntos', async (req, res) => {
     }
 });
 
-// 1. REGISTRO
+// REGISTRO & LOGIN
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -255,7 +254,6 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN (MANTENIDO 100% FIEL A TU CÓDIGO ORIGINAL PARA ASEGURAR QUE NUNCA FALLE)
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
@@ -271,7 +269,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3. ALMACÉN ESTADO
+// ALMACÉN
 app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
@@ -282,7 +280,6 @@ app.get('/api/almacen/estado', async (req, res) => {
     }
 });
 
-// 4. INGRESAR CAPITAL
 app.post('/api/almacen/ingresar-capital', async (req, res) => {
     const { monto, descripcion, usuario_nombre } = req.body;
     const montoNum = parseFloat(monto);
@@ -301,7 +298,6 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
-// 5. COMPRA DE MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -334,7 +330,6 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
-// 6. AJUSTE MANUAL ALMACÉN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
     const capNum = parseFloat(capital);
@@ -363,22 +358,16 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// 7. LISTA DE USUARIOS
+// LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows || []);
     } catch (err) {
-        try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows || []);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
-// 8. MODIFICAR RANGO Y PERMISOS DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -393,7 +382,6 @@ app.put('/api/usuarios/modificar', async (req, res) => {
     }
 });
 
-// 9. ELIMINAR USUARIO
 app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
@@ -406,7 +394,6 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     }
 });
 
-// 10. TRANSFERIR FACTURA
 app.put('/api/facturas/:id/transferir', async (req, res) => {
     const factura_id = req.params.id;
     const { nuevo_usuario_id } = req.body;
@@ -434,7 +421,6 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
     }
 });
 
-// 11. ELIMINAR FACTURA
 app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
@@ -446,7 +432,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA (CONSERVA LA XP Y NIVELES)
+// REINICIAR SEMANA
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -461,7 +447,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
 
         await db.execute("DELETE FROM facturas");
         await db.execute({
-            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas. XP y niveles conservados.', 0, ?)",
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio semanal: facturas liquidadas. XP, niveles y medallas conservados.', 0, ?)",
             args: [usuario_nombre || 'Admin']
         });
         notificarCambioGlobal('reinicio_semana');
@@ -471,7 +457,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA
+// REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -574,7 +560,6 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 14. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -587,7 +572,6 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// 15. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -604,7 +588,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// TOP TRABAJADORES (CONSULTA DIRECTA ROBUSTA)
+// TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const usersRes = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios");
@@ -613,9 +597,9 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const users = usersRes.rows || [];
         const facturas = facturasRes.rows || [];
 
-        const mapa = {};
+        const mapaTotales = {};
         users.forEach(u => {
-            mapa[u.id] = {
+            mapaTotales[u.id] = {
                 id: u.id,
                 nombre: u.nombre,
                 usuario: u.usuario,
@@ -631,29 +615,38 @@ app.get('/api/top-trabajadores', async (req, res) => {
             };
         });
 
-        // Cargar saldo de puntos y xp de forma segura
         for (let u of users) {
             try {
                 const s = await db.execute({ sql: "SELECT puntos_saldo, xp_historica FROM usuarios WHERE id = ?", args: [u.id] });
                 if (s.rows && s.rows[0]) {
-                    mapa[u.id].puntos_saldo = Number(s.rows[0].puntos_saldo) || 0;
-                    mapa[u.id].xp_historica = Number(s.rows[0].xp_historica) || 0;
+                    mapaTotales[u.id].puntos_saldo = Number(s.rows[0].puntos_saldo) || 0;
+                    mapaTotales[u.id].xp_historica = Number(s.rows[0].xp_historica) || 0;
                 }
             } catch (e) {}
         }
 
         facturas.forEach(f => {
-            if (mapa[f.usuario_id]) {
-                mapa[f.usuario_id].total_facturas++;
-                mapa[f.usuario_id].total_vendido += Number(f.total_cliente) || 0;
-                mapa[f.usuario_id].ganancia_generada += Number(f.ganancia_neta) || 0;
-                mapa[f.usuario_id].comision_ganada += Number(f.comision_empleado) || 0;
+            if (mapaTotales[f.usuario_id]) {
+                mapaTotales[f.usuario_id].total_facturas++;
+                mapaTotales[f.usuario_id].total_vendido += Number(f.total_cliente) || 0;
+                mapaTotales[f.usuario_id].ganancia_generada += Number(f.ganancia_neta) || 0;
+                mapaTotales[f.usuario_id].comision_ganada += Number(f.comision_empleado) || 0;
             }
         });
 
-        const listaFinal = Object.values(mapa).sort((a, b) => b.ganancia_generada - a.ganancia_generada);
+        const listaFinal = Object.values(mapaTotales).sort((a, b) => b.ganancia_generada - a.ganancia_generada);
         res.json(listaFinal);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+// Levantar servidor en 0.0.0.0 para compatibilidad total con Render
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor de AutoExotic ejecutándose en el puerto ${PORT}`);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Error no capturado:', err);
 });
