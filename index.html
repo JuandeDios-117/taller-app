@@ -87,7 +87,9 @@
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
         }
-        .top-medal-badge:hover { transform: translateY(-2px) scale(1.05); }
+        .top-medal-badge:hover {
+            transform: translateY(-2px) scale(1.05);
+        }
 
         /* PASADOR DE CINTAS */
         .ribbon-bar {
@@ -110,18 +112,6 @@
             transition: transform 0.15s ease;
         }
         .ribbon-chip:hover { transform: scale(1.2); z-index: 10; }
-
-        /* RULETA */
-        .roulette-container {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            border: 6px solid #38bdf8;
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
-            overflow: hidden;
-            transition: transform 4s cubic-bezier(0.15, 0.9, 0.25, 1);
-        }
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen">
@@ -137,7 +127,9 @@
                 <!-- MÉXICO -->
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-emerald-500/40 shadow-sm">
                     <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
-                        <path fill="#006847" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ce1126" d="M426.7 0H640v480H426.7z"/>
+                        <path fill="#006847" d="M0 0h213.3v480H0z"/>
+                        <path fill="#fff" d="M213.3 0h213.4v480H213.3z"/>
+                        <path fill="#ce1126" d="M426.7 0H640v480H426.7z"/>
                         <circle cx="320" cy="240" r="32" fill="#8c6239" opacity="0.85"/>
                     </svg>
                     <span class="font-bold text-emerald-400">México:</span>
@@ -147,7 +139,9 @@
                 <!-- ESPAÑA -->
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-yellow-500/40 shadow-sm">
                     <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
-                        <path fill="#aa151b" d="M0 0h640v480H0z"/><path fill="#f1bf00" d="M0 120h640v240H0z"/><path fill="#aa151b" d="M140 200h40v80h-40z" opacity="0.9"/>
+                        <path fill="#aa151b" d="M0 0h640v480H0z"/>
+                        <path fill="#f1bf00" d="M0 120h640v240H0z"/>
+                        <path fill="#aa151b" d="M140 200h40v80h-40z" opacity="0.9"/>
                     </svg>
                     <span class="font-bold text-yellow-400">España:</span>
                     <span id="relojEspana" class="text-white font-black tracking-wider text-xs">--:--:--</span>
@@ -156,7 +150,9 @@
                 <!-- ARGENTINA -->
                 <div class="flex items-center gap-2.5 bg-black/80 px-3.5 py-1.5 rounded-xl border border-cyan-500/40 shadow-sm">
                     <svg class="w-5 h-3.5 rounded-sm overflow-hidden shrink-0 shadow-sm" viewBox="0 0 640 480">
-                        <path fill="#74acdf" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><circle cx="320" cy="240" r="28" fill="#f6b40e"/>
+                        <path fill="#74acdf" d="M0 0h640v480H0z"/>
+                        <path fill="#fff" d="M0 160h640v160H0z"/>
+                        <circle cx="320" cy="240" r="28" fill="#f6b40e"/>
                     </svg>
                     <span class="font-bold text-cyan-400">Argentina:</span>
                     <span id="relojArgentina" class="text-white font-black tracking-wider text-xs">--:--:--</span>
@@ -185,14 +181,8 @@
                 </div>
             </div>
 
-            <!-- BARRA DE NIVEL, CRESTA, RACHA Y PUNTOS -->
+            <!-- BARRA DE NIVEL, CRESTA Y RACHA -->
             <div class="flex flex-wrap items-center gap-3 z-10">
-                <!-- PUNTOS HEADER -->
-                <div onclick="cambiarPestana('tienda')" class="cursor-pointer flex items-center gap-1.5 bg-cyan-950/40 border border-cyan-500/40 px-3 py-1.5 rounded-xl shadow-inner text-xs font-black text-cyan-300 hover:border-cyan-400 transition">
-                    <span>💎</span>
-                    <span id="txtPuntosHeader">0 Pts</span>
-                </div>
-
                 <div id="badgeRachaHeader" class="hidden items-center gap-1.5 bg-orange-950/40 border border-orange-500/40 px-3 py-1.5 rounded-xl shadow-inner text-xs font-black text-orange-400">
                     <span>🔥</span>
                     <span id="txtRachaHeader">1 día</span>
@@ -224,9 +214,6 @@
             <div class="flex flex-wrap gap-2 w-full md:w-auto">
                 <button onclick="cambiarPestana('calculadora')" id="tab-calc" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition">
                     🧮 CALCULADORA
-                </button>
-                <button onclick="cambiarPestana('tienda')" id="tab-tienda" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-cyan-300 hover:text-white hover:bg-zinc-800 transition border border-cyan-500/20">
-                    🛍️ TIENDA & RULETA
                 </button>
                 <button onclick="cambiarPestana('almacen')" id="tab-almacen" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-rose-400 hover:text-rose-300 hover:bg-zinc-800 hidden transition border border-rose-500/20">
                     🏢 ALMACÉN Y CAPITAL
@@ -407,111 +394,6 @@
             </div>
         </div>
 
-        <!-- TIENDA & RULETA DE PUNTOS -->
-        <div id="seccion-tienda" class="space-y-6 hidden">
-            <!-- BANNER DE PUNTOS Y DETALLE -->
-            <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-6 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/30 via-zinc-950 to-zinc-950">
-                <div>
-                    <h2 class="text-2xl font-black text-white uppercase flex items-center gap-2">
-                        🛍️ TIENDA DE PUNTOS AUTOEXOTIC
-                    </h2>
-                    <p class="text-xs text-zinc-400 mt-1">Canjea tus puntos por piezas del taller para tus autos personales o rol.</p>
-                </div>
-                <div class="flex items-center gap-4 bg-black/80 px-5 py-3 rounded-2xl border border-cyan-500/40">
-                    <span class="text-3xl">💎</span>
-                    <div>
-                        <div class="text-[10px] font-black uppercase text-zinc-400">Mis Puntos Disponibles</div>
-                        <div class="text-2xl font-black text-cyan-300" id="lblSaldoPuntosTienda">0 Puntos</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- RULETA DIARIA CON PREMIOS VISUALES -->
-                <div class="card-dark p-6 rounded-2xl space-y-4 flex flex-col items-center justify-center text-center border-t-4 border-amber-400">
-                    <div class="space-y-1">
-                        <h3 class="text-lg font-black text-amber-300 uppercase flex items-center justify-center gap-2">
-                            🎡 RULETA DEL MECÁNICO (CADA 24H)
-                        </h3>
-                        <p class="text-xs text-zinc-400">Gira gratis una vez al día para ganar puntos acumulables.</p>
-                    </div>
-
-                    <div class="relative flex items-center justify-center my-3">
-                        <div id="ruletaDisco" class="roulette-container flex items-center justify-center bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-950 text-center p-4 border-4 border-amber-400/80">
-                            <div id="ruletaPremioVisual" class="font-black text-amber-300 text-sm tracking-wider uppercase px-2">
-                                🎁 ¡Gira para ganar!
-                            </div>
-                        </div>
-                        <div class="absolute -top-3 text-2xl z-20 text-amber-400 font-black">▼</div>
-                    </div>
-
-                    <button id="btnGirarRuleta" onclick="girarRuletaDiaria()" class="w-full btn-ae-action py-3 rounded-xl uppercase tracking-wider text-xs font-black">
-                        🎰 Girar Ruleta Diaria
-                    </button>
-                    <p id="txtRuletaCooldown" class="text-[11px] text-zinc-500 font-semibold"></p>
-
-                    <!-- LISTA VISUAL DE PREMIOS EN LA RULETA -->
-                    <div class="w-full pt-3 border-t border-zinc-800/80 text-left">
-                        <div class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">Premios posibles en la ruleta:</div>
-                        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +2 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +5 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +10 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +15 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-emerald-400 font-bold">🧼 Kit Limpieza (1 Pt)</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-emerald-400 font-bold">🧰 Reparación (2 Pts)</span>
-                            <span class="col-span-2 bg-amber-500/15 px-2 py-1 rounded border border-amber-500/40 text-amber-200 font-black text-center">⭐ ¡Jackpot: +25 Puntos!</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TRANSFERIR PUNTOS A COMPAÑERO -->
-                <div class="card-dark p-6 rounded-2xl space-y-4 border-t-4 border-emerald-400">
-                    <div class="space-y-1">
-                        <h3 class="text-lg font-black text-emerald-400 uppercase flex items-center gap-2">
-                            🤝 TRANSFERIR PUNTOS A UN COMPAÑERO
-                        </h3>
-                        <p class="text-xs text-zinc-400">Apoya a otro mecánico transfiriéndole de tus puntos disponibles.</p>
-                    </div>
-                    <div class="space-y-3 pt-2">
-                        <div>
-                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Mecánico Receptor</label>
-                            <select id="selDestinoPuntos" class="w-full input-dark px-3 py-2.5 rounded-xl text-xs font-bold text-white"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-zinc-400 uppercase mb-1">Cantidad de Puntos</label>
-                            <input type="number" id="inpCantidadPuntosTransferir" min="1" placeholder="Ej. 15, 50" class="w-full input-dark px-3 py-2 rounded-xl text-sm font-bold text-cyan-300">
-                        </div>
-                        <button onclick="ejecutarTransferenciaPuntos()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-2.5 rounded-xl text-xs uppercase tracking-wider transition">
-                            Transferir Puntos
-                        </button>
-                    </div>
-                </div>
-
-                <!-- BANDEJA DE MIS PEDIDOS CANJEADOS (HISTORIAL DE COMPRAS) -->
-                <div class="card-dark p-6 rounded-2xl space-y-3 border-t-4 border-cyan-400">
-                    <h3 class="text-sm font-black text-cyan-300 uppercase flex items-center gap-2">
-                        📦 MIS CANJES REALIZADOS (HISTORIAL)
-                    </h3>
-                    <p class="text-[11px] text-zinc-400">Lista de piezas que compraste con tus puntos y su estado de entrega en el juego.</p>
-                    <div id="listaMisCanjes" class="space-y-2 max-h-72 overflow-y-auto text-xs pr-1">
-                        <p class="text-zinc-500 italic">No has canjeado piezas aún.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CATÁLOGO DE PIEZAS POR PUNTOS -->
-            <div class="card-dark p-6 rounded-2xl space-y-4">
-                <div class="border-b border-zinc-800 pb-3 flex flex-wrap justify-between items-center gap-2">
-                    <h3 class="text-xs font-black text-cyan-400 uppercase tracking-widest">
-                        CATÁLOGO DE PIEZAS CANJEABLES CON PUNTOS
-                    </h3>
-                    <span class="text-xs text-zinc-500 font-bold">1 Pto por cada $5,000 generados + 1 Pto por Orden</span>
-                </div>
-                <div id="gridItemsTienda" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"></div>
-            </div>
-        </div>
-
         <!-- ALMACÉN Y CAPITAL -->
         <div id="seccion-almacen" class="space-y-6 hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -668,11 +550,11 @@
                             <td class="p-3">Tracción AWD</td>
                         </tr>
                         <tr>
-                            <td class="p-3 font-bold text-zinc-400">TURBO / RENDIMIENTO</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo + 3x Rendimiento</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo + 3x Rendimiento</td>
+                            <td class="p-3 font-bold text-zinc-400">POR PEDIDO (RENDIMIENTOS)</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza Rendimiento</td>
+                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza (Turbo)</td>
+                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
                         </tr>
                     </tbody>
                 </table>
@@ -780,7 +662,7 @@
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
-                <p class="text-xs text-zinc-400">Ranking oficial con niveles, puntos de fidelidad y medallas destacadas.</p>
+                <p class="text-xs text-zinc-400">Ranking oficial con niveles y medallas destacadas.</p>
             </div>
             <div id="topContenedor" class="space-y-4"></div>
         </div>
@@ -794,60 +676,12 @@
                         🚨 CORTE SEMANAL Y REINICIO DE FACTURAS
                     </h3>
                     <p class="text-xs text-zinc-400 mt-1">
-                        Liquida las facturas de la semana a $0. <strong>La experiencia (XP), niveles y medallas se conservan intactos.</strong>
+                        Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas intactas.
                     </p>
                 </div>
                 <button onclick="ejecutarReinicioSemanal()" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/30">
                     🔄 Reiniciar Semana / Pagar
                 </button>
-            </div>
-
-            <!-- MODIFICAR PUNTOS MANUALMENTE A TRABAJADORES (NUEVO) -->
-            <div class="card-dark p-6 rounded-xl border border-cyan-500/40 space-y-4">
-                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                    <div>
-                        <h3 class="text-lg font-black text-cyan-400 uppercase flex items-center gap-2">
-                            💎 GESTIÓN MANUAL DE PUNTOS DE TRABAJADORES
-                        </h3>
-                        <p class="text-xs text-zinc-400">Suma o resta puntos de lealtad manualmente a cualquier mecánico por premios, eventos o sanciones.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-black/60 p-4 rounded-xl border border-zinc-800">
-                    <div>
-                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Trabajador</label>
-                        <select id="selAdminTrabajadorPuntos" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold text-white"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Acción</label>
-                        <select id="selAdminOperacionPuntos" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold text-amber-300">
-                            <option value="sumar">➕ Añadir Puntos</option>
-                            <option value="restar">➖ Restar Puntos</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-zinc-300 uppercase mb-1">Cantidad de Puntos</label>
-                        <input type="number" id="inpAdminCantidadPuntos" min="1" placeholder="Ej. 20, 50, 100" class="w-full input-dark px-3 py-2 rounded-lg text-xs font-bold text-cyan-300">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="ejecutarAjustePuntosAdmin()" class="w-full btn-ae-action py-2 rounded-lg text-xs uppercase tracking-wider font-black">
-                            Guardar Puntos
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BANDEJA DE CANJES DE LA TIENDA PENDIENTES DE ENTREGA -->
-            <div class="card-dark p-6 rounded-xl border border-cyan-500/40 space-y-4">
-                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                    <div>
-                        <h3 class="text-lg font-black text-cyan-400 uppercase flex items-center gap-2">
-                            📦 PEDIDOS DE TIENDA POR ENTREGAR IN-GAME
-                        </h3>
-                        <p class="text-xs text-zinc-400">Revisa los canjes que hicieron los mecánicos en la tienda web para darles su pieza dentro del juego.</p>
-                    </div>
-                </div>
-                <div id="listaCanjesAdmin" class="space-y-2 max-h-72 overflow-y-auto text-xs"></div>
             </div>
 
             <!-- GESTOR DE CONVENIOS CON FACCIONES -->
@@ -955,7 +789,7 @@
             </div>
             <div>
                 <h3 class="text-lg font-black text-white uppercase" id="modalAvisoTitulo">Atención</h3>
-                <p class="text-xs text-zinc-400 mt-1" id="modalAvisoMensaje"></p>
+                <p class="text-xs text-zinc-400 mt-1" id="modalAvisoMensaje">Mensaje de aviso.</p>
             </div>
             <button onclick="cerrarModalAviso()" class="w-full btn-ae-action py-2.5 rounded-xl transition text-sm uppercase">
                 Aceptar
@@ -1112,7 +946,37 @@
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
 
-        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {}
+        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const ahora = audioCtx.currentTime;
+
+                const emitirTono = (freq, inicio, duracion, tipo = 'triangle', ganancia = 0.2) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = tipo;
+                    osc.frequency.setValueAtTime(freq, ahora + inicio);
+                    gain.gain.setValueAtTime(ganancia, ahora + inicio);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ahora + inicio + duracion);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(ahora + inicio);
+                    osc.stop(ahora + inicio + duracion);
+                };
+
+                if (total >= 1000000) {
+                    [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => emitirTono(f, i * 0.12, 0.5, 'sine', 0.25));
+                } else if (total >= 500000 || tieneV12) {
+                    [220, 329.63, 440, 554.37, 659.25].forEach((f) => emitirTono(f, 0, 0.8, 'sawtooth', 0.12));
+                } else if (total >= 100000) {
+                    emitirTono(880, 0, 0.15, 'triangle', 0.2);
+                    emitirTono(1318.51, 0.12, 0.4, 'triangle', 0.2);
+                } else {
+                    emitirTono(659.25, 0, 0.1, 'sine', 0.15);
+                    emitirTono(880, 0.08, 0.25, 'sine', 0.15);
+                }
+            } catch (e) {}
+        }
 
         const socket = io();
 
@@ -1189,9 +1053,9 @@
             reader.readAsDataURL(file);
         }
 
-        function calcularNivelYProgreso(totalVendido, usuarioId, xpHistoricaExtra = 0) {
+        function calcularNivelYProgreso(totalVendido, usuarioId) {
             const overrideNivel = localStorage.getItem(`ae_custom_lvl_${usuarioId}`);
-            let xpTotal = Math.floor(((totalVendido || 0) + (xpHistoricaExtra || 0)) / 100);
+            let xpTotal = Math.floor((totalVendido || 0) / 100);
 
             if (overrideNivel !== null && overrideNivel !== '') {
                 const lvlNum = parseInt(overrideNivel);
@@ -1234,24 +1098,17 @@
             });
 
             const overrides = JSON.parse(localStorage.getItem(`ae_custom_badges_${usuarioId}`)) || {};
-            const medallasGuardadas = JSON.parse(localStorage.getItem(`ae_unlocked_medals_${usuarioId}`)) || {};
 
-            const lista = [
-                { id: 'm1', titulo: 'Rey del V12', icon: '👑', colorRibbon: 'bg-amber-500', colorBorde: 'border-amber-500 text-amber-300', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : (medallasGuardadas.m1 || totalV12 >= 3) },
-                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', colorRibbon: 'bg-cyan-500', colorBorde: 'border-cyan-500 text-cyan-300', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : (medallasGuardadas.m2 || totalNitro >= 5) },
-                { id: 'm3', titulo: 'Rey del Drift', icon: '🏎️', colorRibbon: 'bg-fuchsia-500', colorBorde: 'border-fuchsia-500 text-fuchsia-300', desc: 'Instala Kits de Drift', activa: overrides.m3 !== undefined ? overrides.m3 : (medallasGuardadas.m3 || totalDrift >= 2) },
-                { id: 'm4', titulo: 'Mente V8', icon: '⚙️', colorRibbon: 'bg-blue-500', colorBorde: 'border-blue-500 text-blue-300', desc: 'Instala 5+ Motores V8', activa: overrides.m4 !== undefined ? overrides.m4 : (medallasGuardadas.m4 || totalV8 >= 5) },
-                { id: 'm5', titulo: 'Detallador Pro', icon: '🧼', colorRibbon: 'bg-emerald-500', colorBorde: 'border-emerald-500 text-emerald-300', desc: '10+ Kits de Limpieza', activa: overrides.m5 !== undefined ? overrides.m5 : (medallasGuardadas.m5 || totalLimpieza >= 10) },
-                { id: 'm6', titulo: 'Gran Negocio', icon: '⚡', colorRibbon: 'bg-yellow-400', colorBorde: 'border-yellow-400 text-yellow-300', desc: 'Factura de $1,000,000+', activa: overrides.m6 !== undefined ? overrides.m6 : (medallasGuardadas.m6 || facturasGrandes >= 1) },
-                { id: 'm7', titulo: 'Medio Millón', icon: '💎', colorRibbon: 'bg-teal-400', colorBorde: 'border-teal-400 text-teal-300', desc: 'Vende $500,000+', activa: overrides.m7 !== undefined ? overrides.m7 : (medallasGuardadas.m7 || totalVendido >= 500000) },
-                { id: 'm8', titulo: 'Millonario', icon: '💰', colorRibbon: 'bg-rose-500', colorBorde: 'border-rose-500 text-rose-400', desc: 'Factura $5,000,000+', activa: overrides.m8 !== undefined ? overrides.m8 : (medallasGuardadas.m8 || totalVendido >= 5000000) }
+            return [
+                { id: 'm1', titulo: 'Rey del V12', icon: '👑', colorRibbon: 'bg-amber-500', colorBorde: 'border-amber-500 text-amber-300', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : (totalV12 >= 3) },
+                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', colorRibbon: 'bg-cyan-500', colorBorde: 'border-cyan-500 text-cyan-300', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : (totalNitro >= 5) },
+                { id: 'm3', titulo: 'Rey del Drift', icon: '🏎️', colorRibbon: 'bg-fuchsia-500', colorBorde: 'border-fuchsia-500 text-fuchsia-300', desc: 'Instala Kits de Drift', activa: overrides.m3 !== undefined ? overrides.m3 : (totalDrift >= 2) },
+                { id: 'm4', titulo: 'Mente V8', icon: '⚙️', colorRibbon: 'bg-blue-500', colorBorde: 'border-blue-500 text-blue-300', desc: 'Instala 5+ Motores V8', activa: overrides.m4 !== undefined ? overrides.m4 : (totalV8 >= 5) },
+                { id: 'm5', titulo: 'Detallador Pro', icon: '🧼', colorRibbon: 'bg-emerald-500', colorBorde: 'border-emerald-500 text-emerald-300', desc: '10+ Kits de Limpieza', activa: overrides.m5 !== undefined ? overrides.m5 : (totalLimpieza >= 10) },
+                { id: 'm6', titulo: 'Gran Negocio', icon: '⚡', colorRibbon: 'bg-yellow-400', colorBorde: 'border-yellow-400 text-yellow-300', desc: 'Factura de $1,000,000+', activa: overrides.m6 !== undefined ? overrides.m6 : (facturasGrandes >= 1) },
+                { id: 'm7', titulo: 'Medio Millón', icon: '💎', colorRibbon: 'bg-teal-400', colorBorde: 'border-teal-400 text-teal-300', desc: 'Vende $500,000+', activa: overrides.m7 !== undefined ? overrides.m7 : (totalVendido >= 500000) },
+                { id: 'm8', titulo: 'Millonario', icon: '💰', colorRibbon: 'bg-rose-500', colorBorde: 'border-rose-500 text-rose-400', desc: 'Factura $5,000,000+', activa: overrides.m8 !== undefined ? overrides.m8 : (totalVendido >= 5000000) }
             ];
-
-            const nuevoMapa = { ...medallasGuardadas };
-            lista.forEach(m => { if (m.activa) nuevoMapa[m.id] = true; });
-            localStorage.setItem(`ae_unlocked_medals_${usuarioId}`, JSON.stringify(nuevoMapa));
-
-            return lista;
         }
 
         function generarRibbonBarHTML(medallas) {
@@ -1290,7 +1147,6 @@
         const categoriaConfig = {
             'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
             'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
-            'TURBO': { colorBadge: 'bg-red-500/10 text-red-400 border-red-500/30', bordeCard: 'border-red-500/30 hover:border-red-400/60', bgCard: 'bg-gradient-to-r from-red-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🌀', colorVenta: 'text-red-300', colorBtn: 'bg-gradient-to-r from-red-500 to-orange-500 text-white font-black' },
             'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
             'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
             'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
@@ -1301,7 +1157,6 @@
 
         const catalogo = [
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
-            { id: 29, categoria: 'GENERAL', nombre: 'Kit Stance', venta: 10000, costo: 3000 },
             { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
             { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
             { id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500 },
@@ -1309,10 +1164,9 @@
             { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
             { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
             { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
-            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
-            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 300000 },
+            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
+            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
-            { id: 28, categoria: 'TURBO', nombre: 'Turbo', venta: 10000, costo: 7000 },
             { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000, noDescuento: true },
             { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000 },
             { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
@@ -1323,7 +1177,7 @@
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS
+            // COMBOS: Desglosan automáticamente piezas individuales + Mano de Obra para cuadrar el precio total
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1332,12 +1186,11 @@
                 costo: 95000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },
-                    { id: 15, cantidad: 1 },
-                    { id: 9, cantidad: 1 },
-                    { id: 12, cantidad: 1 },
-                    { id: 28, cantidad: 1 },
-                    { id: 1, cantidad: 3 },
+                    { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                    { id: 12, cantidad: 1 }, // Slick ($6,000)
+                    { id: 1, cantidad: 4 },  // 4x Piezas Rendimiento ($40,000)
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 11500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1349,11 +1202,11 @@
                 costo: 67000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },
-                    { id: 15, cantidad: 1 },
-                    { id: 9, cantidad: 1 },
-                    { id: 12, cantidad: 1 },
-                    { id: 28, cantidad: 1 },
+                    { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                    { id: 12, cantidad: 1 }, // Slick ($6,000)
+                    { id: 1, cantidad: 1 },  // 1x Piezas Rendimiento ($10,000)
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1365,76 +1218,57 @@
                 costo: 327000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },
-                    { id: 15, cantidad: 1 },
-                    { id: 9, cantidad: 1 },
-                    { id: 12, cantidad: 1 },
-                    { id: 28, cantidad: 1 },
+                    { id: 7, cantidad: 1 },  // Motor V12 ($500,000 - Fijo sin descuento)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                    { id: 12, cantidad: 1 }, // Slick ($6,000)
+                    { id: 1, cantidad: 1 },  // 1x Rendimiento ($10,000)
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
                 id: 21, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
-                nombre: 'FULL TUNNING V12 PRO', 
+                nombre: 'FULL TUNNING V12 PRO (RENDIMIENTOS)', 
                 venta: 580000, 
                 costo: 348000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },
-                    { id: 15, cantidad: 1 },
-                    { id: 9, cantidad: 1 },
-                    { id: 12, cantidad: 1 },
-                    { id: 28, cantidad: 1 },
-                    { id: 1, cantidad: 3 },
+                    { id: 7, cantidad: 1 },  // Motor V12 ($500,000 - Fijo sin descuento)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                    { id: 12, cantidad: 1 }, // Slick ($6,000)
+                    { id: 1, cantidad: 4 },  // 4x Rendimiento ($40,000)
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
                 id: 22, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'La Nitrosa — Kit de Nitro + 2 Botellas', 
-                venta: 900000, 
-                costo: 500000, 
+                nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', 
+                venta: 1350000, 
+                costo: 600000, 
                 esCombo: true,
                 componentes: [
-                    { id: 25, cantidad: 1 },
-                    { id: 26, cantidad: 2 }
+                    { id: 25, cantidad: 1 }, // Kit Nitro ($900,000)
+                    { id: 26, cantidad: 3 }, // 3x Botellas ($600,000)
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Nitro', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
                 id: 23, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'Kit Need for Speed — Drift + Nitro + 2 Botellas', 
-                venta: 2400000, 
-                costo: 1700000, 
+                nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', 
+                venta: 2900000, 
+                costo: 1800000, 
                 esCombo: true,
                 componentes: [
-                    { id: 24, cantidad: 1 },
-                    { id: 25, cantidad: 1 },
-                    { id: 26, cantidad: 2 }
+                    { id: 24, cantidad: 1 }, // Kit Drift ($1,700,000)
+                    { id: 25, cantidad: 1 }, // Kit Nitro ($900,000)
+                    { id: 26, cantidad: 3 }, // 3x Botellas ($600,000)
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación NFS', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             }
-        ];
-
-        const catalogoTiendaPuntos = [
-            { nombre: 'Kit de Limpieza (x2)', puntos: 2, icon: '🧼' },
-            { nombre: 'Kit de Reparación', puntos: 2, icon: '🧰' },
-            { nombre: 'Kit de Pintura', puntos: 3, icon: '🎨' },
-            { nombre: 'Piezas Cosméticas', puntos: 5, icon: '✨' },
-            { nombre: 'Kit Stance', puntos: 6, icon: '🏎️' },
-            { nombre: 'Kit Humo Neumáticos', puntos: 8, icon: '💨' },
-            { nombre: 'Neumáticos Semi-Slick', puntos: 12, icon: '🛞' },
-            { nombre: 'Neumáticos Slick', puntos: 15, icon: '🛞' },
-            { nombre: 'Turbo', puntos: 25, icon: '🌀' },
-            { nombre: 'Piezas de Rendimiento', puntos: 25, icon: '⚡' },
-            { nombre: 'Frenos Cerámicos', puntos: 30, icon: '🛑' },
-            { nombre: 'Tracción AWD', puntos: 30, icon: '⚡' },
-            { nombre: 'Motor V8', puntos: 120, icon: '⚙️' },
-            { nombre: 'Botella de Nitro', puntos: 180, icon: '🧪' },
-            { nombre: 'Kit Instalación Nitro', puntos: 350, icon: '🚀' },
-            { nombre: 'Motor V12', puntos: 400, icon: '👑' },
-            { nombre: 'Kit Tuning Drift', puntos: 800, icon: '🏎️' }
         ];
 
         let usuarioActual = null;
@@ -1450,7 +1284,6 @@
         let facturaIdParaTransferir = null;
         let usuariosOnlineSet = new Set();
         let catalogoRenderizado = false;
-        let ruletaGirando = false;
 
         function formatearFechaIngreso(fechaStr) {
             if (!fechaStr) return 'Reciente';
@@ -1495,257 +1328,6 @@
             if (comision >= 40) return 'text-purple-300 font-bold';
             if (comision >= 35) return 'text-cyan-300 font-bold';
             return 'text-emerald-300 font-bold';
-        }
-
-        function calcularPuntosTrabajador(gananciaTaller, totalFacturas, puntosSaldo = 0) {
-            const ptsGanancia = Math.floor((Number(gananciaTaller) || 0) / 5000);
-            const ptsOrdenes = Number(totalFacturas) || 0;
-            return Math.max(0, ptsGanancia + ptsOrdenes + (Number(puntosSaldo) || 0));
-        }
-
-        // TIENDA & RULETA
-        async function cargarTiendaYRuleta() {
-            if (!usuarioActual) return;
-            try {
-                const resTop = await fetch('/api/top-trabajadores');
-                const ranking = await resTop.json();
-                const miRegistro = ranking.find(u => Number(u.id) === Number(usuarioActual.id));
-
-                let misPuntos = 0;
-                if (miRegistro) {
-                    misPuntos = calcularPuntosTrabajador(miRegistro.ganancia_generada, miRegistro.total_facturas, miRegistro.puntos_saldo);
-                }
-
-                document.getElementById('txtPuntosHeader').innerText = `${misPuntos.toLocaleString()} Pts`;
-                document.getElementById('lblSaldoPuntosTienda').innerText = `${misPuntos.toLocaleString()} Puntos`;
-
-                const gridTienda = document.getElementById('gridItemsTienda');
-                let htmlTienda = '';
-                catalogoTiendaPuntos.forEach(it => {
-                    const puede = misPuntos >= it.puntos;
-                    htmlTienda += `
-                        <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 flex flex-col justify-between space-y-3 hover:border-cyan-500/40 transition">
-                            <div class="space-y-1">
-                                <div class="text-2xl">${it.icon}</div>
-                                <h4 class="font-black text-white text-xs leading-tight">${it.nombre}</h4>
-                                <div class="text-cyan-400 font-black text-sm">${it.puntos} Puntos</div>
-                            </div>
-                            <button onclick="canjearItemTienda('${it.nombre}', ${it.puntos})" class="w-full py-2 rounded-xl text-xs font-black uppercase transition ${puede ? 'btn-ae-action' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}" ${!puede ? 'disabled' : ''}>
-                                ${puede ? 'Canjear' : 'Puntos Insuficientes'}
-                            </button>
-                        </div>
-                    `;
-                });
-                gridTienda.innerHTML = htmlTienda;
-
-                const sel = document.getElementById('selDestinoPuntos');
-                let opts = '';
-                ranking.forEach(u => {
-                    if (Number(u.id) !== Number(usuarioActual.id)) {
-                        opts += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-                    }
-                });
-                sel.innerHTML = opts || '<option value="">Sin compañeros disponibles</option>';
-
-                // Cargar mis canjes
-                const resCanjes = await fetch('/api/tienda/canjes');
-                const canjes = await resCanjes.json();
-                const misCanjes = canjes.filter(c => Number(c.usuario_id) === Number(usuarioActual.id));
-                const contMisCanjes = document.getElementById('listaMisCanjes');
-
-                if (misCanjes.length === 0) {
-                    contMisCanjes.innerHTML = '<p class="text-zinc-500 italic">No has canjeado piezas aún.</p>';
-                } else {
-                    let htmlMis = '';
-                    misCanjes.forEach(c => {
-                        const pendiente = c.estado === 'pendiente';
-                        htmlMis += `
-                            <div class="flex justify-between items-center p-2.5 rounded-xl border border-zinc-800 bg-black/60">
-                                <div>
-                                    <div class="font-bold text-white">${c.item_nombre}</div>
-                                    <div class="text-[10px] text-zinc-500">${c.puntos_gastados} Pts · ${formatearFechaConZona(c.fecha)}</div>
-                                </div>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${pendiente ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300'}">
-                                    ${pendiente ? 'Por entregar' : 'Entregado'}
-                                </span>
-                            </div>
-                        `;
-                    });
-                    contMisCanjes.innerHTML = htmlMis;
-                }
-
-                // Cargar canjes para panel admin
-                if (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe') {
-                    const contAdmin = document.getElementById('listaCanjesAdmin');
-                    if (canjes.length === 0) {
-                        contAdmin.innerHTML = '<p class="text-zinc-500 italic">No hay canjes registrados.</p>';
-                    } else {
-                        let htmlAdm = '';
-                        canjes.forEach(c => {
-                            const pendiente = c.estado === 'pendiente';
-                            htmlAdm += `
-                                <div class="flex justify-between items-center bg-black/80 p-3 rounded-xl border border-zinc-800">
-                                    <div>
-                                        <div class="font-bold text-cyan-300">${c.trabajador_nombre} <span class="text-white font-normal">canjeó</span> ${c.item_nombre}</div>
-                                        <div class="text-[10px] text-zinc-500">${c.puntos_gastados} Puntos · ${formatearFechaConZona(c.fecha)}</div>
-                                    </div>
-                                    <div>
-                                        ${pendiente ? `
-                                            <button onclick="marcarCanjeEntregado(${c.id})" class="bg-emerald-500 hover:bg-emerald-400 text-black font-black px-3 py-1 rounded-lg text-xs uppercase">
-                                                ✓ Marcar Entregado
-                                            </button>
-                                        ` : '<span class="text-emerald-400 font-bold text-xs">Entregado in-game</span>'}
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        contAdmin.innerHTML = htmlAdm;
-                    }
-                }
-
-                actualizarEstadoRuletaCooldown();
-            } catch (e) {}
-        }
-
-        async function canjearItemTienda(itemNombre, puntos) {
-            if (!confirm(`¿Confirmas el canje de ${itemNombre} por ${puntos} Puntos?`)) return;
-            const res = await fetch('/api/tienda/canjear', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario_id: usuarioActual.id, item_nombre: itemNombre, costo_puntos: puntos })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                mostrarAviso('Canje Registrado', data.message);
-                cargarTiendaYRuleta();
-            } else {
-                mostrarAviso('Error', data.error, true);
-            }
-        }
-
-        async function marcarCanjeEntregado(canjeId) {
-            const res = await fetch(`/api/tienda/canjes/${canjeId}/entregar`, { method: 'PUT' });
-            if (res.ok) {
-                cargarTiendaYRuleta();
-                mostrarAviso('Entregado', 'El canje fue marcado como entregado in-game.');
-            }
-        }
-
-        async function ejecutarTransferenciaPuntos() {
-            const receptor_id = document.getElementById('selDestinoPuntos').value;
-            const puntos = document.getElementById('inpCantidadPuntosTransferir').value;
-            if (!receptor_id || !puntos || parseInt(puntos) <= 0) return mostrarAviso('Inválido', 'Ingresa una cantidad de puntos válida.');
-
-            const res = await fetch('/api/tienda/transferir-puntos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ emisor_id: usuarioActual.id, receptor_id, puntos })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                document.getElementById('inpCantidadPuntosTransferir').value = '';
-                mostrarAviso('Puntos Transferidos', data.message);
-                cargarTiendaYRuleta();
-            } else {
-                mostrarAviso('Error', data.error, true);
-            }
-        }
-
-        async function ejecutarAjustePuntosAdmin() {
-            const usuario_id = document.getElementById('selAdminTrabajadorPuntos').value;
-            const operacion = document.getElementById('selAdminOperacionPuntos').value;
-            const puntos = document.getElementById('inpAdminCantidadPuntos').value;
-
-            if (!usuario_id || !puntos || parseInt(puntos) <= 0) {
-                return mostrarAviso('Campos Inválidos', 'Selecciona el trabajador e ingresa un monto válido de puntos.');
-            }
-
-            const res = await fetch('/api/admin/ajustar-puntos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario_id, puntos, operacion })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                document.getElementById('inpAdminCantidadPuntos').value = '';
-                mostrarAviso('Puntos Modificados', data.message);
-                cargarTiendaYRuleta();
-                cargarTop();
-                cargarGestionAdmin();
-            } else {
-                mostrarAviso('Error', data.error, true);
-            }
-        }
-
-        function actualizarEstadoRuletaCooldown() {
-            if (!usuarioActual) return;
-            const claveCooldown = `ae_ruleta_last_${usuarioActual.id}`;
-            const ultimaVez = localStorage.getItem(claveCooldown);
-            const btn = document.getElementById('btnGirarRuleta');
-            const txt = document.getElementById('txtRuletaCooldown');
-
-            if (ultimaVez) {
-                const diffMs = Date.now() - Number(ultimaVez);
-                const horasRestantes = 24 - (diffMs / (1000 * 60 * 60));
-                if (horasRestantes > 0) {
-                    btn.disabled = true;
-                    btn.className = 'w-full bg-zinc-800 text-zinc-500 py-3 rounded-xl uppercase tracking-wider text-xs font-black cursor-not-allowed';
-                    txt.innerText = `⏳ Disponible de nuevo en ${Math.ceil(horasRestantes)} horas.`;
-                    return;
-                }
-            }
-            btn.disabled = false;
-            btn.className = 'w-full btn-ae-action py-3 rounded-xl uppercase tracking-wider text-xs font-black';
-            txt.innerText = '✨ ¡Tu giro diario está disponible!';
-        }
-
-        async function girarRuletaDiaria() {
-            if (ruletaGirando || !usuarioActual) return;
-            const claveCooldown = `ae_ruleta_last_${usuarioActual.id}`;
-            const ultimaVez = localStorage.getItem(claveCooldown);
-            if (ultimaVez && (Date.now() - Number(ultimaVez)) < 24 * 60 * 60 * 1000) {
-                return mostrarAviso('Espera el tiempo', 'Solo puedes girar la ruleta una vez cada 24 horas.');
-            }
-
-            ruletaGirando = true;
-            const btn = document.getElementById('btnGirarRuleta');
-            btn.disabled = true;
-
-            const premios = [
-                { nombre: '+5 Puntos AutoExotic', puntos: 5 },
-                { nombre: '+10 Puntos AutoExotic', puntos: 10 },
-                { nombre: '+15 Puntos AutoExotic', puntos: 15 },
-                { nombre: '1x Kit de Reparación (+2 Pts)', puntos: 2 },
-                { nombre: '1x Kit de Limpieza (+1 Pt)', puntos: 1 },
-                { nombre: '+25 Puntos AutoExotic (¡Jackpot!)', puntos: 25 },
-                { nombre: '+2 Puntos AutoExotic', puntos: 2 }
-            ];
-
-            const premioGanador = premios[Math.floor(Math.random() * premios.length)];
-            const ruletaDisco = document.getElementById('ruletaDisco');
-            const premioVisual = document.getElementById('ruletaPremioVisual');
-
-            const giros = 5 * 360 + Math.floor(Math.random() * 360);
-            ruletaDisco.style.transform = `rotate(${giros}deg)`;
-
-            setTimeout(async () => {
-                ruletaDisco.style.transform = `rotate(0deg)`;
-                premioVisual.innerHTML = `🎉 ¡Ganaste:<br><span class="text-white">${premioGanador.nombre}</span>!`;
-                localStorage.setItem(claveCooldown, Date.now().toString());
-
-                await fetch('/api/tienda/bono-ruleta', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario_id: usuarioActual.id, puntos: premioGanador.puntos })
-                });
-
-                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-                mostrarAviso('¡Premio Ganado!', `Felicidades, ganaste: ${premioGanador.nombre}`);
-                ruletaGirando = false;
-                cargarTiendaYRuleta();
-                cargarTop();
-            }, 4000);
         }
 
         // CONVENIOS
@@ -1872,10 +1454,6 @@
 
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
-            if (data.evento === 'canje_realizado' || data.evento === 'canje_actualizado' || data.evento === 'puntos_transferidos' || data.evento === 'puntos_actualizados') {
-                cargarTiendaYRuleta();
-                cargarTop();
-            }
 
             if (data.evento === 'nueva_factura' && data.total) {
                 let tieneV12 = false;
@@ -1883,6 +1461,7 @@
                     tieneV12 = data.items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
                 }
 
+                reproducirSonidoGlobalVenta(data.total, tieneV12);
                 mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
 
                 if (data.total >= 500000 || tieneV12) {
@@ -1910,25 +1489,13 @@
             }
 
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(async () => {
-                const esAdminOJefe = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
-
+            debounceTimer = setTimeout(() => {
                 if (pestanaActiva === 'historial') cargarHistorial();
-                if (pestanaActiva === 'tienda') cargarTiendaYRuleta();
-                if (pestanaActiva === 'almacen' && esAdminOJefe) cargarAlmacen();
+                if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
                 if (pestanaActiva === 'top') cargarTop();
-
-                if (esAdminOJefe) {
-                    try {
-                        const resFacturas = await fetch('/api/admin/todas-facturas');
-                        facturasAdminGlobal = await resFacturas.json();
-                        filtrarHistorialAdmin();
-                    } catch(e) {}
-                    if (pestanaActiva === 'admin') cargarGestionAdmin();
-                }
-
+                if (pestanaActiva === 'admin' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarGestionAdmin();
                 actualizarBarraNivelHeader();
-            }, 200);
+            }, 250);
         });
 
         function mostrarLiveFeedVenta(trabajador, cliente, total) {
@@ -1947,12 +1514,7 @@
                 let totalVendido = 0;
                 facturas.forEach(f => totalVendido += f.total_cliente);
                 
-                const resTop = await fetch('/api/top-trabajadores');
-                const ranking = await resTop.json();
-                const miReg = ranking.find(u => Number(u.id) === Number(usuarioActual.id));
-                const xpHistorica = miReg ? miReg.xp_historica : 0;
-
-                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id, xpHistorica);
+                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
                 const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
 
                 document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 52);
@@ -1968,11 +1530,6 @@
                 document.getElementById('badgeRachaHeader').classList.remove('hidden');
                 document.getElementById('badgeRachaHeader').classList.add('flex');
                 document.getElementById('txtRachaHeader').innerText = `${racha} ${racha === 1 ? 'día' : 'días'}`;
-
-                if (miReg) {
-                    const pts = calcularPuntosTrabajador(miReg.ganancia_generada, miReg.total_facturas, miReg.puntos_saldo);
-                    document.getElementById('txtPuntosHeader').innerText = `${pts.toLocaleString()} Pts`;
-                }
             } catch (e) {}
         }
 
@@ -2073,7 +1630,6 @@
                 cambiarZonaHorariaFacturas(zonaHorariaActiva);
                 actualizarBarraNivelHeader();
                 cargarConvenios();
-                cargarTiendaYRuleta();
 
                 socket.emit('user_connected', usuarioActual);
             } else {
@@ -2086,7 +1642,7 @@
                 document.getElementById('badgeRachaHeader').classList.add('hidden');
                 container.innerHTML = `<span>No has iniciado sesión</span>`;
                 document.getElementById('seccion-auth').classList.remove('hidden');
-                ['calculadora', 'tienda', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
+                ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
                     const el = document.getElementById(`seccion-${s}`);
                     if (el) el.classList.add('hidden');
                 });
@@ -2154,7 +1710,7 @@
 
             pestanaActiva = pestana;
 
-            const tabs = ['calc', 'tienda', 'almacen', 'combos', 'hist', 'top', 'admin'];
+            const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition';
@@ -2163,7 +1719,7 @@
             const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
             if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
 
-            const secciones = ['calculadora', 'tienda', 'almacen', 'combos', 'historial', 'top', 'admin'];
+            const secciones = ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'];
             secciones.forEach(s => {
                 const el = document.getElementById(`seccion-${s}`);
                 if (el) {
@@ -2178,7 +1734,6 @@
                 }
             });
 
-            if (pestana === 'tienda') cargarTiendaYRuleta();
             if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
             if (pestana === 'historial') cargarHistorial();
             if (pestana === 'top') cargarTop();
@@ -2304,7 +1859,7 @@
         }
 
         async function ejecutarReinicioSemanal() {
-            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas para empezar el nuevo ciclo semanal.\n\nLos niveles, la experiencia (XP) y las medallas se conservarán intactos.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
+            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas para empezar el nuevo ciclo semanal.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
             
             if (confirmacion !== 'REINICIAR') {
                 return mostrarAviso('Acción Cancelada', 'No se realizaron cambios en las facturas.');
@@ -2318,7 +1873,7 @@
 
             const data = await res.json();
             if (res.ok) {
-                mostrarAviso('¡Semana Reiniciada!', data.message);
+                mostrarAviso('¡Semana Reiniciada!', 'Todas las facturas se han liquidado. El contador de ventas y comisiones está en $0.');
                 cargarGestionAdmin();
                 cargarTop();
             } else {
@@ -2334,10 +1889,6 @@
             const selectFiltro = document.getElementById('selectFiltroTrabajador');
             const valorPrevio = selectFiltro.value;
             let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
-
-            // Selector para gestión manual de puntos
-            const selPuntos = document.getElementById('selAdminTrabajadorPuntos');
-            let optsPuntos = '';
 
             const secciones = [
                 { key: 'jefe', titulo: '👑 JEFES (0% COMISIÓN - DIRECCIÓN GENERAL)', borde: 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]', texto: 'text-amber-300', bg: 'bg-amber-950/20' },
@@ -2461,12 +2012,10 @@
 
             usuariosAdminGlobal.forEach(u => {
                 optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-                optsPuntos += `<option value="${u.id}">${u.nombre} (@${u.usuario}) - Saldo: ${u.puntos_saldo || 0} Pts</option>`;
             });
 
             contenedorSecciones.innerHTML = htmlFinal;
             selectFiltro.innerHTML = optionsHTML;
-            if (selPuntos) selPuntos.innerHTML = optsPuntos;
             if (valorPrevio) selectFiltro.value = valorPrevio;
 
             const resFacturas = await fetch('/api/admin/todas-facturas');
@@ -2663,64 +2212,52 @@
         }
 
         async function cargarTop() {
-            try {
-                const res = await fetch('/api/top-trabajadores');
-                const lista = await res.json();
-                const container = document.getElementById('topContenedor');
-                if (!Array.isArray(lista) || lista.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay trabajadores registrados.</p>';
-                    return;
-                }
+            const res = await fetch('/api/top-trabajadores');
+            const lista = await res.json();
+            const container = document.getElementById('topContenedor');
+            const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
 
-                const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
-                let html = '';
+            let html = '';
+            for (let index = 0; index < lista.length; index++) {
+                const item = lista[index];
+                const badge = insignias[index] || `PUESTO #${index + 1}`;
+                const estaOnline = usuariosOnlineSet.has(Number(item.id));
+                const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
+                const stats = calcularNivelYProgreso(item.total_vendido, item.id);
+                const avatar = obtenerAvatarTrabajador(item.id);
 
-                for (let index = 0; index < lista.length; index++) {
-                    const item = lista[index];
-                    const badge = insignias[index] || `PUESTO #${index + 1}`;
-                    const estaOnline = usuariosOnlineSet.has(Number(item.id));
-                    const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
-                    const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica);
-                    const avatar = obtenerAvatarTrabajador(item.id);
+                const medallas = generarMedallas([], item.total_vendido, item.id);
+                const medallasTopHTML = generarMedallasTopHTML(medallas);
+                const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
 
-                    const medallas = generarMedallas([], item.total_vendido, item.id);
-                    const medallasTopHTML = generarMedallasTopHTML(medallas);
-                    const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
-
-                    const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo);
-
-                    html += `
-                        <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
-                            <div class="flex items-center gap-3.5">
-                                <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                                <div class="shrink-0">${avatarClean}</div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                        <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
-                                        <span class="text-xs text-zinc-500">(@${item.usuario})</span>
-                                        <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
-                                        <span class="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-black">💎 ${misPuntos} PTS</span>
-                                        ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
-                                    </div>
-                                    <p class="text-xs text-zinc-400 mt-0.5">
-                                        XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
-                                        Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
-                                    </p>
-                                    ${medallasTopHTML}
+                html += `
+                    <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
+                        <div class="flex items-center gap-3.5">
+                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
+                            <div class="shrink-0">${avatarClean}</div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
+                                    <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
+                                    <span class="text-xs text-zinc-500">(@${item.usuario})</span>
+                                    <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
+                                    ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
                                 </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xs text-cyan-300 font-black">Comisiones: $${(item.comision_ganada || 0).toLocaleString()}</div>
-                                <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${(item.ganancia_generada || 0).toLocaleString()}</div>
+                                <p class="text-xs text-zinc-400 mt-0.5">
+                                    XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
+                                    Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
+                                </p>
+                                ${medallasTopHTML}
                             </div>
                         </div>
-                    `;
-                }
-                container.innerHTML = html;
-            } catch(e) {
-                console.error("Error al cargar Top:", e);
+                        <div class="text-right">
+                            <div class="text-xs text-cyan-300 font-black">Comisiones: $${item.comision_ganada.toLocaleString()}</div>
+                            <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${item.ganancia_generada.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
             }
+            container.innerHTML = html;
         }
 
         async function cargarHistorial() {
@@ -2794,12 +2331,7 @@
                 `;
             });
 
-            const resTop = await fetch('/api/top-trabajadores');
-            const ranking = await resTop.json();
-            const miReg = ranking.find(u => Number(u.id) === Number(usuarioActual.id));
-            const xpHistorica = miReg ? miReg.xp_historica : 0;
-
-            const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id, xpHistorica);
+            const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
             const racha = calcularRachaDiaria(usuarioActual.id);
             const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
 
@@ -2920,6 +2452,7 @@
             }
         }
 
+        // AGREGAR: Desglosa los combos en piezas individuales + Mano de Obra para cuadrar el precio total oficial
         function agregar(id) {
             const itemSeleccionado = catalogo.find(x => x.id === id);
             if (!itemSeleccionado) return;
@@ -2927,6 +2460,7 @@
             if (itemSeleccionado.esCombo && itemSeleccionado.componentes) {
                 itemSeleccionado.componentes.forEach(comp => {
                     if (comp.id === 99) {
+                        // Ítem de mano de obra
                         const idManoObra = `mano_obra_${id}`;
                         if (!carrito[idManoObra]) {
                             carrito[idManoObra] = {
@@ -3027,6 +2561,7 @@
                     subtotalBruto += subtotalLinea;
                     totalCantidad += item.cantidad;
 
+                    // REGLA: Motor V12 (id: 7) y Mano de Obra (noDescuento) están protegidos
                     const admiteDescuento = !modoPrecioFabrica && !item.noDescuento && item.id !== 7 && descuentoPorcentaje > 0;
                     const pctLinea = admiteDescuento ? descuentoPorcentaje : 0;
                     const descuentoLinea = subtotalLinea * (pctLinea / 100);
@@ -3036,7 +2571,7 @@
 
                     let badgeEspecial = '';
                     if (item.id === 7) badgeEspecial = '<span class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded font-black uppercase">Fijo $500K (Sin Dcto)</span>';
-                    if (item.noDescuento && item.id !== 7 && item.venta >= 0) badgeEspecial = '<span class="text-[9px] bg-blue-500/20 text-blue-300 border border-blue-500/40 px-1.5 py-0.5 rounded font-black uppercase">Fijo (Sin Dcto)</span>';
+                    if (item.noDescuento && item.id !== 7) badgeEspecial = '<span class="text-[9px] bg-blue-500/20 text-blue-300 border border-blue-500/40 px-1.5 py-0.5 rounded font-black uppercase">Mano de Obra Fija</span>';
 
                     const itemKey = item.internalKey || item.id;
 
@@ -3122,6 +2657,9 @@
 
                 const data = await res.json();
                 if (res.ok) {
+                    let tieneV12 = items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
+                    reproducirSonidoGlobalVenta(data.total, tieneV12);
+
                     if (typeof confetti === 'function') {
                         confetti({
                             particleCount: 90,
@@ -3150,7 +2688,6 @@
                     document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
                     
                     actualizarBarraNivelHeader();
-                    cargarTiendaYRuleta();
                 } else {
                     mostrarAviso('Almacén Insuficiente', data.error, true);
                 }
