@@ -2199,11 +2199,11 @@ function cambiarPestana(pestana) {
             }
         }
 
-     async function cargarGestionAdmin() {
+    async function cargarGestionAdmin() {
     try {
         const res = await fetch('/api/usuarios');
         const dataUsuarios = await res.json();
-        usuariosAdminGlobal = Array.isArray(dataUsuarios) ? dataUsuarios : (dataUsuarios.rows || []);
+        usuariosAdminGlobal = Array.isArray(dataUsuarios) ? dataUsuarios : (dataUsuarios.rows || dataUsuarios || []);
         
         const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
         const selectFiltro = document.getElementById('selectFiltroTrabajador');
@@ -2314,13 +2314,15 @@ function cambiarPestana(pestana) {
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <th class="p-3">Estado</th>
-                                <th class="p-3">Trabajador</th>
-                                <th class="p-3">Rango</th>
-                                <th class="p-3">Permiso</th>
-                                <th class="p-3">Nivel XP</th>
-                                <th class="p-3">Medallas</th>
-                                <th class="p-3 text-right">Acciones</th>
+                                <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[11px]">
+                                    <th class="p-3">Estado</th>
+                                    <th class="p-3">Trabajador</th>
+                                    <th class="p-3">Rango</th>
+                                    <th class="p-3">Permiso</th>
+                                    <th class="p-3">Nivel XP</th>
+                                    <th class="p-3">Medallas</th>
+                                    <th class="p-3 text-right">Acciones</th>
+                                </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-800/60">
                                 ${filas || '<tr><td colspan="7" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
@@ -2341,7 +2343,7 @@ function cambiarPestana(pestana) {
 
         const resFacturas = await fetch('/api/admin/todas-facturas');
         const dataFacturas = await resFacturas.json();
-        facturasAdminGlobal = Array.isArray(dataFacturas) ? dataFacturas : (dataFacturas.rows || []);
+        facturasAdminGlobal = Array.isArray(dataFacturas) ? dataFacturas : (dataFacturas.rows || dataFacturas || []);
         filtrarHistorialAdmin();
     } catch (e) {
         console.error("Error al cargar gestión admin:", e);
