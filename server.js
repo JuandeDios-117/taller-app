@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización asíncrona no bloqueante de base de datos
+// Inicialización de base de datos segura
 async function inicializarTablas() {
     try {
         await db.execute(`
@@ -129,7 +129,7 @@ app.delete('/api/convenios/:id', async (req, res) => {
     }
 });
 
-// TIENDA, CANJES Y PUNTOS
+// TIENDA Y CANJES
 app.get('/api/tienda/canjes', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM canjes_tienda ORDER BY fecha DESC LIMIT 60");
@@ -209,6 +209,7 @@ app.post('/api/tienda/bono-ruleta', async (req, res) => {
     }
 });
 
+// GESTIÓN MANUAL DE PUNTOS (ADMIN)
 app.post('/api/admin/ajustar-puntos', async (req, res) => {
     const { usuario_id, puntos, operacion } = req.body;
     const pts = parseInt(puntos);
@@ -227,7 +228,7 @@ app.post('/api/admin/ajustar-puntos', async (req, res) => {
     }
 });
 
-// REGISTRO & LOGIN
+// LOGIN & REGISTRO (CON LA ESTRUCTURA EXACTA QUE FUNCIONA)
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -358,7 +359,7 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// LISTA DE USUARIOS
+// USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
@@ -432,7 +433,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// REINICIAR SEMANA
+// REINICIAR SEMANA (CONSERVA XP Y NIVELES)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -457,7 +458,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// REGISTRAR FACTURA
+// FACTURAS
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -588,7 +589,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// TOP TRABAJADORES
+// TOP TRABAJADORES (Mapeo limpio en Node sin GROUP BY incompatible)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const usersRes = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios");
@@ -600,11 +601,11 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const mapaTotales = {};
         users.forEach(u => {
             mapaTotales[u.id] = {
-                id: u.id,
-                nombre: u.nombre,
-                usuario: u.usuario,
-                rol: u.rol,
-                comision_porcentaje: u.comision_porcentaje,
+                id: Number(u.id),
+                nombre: u.nombre || 'Sin nombre',
+                usuario: u.usuario || 'user',
+                rol: u.rol || 'empleado',
+                comision_porcentaje: Number(u.comision_porcentaje) || 30,
                 created_at: u.created_at,
                 puntos_saldo: 0,
                 xp_historica: 0,
@@ -626,11 +627,12 @@ app.get('/api/top-trabajadores', async (req, res) => {
         }
 
         facturas.forEach(f => {
-            if (mapaTotales[f.usuario_id]) {
-                mapaTotales[f.usuario_id].total_facturas++;
-                mapaTotales[f.usuario_id].total_vendido += Number(f.total_cliente) || 0;
-                mapaTotales[f.usuario_id].ganancia_generada += Number(f.ganancia_neta) || 0;
-                mapaTotales[f.usuario_id].comision_ganada += Number(f.comision_empleado) || 0;
+            const uid = Number(f.usuario_id);
+            if (mapaTotales[uid]) {
+                mapaTotales[uid].total_facturas++;
+                mapaTotales[uid].total_vendido += Number(f.total_cliente) || 0;
+                mapaTotales[uid].ganancia_generada += Number(f.ganancia_neta) || 0;
+                mapaTotales[uid].comision_ganada += Number(f.comision_empleado) || 0;
             }
         });
 
@@ -641,10 +643,10 @@ app.get('/api/top-trabajadores', async (req, res) => {
     }
 });
 
-// Levantar servidor en 0.0.0.0 para compatibilidad total con Render
+// Levantar servidor seguro en 0.0.0.0
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor de AutoExotic ejecutándose en el puerto ${PORT}`);
+    console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });
 
 process.on('uncaughtException', (err) => {

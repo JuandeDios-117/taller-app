@@ -267,7 +267,7 @@
             <div class="text-center space-y-2">
                 <div class="w-24 h-24 mx-auto flex items-center justify-center">
                     <img src="/logo.png" 
-                         onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%2338bdf8\'><circle cx=\'50\' cy=\'50\' r=\'45\' stroke=\'%230284c7\' stroke-width=\'8\' fill=\'%2309090b\'/><text x=\'50\' y=\'58\' font-size=\'28\' font-weight=\'900\' text-anchor=\'middle\' fill=\'%23ffffff\'>AE</text></svg>'" 
+                         onerror="this.src='/logo.png'" 
                          alt="AutoExotic Logo" 
                          class="w-full h-full object-cover rounded-full">
                 </div>
@@ -419,7 +419,7 @@
             <div class="card-dark p-6 rounded-2xl flex flex-wrap justify-between items-center gap-6 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-950/30 via-zinc-950 to-zinc-950">
                 <div>
                     <h2 class="text-2xl font-black text-white uppercase flex items-center gap-2">🛍️ TIENDA DE PUNTOS AUTOEXOTIC</h2>
-                    <p class="text-xs text-zinc-400 mt-1">Canjea tus puntos acumulados por piezas directas del taller para tus autos personales o rol.</p>
+                    <p class="text-xs text-zinc-400 mt-1">Canjea tus puntos por piezas directas del taller para tus autos personales.</p>
                 </div>
                 <div class="flex items-center gap-4 bg-black/80 px-5 py-3 rounded-2xl border border-cyan-500/40">
                     <span class="text-3xl">💎</span>
@@ -443,22 +443,9 @@
                     </div>
                     <button id="btnGirarRuleta" onclick="girarRuletaDiaria()" class="w-full btn-ae-action py-3 rounded-xl uppercase tracking-wider text-xs font-black">🎰 Girar Ruleta Diaria</button>
                     <p id="txtRuletaCooldown" class="text-[11px] text-zinc-500 font-semibold"></p>
-
-                    <div class="w-full pt-3 border-t border-zinc-800/80 text-left">
-                        <div class="text-[10px] font-black text-zinc-400 uppercase tracking-wider mb-2">Premios posibles en la ruleta:</div>
-                        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +2 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +5 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +10 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-amber-300 font-bold">💎 +15 Puntos</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-emerald-400 font-bold">🧼 Kit Limpieza (1 Pt)</span>
-                            <span class="bg-black/60 px-2 py-1 rounded border border-zinc-800 text-emerald-400 font-bold">🧰 Reparación (2 Pts)</span>
-                            <span class="col-span-2 bg-amber-500/15 px-2 py-1 rounded border border-amber-500/40 text-amber-200 font-black text-center">⭐ ¡Jackpot: +25 Puntos!</span>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- TRANSFERIR -->
+                <!-- TRANSFERENCIA -->
                 <div class="card-dark p-6 rounded-2xl space-y-4 border-t-4 border-emerald-400">
                     <h3 class="text-lg font-black text-emerald-400 uppercase">🤝 TRANSFERIR PUNTOS</h3>
                     <p class="text-xs text-zinc-400">Apoya a otro mecánico transfiriéndole de tus puntos.</p>
@@ -773,7 +760,7 @@
             <!-- REINICIAR SEMANA -->
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h3 class="text-lg font-black text-rose-400 uppercase flex items-center gap-2">
+                    <h3 class="text-lg font-black text-rose-400 uppercase">
                         🚨 CORTE SEMANAL Y REINICIO DE FACTURAS
                     </h3>
                     <p class="text-xs text-zinc-400 mt-1">
@@ -1304,6 +1291,7 @@
         const categoriaConfig = {
             'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
             'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
+            'TURBO': { colorBadge: 'bg-red-500/10 text-red-400 border-red-500/30', bordeCard: 'border-red-500/30 hover:border-red-400/60', bgCard: 'bg-gradient-to-r from-red-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🌀', colorVenta: 'text-red-300', colorBtn: 'bg-gradient-to-r from-red-500 to-orange-500 text-white font-black' },
             'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
             'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
             'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
@@ -1322,9 +1310,10 @@
             { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
             { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
             { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
-            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
-            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
+            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
+            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
+            { id: 28, categoria: 'TURBO', nombre: 'Turbo', venta: 10000, costo: 7000 },
             { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000, noDescuento: true },
             { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000 },
             { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
@@ -1335,7 +1324,7 @@
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS CON DESGLOSE AUTOMÁTICO
+            // COMBOS
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1348,7 +1337,8 @@
                     { id: 15, cantidad: 1 },
                     { id: 9, cantidad: 1 },
                     { id: 12, cantidad: 1 },
-                    { id: 1, cantidad: 4 },
+                    { id: 28, cantidad: 1 },
+                    { id: 1, cantidad: 3 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 11500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1364,7 +1354,7 @@
                     { id: 15, cantidad: 1 },
                     { id: 9, cantidad: 1 },
                     { id: 12, cantidad: 1 },
-                    { id: 1, cantidad: 1 },
+                    { id: 28, cantidad: 1 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1380,14 +1370,14 @@
                     { id: 15, cantidad: 1 },
                     { id: 9, cantidad: 1 },
                     { id: 12, cantidad: 1 },
-                    { id: 1, cantidad: 1 },
+                    { id: 28, cantidad: 1 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
                 id: 21, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
-                nombre: 'FULL TUNNING V12 PRO (RENDIMIENTOS)', 
+                nombre: 'FULL TUNNING V12 PRO', 
                 venta: 580000, 
                 costo: 348000, 
                 esCombo: true,
@@ -1396,40 +1386,38 @@
                     { id: 15, cantidad: 1 },
                     { id: 9, cantidad: 1 },
                     { id: 12, cantidad: 1 },
-                    { id: 1, cantidad: 4 },
+                    { id: 28, cantidad: 1 },
+                    { id: 1, cantidad: 3 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
                 id: 22, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', 
-                venta: 1350000, 
-                costo: 600000, 
+                nombre: 'La Nitrosa — Kit de Nitro + 2 Botellas', 
+                venta: 900000, 
+                costo: 500000, 
                 esCombo: true,
                 componentes: [
                     { id: 25, cantidad: 1 },
-                    { id: 26, cantidad: 3 },
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Nitro', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                    { id: 26, cantidad: 2 }
                 ]
             },
             { 
                 id: 23, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', 
-                venta: 2900000, 
-                costo: 1800000, 
+                nombre: 'Kit Need for Speed — Drift + Nitro + 2 Botellas', 
+                venta: 2400000, 
+                costo: 1700000, 
                 esCombo: true,
                 componentes: [
                     { id: 24, cantidad: 1 },
                     { id: 25, cantidad: 1 },
-                    { id: 26, cantidad: 3 },
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación NFS', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                    { id: 26, cantidad: 2 }
                 ]
             }
         ];
 
-       // Catálogo de la tienda con puntos
         const catalogoTiendaPuntos = [
             { nombre: 'Kit de Limpieza (x2)', puntos: 2, icon: '🧼' },
             { nombre: 'Kit de Reparación', puntos: 2, icon: '🧰' },
@@ -1450,25 +1438,32 @@
             { nombre: 'Kit Tuning Drift', puntos: 800, icon: '🏎️' }
         ];
 
-        function calcularPuntosTrabajador(gananciaTaller, totalFacturas, puntosSaldo = 0) {
-            const ptsGanancia = Math.floor((Number(gananciaTaller) || 0) / 5000);
-            const ptsOrdenes = Number(totalFacturas) || 0;
-            return Math.max(0, ptsGanancia + ptsOrdenes + (Number(puntosSaldo) || 0));
-        }
+        let usuarioActual = null;
+        let pestanaActiva = 'calculadora';
+        let esModoRegistro = false;
+        let carrito = {};
+        let descuentoPorcentaje = 0;
+        let convenioActivo = null;
+        let listaConvenios = [];
+        let modoPrecioFabrica = false;
+        let facturasAdminGlobal = [];
+        let usuariosAdminGlobal = [];
+        let facturaIdParaTransferir = null;
+        let usuariosOnlineSet = new Set();
+        let catalogoRenderizado = false;
+        let ruletaGirando = false;
 
         async function cargarTiendaYRuleta() {
             if (!usuarioActual) return;
             try {
-                const gridTienda = document.getElementById('gridItemsTienda');
                 let misPuntos = 0;
-
                 const resTop = await fetch('/api/top-trabajadores');
                 const ranking = await resTop.json();
 
                 if (Array.isArray(ranking)) {
-                    const miRegistro = ranking.find(u => Number(u.id) === Number(usuarioActual.id));
-                    if (miRegistro) {
-                        misPuntos = calcularPuntosTrabajador(miRegistro.ganancia_generada, miRegistro.total_facturas, miRegistro.puntos_saldo);
+                    const miReg = ranking.find(u => Number(u.id) === Number(usuarioActual.id));
+                    if (miReg) {
+                        misPuntos = calcularPuntosTrabajador(miReg.ganancia_generada, miReg.total_facturas, miReg.puntos_saldo);
                     }
 
                     const sel = document.getElementById('selDestinoPuntos');
@@ -1488,6 +1483,7 @@
                 if (txtHeader) txtHeader.innerText = `${misPuntos.toLocaleString()} Pts`;
                 if (lblSaldo) lblSaldo.innerText = `${misPuntos.toLocaleString()} Puntos`;
 
+                const gridTienda = document.getElementById('gridItemsTienda');
                 if (gridTienda) {
                     let htmlTienda = '';
                     catalogoTiendaPuntos.forEach(it => {
@@ -1568,8 +1564,151 @@
 
                 actualizarEstadoRuletaCooldown();
             } catch (e) {
-                console.error("Error cargando tienda:", e);
+                console.error("Error en tienda:", e);
             }
+        }
+
+        async function canjearItemTienda(itemNombre, puntos) {
+            if (!confirm(`¿Confirmas el canje de ${itemNombre} por ${puntos} Puntos?`)) return;
+            const res = await fetch('/api/tienda/canjear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario_id: usuarioActual.id, item_nombre: itemNombre, costo_puntos: puntos })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                mostrarAviso('Canje Registrado', data.message);
+                cargarTiendaYRuleta();
+            } else {
+                mostrarAviso('Error', data.error, true);
+            }
+        }
+
+        async function marcarCanjeEntregado(canjeId) {
+            const res = await fetch(`/api/tienda/canjes/${canjeId}/entregar`, { method: 'PUT' });
+            if (res.ok) {
+                cargarTiendaYRuleta();
+                mostrarAviso('Entregado', 'El canje fue marcado como entregado in-game.');
+            }
+        }
+
+        async function ejecutarTransferenciaPuntos() {
+            const receptor_id = document.getElementById('selDestinoPuntos').value;
+            const puntos = document.getElementById('inpCantidadPuntosTransferir').value;
+            if (!receptor_id || !puntos || parseInt(puntos) <= 0) return mostrarAviso('Inválido', 'Ingresa una cantidad de puntos válida.');
+
+            const res = await fetch('/api/tienda/transferir-puntos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ emisor_id: usuarioActual.id, receptor_id, puntos })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('inpCantidadPuntosTransferir').value = '';
+                mostrarAviso('Puntos Transferidos', data.message);
+                cargarTiendaYRuleta();
+            } else {
+                mostrarAviso('Error', data.error, true);
+            }
+        }
+
+        async function ejecutarAjustePuntosAdmin() {
+            const usuario_id = document.getElementById('selAdminTrabajadorPuntos').value;
+            const operacion = document.getElementById('selAdminOperacionPuntos').value;
+            const puntos = document.getElementById('inpAdminCantidadPuntos').value;
+
+            if (!usuario_id || !puntos || parseInt(puntos) <= 0) {
+                return mostrarAviso('Campos Inválidos', 'Selecciona el trabajador e ingresa un monto válido de puntos.');
+            }
+
+            const res = await fetch('/api/admin/ajustar-puntos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario_id, puntos, operacion })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('inpAdminCantidadPuntos').value = '';
+                mostrarAviso('Puntos Modificados', data.message);
+                cargarTiendaYRuleta();
+                cargarTop();
+                cargarGestionAdmin();
+            } else {
+                mostrarAviso('Error', data.error, true);
+            }
+        }
+
+        function actualizarEstadoRuletaCooldown() {
+            if (!usuarioActual) return;
+            const claveCooldown = `ae_ruleta_last_${usuarioActual.id}`;
+            const ultimaVez = localStorage.getItem(claveCooldown);
+            const btn = document.getElementById('btnGirarRuleta');
+            const txt = document.getElementById('txtRuletaCooldown');
+
+            if (ultimaVez) {
+                const diffMs = Date.now() - Number(ultimaVez);
+                const horasRestantes = 24 - (diffMs / (1000 * 60 * 60));
+                if (horasRestantes > 0) {
+                    btn.disabled = true;
+                    btn.className = 'w-full bg-zinc-800 text-zinc-500 py-3 rounded-xl uppercase tracking-wider text-xs font-black cursor-not-allowed';
+                    txt.innerText = `⏳ Disponible de nuevo en ${Math.ceil(horasRestantes)} horas.`;
+                    return;
+                }
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.className = 'w-full btn-ae-action py-3 rounded-xl uppercase tracking-wider text-xs font-black';
+            }
+            if (txt) txt.innerText = '✨ ¡Tu giro diario está disponible!';
+        }
+
+        async function girarRuletaDiaria() {
+            if (ruletaGirando || !usuarioActual) return;
+            const claveCooldown = `ae_ruleta_last_${usuarioActual.id}`;
+            const ultimaVez = localStorage.getItem(claveCooldown);
+            if (ultimaVez && (Date.now() - Number(ultimaVez)) < 24 * 60 * 60 * 1000) {
+                return mostrarAviso('Espera el tiempo', 'Solo puedes girar la ruleta una vez cada 24 horas.');
+            }
+
+            ruletaGirando = true;
+            const btn = document.getElementById('btnGirarRuleta');
+            if (btn) btn.disabled = true;
+
+            const premios = [
+                { nombre: '+5 Puntos AutoExotic', puntos: 5 },
+                { nombre: '+10 Puntos AutoExotic', puntos: 10 },
+                { nombre: '+15 Puntos AutoExotic', puntos: 15 },
+                { nombre: '1x Kit de Reparación (+2 Pts)', puntos: 2 },
+                { nombre: '1x Kit de Limpieza (+1 Pt)', puntos: 1 },
+                { nombre: '+25 Puntos AutoExotic (¡Jackpot!)', puntos: 25 },
+                { nombre: '+2 Puntos AutoExotic', puntos: 2 }
+            ];
+
+            const premioGanador = premios[Math.floor(Math.random() * premios.length)];
+            const ruletaDisco = document.getElementById('ruletaDisco');
+            const premioVisual = document.getElementById('ruletaPremioVisual');
+
+            const giros = 5 * 360 + Math.floor(Math.random() * 360);
+            if (ruletaDisco) ruletaDisco.style.transform = `rotate(${giros}deg)`;
+
+            setTimeout(async () => {
+                if (ruletaDisco) ruletaDisco.style.transform = `rotate(0deg)`;
+                if (premioVisual) premioVisual.innerHTML = `🎉 ¡Ganaste:<br><span class="text-white">${premioGanador.nombre}</span>!`;
+                localStorage.setItem(claveCooldown, Date.now().toString());
+
+                await fetch('/api/tienda/bono-ruleta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario_id: usuarioActual.id, puntos: premioGanador.puntos })
+                });
+
+                if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+                mostrarAviso('¡Premio Ganado!', `Felicidades, ganaste: ${premioGanador.nombre}`);
+                ruletaGirando = false;
+                cargarTiendaYRuleta();
+                cargarTop();
+            }, 4000);
         }
 
         async function cargarTop() {
@@ -1591,14 +1730,14 @@
                     const badge = insignias[index] || `PUESTO #${index + 1}`;
                     const estaOnline = usuariosOnlineSet.has(Number(item.id));
                     const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
-                    const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica);
+                    const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica || 0);
                     const avatar = obtenerAvatarTrabajador(item.id);
 
                     const medallas = generarMedallas([], item.total_vendido, item.id);
                     const medallasTopHTML = generarMedallasTopHTML(medallas);
                     const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
 
-                    const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo);
+                    const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo || 0);
 
                     html += `
                         <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
@@ -1630,1004 +1769,8 @@
                 }
                 container.innerHTML = html;
             } catch (err) {
-                container.innerHTML = '<p class="text-xs text-rose-400 italic">Error al cargar la lista del ranking.</p>';
+                container.innerHTML = '<p class="text-xs text-rose-400 italic">Error cargando el Top.</p>';
             }
-        }
-
-        let usuarioActual = null;
-        let pestanaActiva = 'calculadora';
-        let esModoRegistro = false;
-        let carrito = {};
-        let descuentoPorcentaje = 0;
-        let convenioActivo = null;
-        let listaConvenios = [];
-        let modoPrecioFabrica = false;
-        let facturasAdminGlobal = [];
-        let usuariosAdminGlobal = [];
-        let facturaIdParaTransferir = null;
-        let usuariosOnlineSet = new Set();
-        let catalogoRenderizado = false;
-        let ruletaGirando = false;
-
-        function formatearFechaIngreso(fechaStr) {
-            if (!fechaStr) return 'Reciente';
-            const d = new Date(fechaStr);
-            return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
-        }
-
-        function obtenerClaveRango(rol, comision) {
-            if (rol === 'jefe' || comision == -1) return 'jefe';
-            if (comision == 0) return 'subjefe';
-            if (comision >= 45) return 'encargado';
-            if (comision >= 40) return 'experto';
-            if (comision >= 35) return 'mecanico';
-            return 'pruebas';
-        }
-
-        function obtenerBadgeRango(rol, comision) {
-            let badgeAdmin = rol === 'admin' ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/40 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ml-1">👑 Admin</span>' : '';
-            if (rol === 'jefe' || comision == -1) return `<span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/50 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">👑 Jefe (0%)</span>`;
-            if (comision == 0) return `<span class="inline-flex items-center gap-1 bg-rose-500/15 text-rose-400 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🛡️ Subjefe (0%)${badgeAdmin}</span>`;
-            if (comision >= 45) return `<span class="inline-flex items-center gap-1 bg-yellow-500/15 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">👔 Encargado (45%)${badgeAdmin}</span>`;
-            if (comision >= 40) return `<span class="inline-flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">⭐ M. Experto (40%)${badgeAdmin}</span>`;
-            if (comision >= 35) return `<span class="inline-flex items-center gap-1 bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔧 Mecánico (35%)${badgeAdmin}</span>`;
-            return `<span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔰 En Pruebas (30%)${badgeAdmin}</span>`;
-        }
-
-        function obtenerClaseColorNombre(rol, comision) {
-            if (rol === 'jefe' || comision == -1) return 'text-amber-300 font-black';
-            if (comision == 0) return 'text-rose-400 font-black';
-            if (comision >= 45) return 'text-yellow-300 font-black';
-            if (comision >= 40) return 'text-purple-300 font-bold';
-            if (comision >= 35) return 'text-cyan-300 font-bold';
-            return 'text-emerald-300 font-bold';
-        }
-
-        // CONVENIOS
-        async function cargarConvenios() {
-            try {
-                const res = await fetch('/api/convenios');
-                listaConvenios = await res.json();
-                renderizarConveniosCalculadora();
-                renderizarConveniosAdmin();
-            } catch (e) {}
-        }
-
-        function renderizarConveniosCalculadora() {
-            const container = document.getElementById('contenedorBotonesConvenios');
-            if (!container) return;
-
-            let html = `
-                <button onclick="seleccionarConvenio(null)" class="px-3 py-2 rounded-xl text-xs font-black border transition ${!convenioActivo ? 'bg-cyan-600 text-white border-cyan-400 shadow-sm' : 'bg-black/60 text-zinc-400 border-zinc-800 hover:text-white'}">
-                    ❌ Sin Convenio
-                </button>
-            `;
-
-            listaConvenios.forEach(conv => {
-                const activo = convenioActivo && convenioActivo.id === conv.id;
-                html += `
-                    <button onclick="seleccionarConvenio(${conv.id})" class="px-3 py-2 rounded-xl text-xs font-black border transition flex items-center justify-between gap-1.5 ${activo ? 'bg-amber-500 text-black border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]' : 'bg-black/60 text-amber-300 border-amber-500/30 hover:border-amber-400'}">
-                        <span class="truncate">${conv.faccion}</span>
-                        <span class="px-1.5 py-0.5 rounded text-[10px] ${activo ? 'bg-black text-amber-400' : 'bg-amber-500/20 text-amber-300'} font-black">${conv.porcentaje}%</span>
-                    </button>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        function seleccionarConvenio(id) {
-            if (id === null) {
-                convenioActivo = null;
-                document.getElementById('tagConvenioSeleccionado').innerText = 'Ningún convenio aplicado';
-                aplicarDescuento(0);
-            } else {
-                const conv = listaConvenios.find(c => c.id === id);
-                if (conv) {
-                    convenioActivo = conv;
-                    document.getElementById('tagConvenioSeleccionado').innerHTML = `Convenio: <strong class="text-amber-400 uppercase">${conv.faccion} (${conv.porcentaje}%)</strong>`;
-                    
-                    const inputCliente = document.getElementById('nombreCliente');
-                    if (!inputCliente.value.includes(conv.faccion)) {
-                        inputCliente.value = `${conv.faccion} - ${inputCliente.value}`.trim().replace(/^ - /, '');
-                        document.getElementById('nombreClienteText').innerText = inputCliente.value;
-                    }
-                    aplicarDescuento(conv.porcentaje);
-                }
-            }
-            renderizarConveniosCalculadora();
-        }
-
-        function renderizarConveniosAdmin() {
-            const container = document.getElementById('listaConveniosAdmin');
-            if (!container) return;
-
-            if (listaConvenios.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500 italic col-span-full">No hay convenios registrados.</p>';
-                return;
-            }
-
-            let html = '';
-            listaConvenios.forEach(conv => {
-                html += `
-                    <div class="flex justify-between items-center bg-black/80 p-3.5 rounded-xl border border-zinc-800">
-                        <div>
-                            <span class="font-bold text-white text-xs uppercase">${conv.faccion}</span>
-                            <span class="ml-2 text-xs font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">${conv.porcentaje}% DCTO</span>
-                        </div>
-                        <button onclick="eliminarConvenio(${conv.id})" class="text-rose-400 hover:text-rose-300 text-xs font-bold px-2.5 py-1 bg-rose-500/10 rounded-lg border border-rose-500/20 transition">
-                            🗑️ Retirar
-                        </button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        async function guardarNuevoConvenio() {
-            const faccion = document.getElementById('inpNombreConvenio').value.trim();
-            const porcentaje = parseInt(document.getElementById('inpPorcentajeConvenio').value);
-
-            if (!faccion || isNaN(porcentaje) || porcentaje <= 0 || porcentaje > 50) {
-                return mostrarAviso('Datos Inválidos', 'Ingresa el nombre de la facción y un porcentaje entre 1% y 50%.');
-            }
-
-            const res = await fetch('/api/convenios', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ faccion, porcentaje, usuario_nombre: usuarioActual.nombre })
-            });
-
-            if (res.ok) {
-                document.getElementById('inpNombreConvenio').value = '';
-                document.getElementById('inpPorcentajeConvenio').value = '';
-                mostrarAviso('Convenio Creado', `Convenio de ${porcentaje}% guardado para ${faccion}.`);
-                cargarConvenios();
-            } else {
-                const data = await res.json();
-                mostrarAviso('Error', data.error, true);
-            }
-        }
-
-        async function eliminarConvenio(id) {
-            if (!confirm('¿Deseas retirar este convenio?')) return;
-            const res = await fetch(`/api/convenios/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                if (convenioActivo && convenioActivo.id === id) seleccionarConvenio(null);
-                cargarConvenios();
-            }
-        }
-
-        let debounceTimer = null;
-        socket.on('online_users_update', (onlineList) => {
-            actualizarBarraOnline(onlineList);
-            if (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe') && pestanaActiva === 'admin') cargarGestionAdmin();
-            if (pestanaActiva === 'top') cargarTop();
-        });
-
-        socket.on('db_update', (data) => {
-            if (data.evento === 'convenios_actualizados') cargarConvenios();
-            if (data.evento === 'canje_realizado' || data.evento === 'canje_actualizado' || data.evento === 'puntos_transferidos' || data.evento === 'puntos_actualizados') {
-                cargarTiendaYRuleta();
-                cargarTop();
-            }
-
-            if (data.evento === 'nueva_factura' && data.total) {
-                let tieneV12 = false;
-                if (data.items && Array.isArray(data.items)) {
-                    tieneV12 = data.items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
-                }
-
-                reproducirSonidoGlobalVenta(data.total, tieneV12);
-                mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
-
-                if (data.total >= 500000 || tieneV12) {
-                    mostrarAviso(
-                        '🔥 ¡VENTA ÉPICA REGISTRADA!', 
-                        `👷 ${data.usuario_nombre} acaba de cerrar una orden de $${data.total.toLocaleString()} para ${data.cliente}`
-                    );
-                    if (typeof confetti === 'function') {
-                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
-                    }
-                }
-            }
-
-            if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
-                usuarioActual = null;
-                actualizarVistaUsuario();
-                return;
-            }
-
-            if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                usuarioActual.comision_porcentaje = data.comision_porcentaje;
-                usuarioActual.rol = data.rol;
-                actualizarVistaUsuario();
-            }
-
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                if (pestanaActiva === 'historial') cargarHistorial();
-                if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
-                if (pestanaActiva === 'top') cargarTop();
-                if (pestanaActiva === 'tienda') cargarTiendaYRuleta();
-                if (pestanaActiva === 'admin' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarGestionAdmin();
-                actualizarBarraNivelHeader();
-            }, 250);
-        });
-
-        function mostrarLiveFeedVenta(trabajador, cliente, total) {
-            const feed = document.getElementById('liveFeedVentas');
-            const texto = document.getElementById('liveFeedTexto');
-            texto.innerText = `¡${trabajador} acaba de cerrar una orden de $${total.toLocaleString()} para ${cliente}!`;
-            feed.classList.remove('hidden');
-            setTimeout(() => { feed.classList.add('hidden'); }, 6500);
-        }
-
-        async function actualizarBarraNivelHeader() {
-            if (!usuarioActual) return;
-            try {
-                const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
-                const facturas = await res.json();
-                let totalVendido = 0;
-                if (Array.isArray(facturas)) facturas.forEach(f => totalVendido += f.total_cliente);
-                
-                const resTop = await fetch('/api/top-trabajadores');
-                const ranking = await resTop.json();
-                const miReg = Array.isArray(ranking) ? ranking.find(u => Number(u.id) === Number(usuarioActual.id)) : null;
-                const xpHistorica = miReg ? miReg.xp_historica : 0;
-
-                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id, xpHistorica);
-                const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
-
-                document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 52);
-                document.getElementById('headerRankCrestContainer').innerHTML = stats.rank.crestSvg;
-
-                document.getElementById('badgeNivelHeader').classList.remove('hidden');
-                document.getElementById('badgeNivelHeader').classList.add('flex');
-                document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
-                document.getElementById('txtTituloNivelHeader').innerText = stats.titulo;
-                document.getElementById('barraProgresoXPHeader').style.width = `${stats.porcentaje}%`;
-
-                const racha = calcularRachaDiaria(usuarioActual.id);
-                document.getElementById('badgeRachaHeader').classList.remove('hidden');
-                document.getElementById('badgeRachaHeader').classList.add('flex');
-                document.getElementById('txtRachaHeader').innerText = `${racha} ${racha === 1 ? 'día' : 'días'}`;
-
-                if (miReg) {
-                    const pts = calcularPuntosTrabajador(miReg.ganancia_generada, miReg.total_facturas, miReg.puntos_saldo);
-                    document.getElementById('txtPuntosHeader').innerText = `${pts.toLocaleString()} Pts`;
-                }
-            } catch (e) {}
-        }
-
-        function mostrarAviso(titulo, mensaje, esError = false) {
-            document.getElementById('modalAvisoTitulo').innerText = titulo;
-            document.getElementById('modalAvisoMensaje').innerText = mensaje;
-            const icono = document.getElementById('modalAvisoIcono');
-            icono.innerText = esError ? '❌' : '⚠️';
-            icono.className = `w-12 h-12 ${esError ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'} rounded-full flex items-center justify-center mx-auto text-2xl font-bold border`;
-            document.getElementById('modalAviso').classList.remove('hidden');
-        }
-
-        function cerrarModalAviso() {
-            document.getElementById('modalAviso').classList.add('hidden');
-        }
-
-        function actualizarBarraOnline(onlineList) {
-            usuariosOnlineSet = new Set(onlineList.map(u => Number(u.id)));
-            document.getElementById('txtOnlineCount').innerText = `${onlineList.length} en línea`;
-
-            const contenedor = document.getElementById('listaUsuariosOnlineChips');
-            const barra = document.getElementById('barraUsuariosOnline');
-            
-            if (!usuarioActual || onlineList.length === 0) {
-                barra.classList.add('hidden');
-                return;
-            }
-
-            barra.classList.remove('hidden');
-            let chipsHTML = '';
-            onlineList.forEach(u => {
-                const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje ?? (u.rol === 'admin' ? 0 : 30));
-                const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
-                const avatar = obtenerAvatarTrabajador(u.id);
-                chipsHTML += `
-                    <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
-                        <img src="${avatar}" class="w-5 h-5 rounded-full object-cover" />
-                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
-                        <span class="${colorClase}">${u.nombre}</span>
-                        ${esAdminOJefe ? '<span class="text-[9px] text-amber-400 font-bold">👑</span>' : ''}
-                        <span class="text-[10px] text-zinc-500">(@${u.usuario})</span>
-                    </div>
-                `;
-            });
-            contenedor.innerHTML = chipsHTML;
-        }
-
-        function togglePrecioFabrica() {
-            const esAdminOJefe = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
-            if (!esAdminOJefe) {
-                document.getElementById('checkPrecioFabrica').checked = false;
-                modoPrecioFabrica = false;
-                return mostrarAviso('Acceso Restringido', 'Solo los administradores y jefes pueden cobrar a precio de fábrica.', true);
-            }
-
-            modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
-            if (modoPrecioFabrica) {
-                descuentoPorcentaje = 0;
-                document.getElementById('inputDescuentoManual').value = '';
-                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            }
-
-            document.getElementById('seccionDescuentosContenedor').classList.toggle('opacity-40', modoPrecioFabrica);
-            document.getElementById('seccionDescuentosContenedor').classList.toggle('pointer-events-none', modoPrecioFabrica);
-            
-            actualizarCarrito();
-        }
-
-        function actualizarVistaUsuario() {
-            const container = document.getElementById('userInfo');
-            const btnAdmin = document.getElementById('tab-admin');
-            const btnAlmacen = document.getElementById('tab-almacen');
-            const contModoFabrica = document.getElementById('contenedorModoFabrica');
-
-            if (usuarioActual) {
-                const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
-                btnAdmin.classList.toggle('hidden', !esAdminOJefe);
-                btnAlmacen.classList.toggle('hidden', !esAdminOJefe);
-                contModoFabrica.classList.toggle('hidden', !esAdminOJefe);
-
-                container.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
-                        ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
-                    </div>
-                    <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
-                `;
-                document.getElementById('seccion-auth').classList.add('hidden');
-                cambiarPestana('calculadora');
-                cambiarZonaHorariaFacturas(zonaHorariaActiva);
-                actualizarBarraNivelHeader();
-                cargarConvenios();
-                cargarTiendaYRuleta();
-
-                socket.emit('user_connected', usuarioActual);
-            } else {
-                btnAdmin.classList.add('hidden');
-                btnAlmacen.classList.add('hidden');
-                contModoFabrica.classList.add('hidden');
-                modoPrecioFabrica = false;
-                document.getElementById('barraUsuariosOnline').classList.add('hidden');
-                document.getElementById('badgeNivelHeader').classList.add('hidden');
-                document.getElementById('badgeRachaHeader').classList.add('hidden');
-                container.innerHTML = `<span>No has iniciado sesión</span>`;
-                document.getElementById('seccion-auth').classList.remove('hidden');
-                ['calculadora', 'tienda', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
-                    const el = document.getElementById(`seccion-${s}`);
-                    if (el) el.classList.add('hidden');
-                });
-            }
-        }
-
-        function toggleModoAuth() {
-            esModoRegistro = !esModoRegistro;
-            document.getElementById('campoNombre').classList.toggle('hidden', !esModoRegistro);
-            document.getElementById('authTitle').innerText = esModoRegistro ? 'Crear Cuenta' : 'Acceso AutoExotic';
-            document.getElementById('btnAuth').innerText = esModoRegistro ? 'Registrar Trabajador' : 'Ingresar al Sistema';
-            document.getElementById('toggleText').innerText = esModoRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
-            document.getElementById('toggleBtn').innerText = esModoRegistro ? 'Ingresa aquí' : 'Regístrate';
-        }
-
-        async function procesarAuth() {
-            const usuario = document.getElementById('authUsuario').value.trim();
-            const password = document.getElementById('authPassword').value.trim();
-
-            if (esModoRegistro) {
-                const nombre = document.getElementById('regNombre').value.trim();
-                const res = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, usuario, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    document.getElementById('modalRegistroMensaje').innerText = `El trabajador "${nombre}" (@${usuario}) ha sido creado con éxito.`;
-                    document.getElementById('modalRegistro').classList.remove('hidden');
-                } else mostrarAviso('Error de Registro', data.error, true);
-            } else {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    usuarioActual = data;
-                    actualizarVistaUsuario();
-                } else mostrarAviso('Error de Acceso', data.error, true);
-            }
-        }
-
-        function cerrarModalRegistro() {
-            document.getElementById('modalRegistro').classList.add('hidden');
-            toggleModoAuth();
-        }
-
-        function cerrarSesion() {
-            socket.disconnect();
-            socket.connect();
-            usuarioActual = null;
-            actualizarVistaUsuario();
-        }
-
-        function cambiarPestana(pestana) {
-            if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
-
-            const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
-            if ((pestana === 'admin' || pestana === 'almacen') && !esAdminOJefe) {
-                return mostrarAviso('Acceso Denegado', 'Solo los administradores y jefes tienen permiso para acceder a esta sección.', true);
-            }
-
-            pestanaActiva = pestana;
-
-            const tabs = ['calc', 'tienda', 'almacen', 'combos', 'hist', 'top', 'admin'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition';
-            });
-
-            const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
-            if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
-
-            const secciones = ['calculadora', 'tienda', 'almacen', 'combos', 'historial', 'top', 'admin'];
-            secciones.forEach(s => {
-                const el = document.getElementById(`seccion-${s}`);
-                if (el) {
-                    el.classList.remove('tab-content-anim');
-                    if (s === pestana) {
-                        el.classList.remove('hidden');
-                        void el.offsetWidth;
-                        el.classList.add('tab-content-anim');
-                    } else {
-                        el.classList.add('hidden');
-                    }
-                }
-            });
-
-            if (pestana === 'tienda') cargarTiendaYRuleta();
-            if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
-            if (pestana === 'historial') cargarHistorial();
-            if (pestana === 'top') cargarTop();
-            if (pestana === 'admin' && esAdminOJefe) {
-                cargarGestionAdmin();
-                cargarConvenios();
-            }
-        }
-
-        async function cargarAlmacen() {
-            const res = await fetch('/api/almacen/estado');
-            const data = await res.json();
-            if (!res.ok) return;
-
-            const cap = data.estado.capital || 0;
-            const v8 = data.estado.stock_v8 || 0;
-            const v12 = data.estado.stock_v12 || 0;
-
-            document.getElementById('almCapital').innerText = `$${cap.toLocaleString()}`;
-            document.getElementById('almStockV8').innerHTML = `${v8} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
-            document.getElementById('almStockV12').innerHTML = `${v12} <span class="text-xs text-zinc-500 font-normal">unidades</span>`;
-
-            document.getElementById('inpManualCapital').value = cap;
-            document.getElementById('inpManualV8').value = v8;
-            document.getElementById('inpManualV12').value = v12;
-
-            const container = document.getElementById('listaMovimientosAlmacen');
-            if (data.movimientos.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">No hay movimientos registrados.</p>`;
-                return;
-            }
-
-            let html = '';
-            data.movimientos.forEach(m => {
-                const fecha = formatearFechaConZona(m.fecha);
-                const esIngreso = m.tipo === 'ingreso_capital';
-                html += `
-                    <div class="flex justify-between items-center bg-black/70 p-3.5 rounded-xl border border-zinc-800 text-xs">
-                        <div>
-                            <div class="font-bold text-white">${m.descripcion}</div>
-                            <div class="text-[10px] text-zinc-500 mt-0.5">Por: <strong>${m.usuario_nombre}</strong> · ${fecha}</div>
-                        </div>
-                        <div class="text-right">
-                            ${m.monto !== 0 ? `
-                                <div class="font-black text-sm ${esIngreso ? 'text-emerald-400' : 'text-rose-400'}">
-                                    ${esIngreso ? '+' : ''}$${Math.abs(m.monto).toLocaleString()}
-                                </div>
-                            ` : '<div class="text-zinc-500 font-bold">Ajuste / Despacho</div>'}
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        async function ejecutarIngresoCapital() {
-            const monto = document.getElementById('inpIngresoCapital').value;
-            const descripcion = document.getElementById('inpConceptoCapital').value.trim();
-
-            if (!monto || parseFloat(monto) <= 0) return mostrarAviso('Monto Inválido', 'Ingresa una cantidad mayor a $0.');
-
-            const res = await fetch('/api/almacen/ingresar-capital', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ monto, descripcion, usuario_nombre: usuarioActual.nombre })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                mostrarAviso('Capital Agregado', `Se ingresaron $${parseFloat(monto).toLocaleString()} al capital del taller.`);
-                document.getElementById('inpIngresoCapital').value = '';
-                document.getElementById('inpConceptoCapital').value = '';
-                cargarAlmacen();
-            } else mostrarAviso('Error', data.error, true);
-        }
-
-        async function ejecutarCompraMotor() {
-            const tipo_motor = document.getElementById('selTipoMotorCompra').value;
-            const cantidad = document.getElementById('inpCantMotorCompra').value;
-
-            if (!cantidad || parseInt(cantidad) <= 0) return mostrarAviso('Cantidad Inválida', 'Ingresa al menos 1 unidad.');
-
-            const res = await fetch('/api/almacen/comprar-motor', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tipo_motor, cantidad, usuario_nombre: usuarioActual.nombre })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                mostrarAviso('Compra Exitosa', data.message);
-                cargarAlmacen();
-            } else mostrarAviso('Error en Compra', data.error, true);
-        }
-
-        async function ejecutarAjusteManualAlmacen() {
-            const capital = document.getElementById('inpManualCapital').value;
-            const stock_v8 = document.getElementById('inpManualV8').value;
-            const stock_v12 = document.getElementById('inpManualV12').value;
-
-            if (capital === '' || stock_v8 === '' || stock_v12 === '') {
-                return mostrarAviso('Campos Vacíos', 'Por favor llena los 3 campos con números válidos.');
-            }
-
-            const res = await fetch('/api/almacen/ajuste-manual', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    capital,
-                    stock_v8,
-                    stock_v12,
-                    usuario_nombre: usuarioActual.nombre
-                })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                mostrarAviso('Almacén Actualizado', 'Los valores de capital y stock han sido actualizados correctamente.');
-                cargarAlmacen();
-            } else {
-                mostrarAviso('Error de Ajuste', data.error, true);
-            }
-        }
-
-        async function ejecutarReinicioSemanal() {
-            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas para empezar el nuevo ciclo semanal.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
-            
-            if (confirmacion !== 'REINICIAR') {
-                return mostrarAviso('Acción Cancelada', 'No se realizaron cambios en las facturas.');
-            }
-
-            const res = await fetch('/api/admin/reiniciar-semana', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario_nombre: usuarioActual.nombre })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                mostrarAviso('¡Semana Reiniciada!', 'Todas las facturas se han liquidado. El contador de ventas y comisiones está en $0 manteniendo los niveles de experiencia.');
-                cargarGestionAdmin();
-                cargarTop();
-            } else {
-                mostrarAviso('Error', data.error, true);
-            }
-        }
-
-        async function cargarGestionAdmin() {
-            const res = await fetch('/api/usuarios');
-            usuariosAdminGlobal = await res.json();
-            const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
-
-            const selectFiltro = document.getElementById('selectFiltroTrabajador');
-            const valorPrevio = selectFiltro.value;
-            let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
-
-            const selPuntos = document.getElementById('selAdminTrabajadorPuntos');
-            let optsPuntos = '';
-
-            const secciones = [
-                { key: 'jefe', titulo: '👑 JEFES (0% COMISIÓN - DIRECCIÓN GENERAL)', borde: 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]', texto: 'text-amber-300', bg: 'bg-amber-950/20' },
-                { key: 'subjefe', titulo: '🛡️ SUBJEFES (0% COMISIÓN - GANAN DE CAPITAL)', borde: 'border-rose-500/40', texto: 'text-rose-400', bg: 'bg-rose-950/10' },
-                { key: 'encargado', titulo: '👔 ENCARGADOS (45% COMISIÓN)', borde: 'border-yellow-500/40', texto: 'text-yellow-400', bg: 'bg-yellow-950/10' },
-                { key: 'experto', titulo: '⭐ MECÁNICOS EXPERTOS (40% COMISIÓN)', borde: 'border-purple-500/40', texto: 'text-purple-400', bg: 'bg-purple-950/10' },
-                { key: 'mecanico', titulo: '🔧 MECÁNICOS (35% COMISIÓN)', borde: 'border-zinc-700', texto: 'text-zinc-300', bg: 'bg-zinc-900/40' },
-                { key: 'pruebas', titulo: '🔰 MECÁNICOS EN PRUEBAS (30% COMISIÓN)', borde: 'border-emerald-500/40', texto: 'text-emerald-400', bg: 'bg-emerald-950/10' }
-            ];
-
-            let htmlFinal = '';
-
-            secciones.forEach(sec => {
-                const usuariosEnRango = usuariosAdminGlobal.filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
-
-                let filas = '';
-                usuariosEnRango.forEach(u => {
-                    const estaOnline = usuariosOnlineSet.has(Number(u.id));
-                    const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
-                    const presetActual = obtenerClaveRango(u.rol, u.comision_porcentaje);
-                    const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
-                    const avatar = obtenerAvatarTrabajador(u.id);
-
-                    const customLvl = localStorage.getItem(`ae_custom_lvl_${u.id}`) || '';
-                    const customBadges = JSON.parse(localStorage.getItem(`ae_custom_badges_${u.id}`)) || {};
-
-                    filas += `
-                        <tr class="hover:bg-zinc-900/40 transition">
-                            <td class="p-3">
-                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
-                                    <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                    ${estaOnline ? 'En Línea' : 'Desconectado'}
-                                </span>
-                            </td>
-                            <td class="p-3">
-                                <div class="flex items-center gap-2">
-                                    <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
-                                    <div>
-                                        <span class="${colorClase}">${u.nombre}</span>
-                                        ${esAdminOJefe ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
-                                        <div class="text-[11px] text-zinc-500">@${u.usuario}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-3">
-                                <select id="rangoPreset-${u.id}" class="input-dark px-2.5 py-1 rounded-xl text-xs font-bold w-full max-w-[170px]">
-                                    <option value="jefe" ${presetActual === 'jefe' ? 'selected' : ''}>👑 Jefe (0%)</option>
-                                    <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0%)</option>
-                                    <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45%)</option>
-                                    <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ M. Experto (40%)</option>
-                                    <option value="mecanico" ${presetActual === 'mecanico' ? 'selected' : ''}>🔧 Mecánico (35%)</option>
-                                    <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 En Pruebas (30%)</option>
-                                </select>
-                            </td>
-                            <td class="p-3">
-                                <select id="permisoAdmin-${u.id}" class="input-dark px-2 py-1 rounded-xl text-xs font-bold ${esAdminOJefe ? 'text-amber-400 border-amber-500/40 font-black' : 'text-zinc-300'}">
-                                    <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
-                                    <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>👑 Acceso Admin</option>
-                                    <option value="jefe" ${u.rol === 'jefe' ? 'selected' : ''}>👑 Acceso Jefe</option>
-                                </select>
-                            </td>
-                            <td class="p-3">
-                                <div class="flex items-center gap-1">
-                                    <input type="number" id="inputCustomLvl-${u.id}" value="${customLvl}" placeholder="Auto" min="1" max="100" class="w-16 input-dark px-2 py-1 rounded-lg text-xs font-bold text-center text-cyan-300" title="Nivel (1-100)" />
-                                    <span class="text-[10px] text-zinc-500">Lvl</span>
-                                </div>
-                            </td>
-                            <td class="p-3">
-                                <div class="grid grid-cols-4 gap-1 text-[11px]">
-                                    <label title="Rey V12" class="cursor-pointer"><input type="checkbox" id="badge_m1_${u.id}" ${customBadges.m1 ? 'checked' : ''} class="w-3 h-3 text-amber-500 rounded bg-black"> 👑</label>
-                                    <label title="Nitro" class="cursor-pointer"><input type="checkbox" id="badge_m2_${u.id}" ${customBadges.m2 ? 'checked' : ''} class="w-3 h-3 text-cyan-500 rounded bg-black"> 💨</label>
-                                    <label title="Drift" class="cursor-pointer"><input type="checkbox" id="badge_m3_${u.id}" ${customBadges.m3 ? 'checked' : ''} class="w-3 h-3 text-fuchsia-500 rounded bg-black"> 🏎️</label>
-                                    <label title="Mente V8" class="cursor-pointer"><input type="checkbox" id="badge_m4_${u.id}" ${customBadges.m4 ? 'checked' : ''} class="w-3 h-3 text-blue-500 rounded bg-black"> ⚙️</label>
-                                    <label title="Detallador" class="cursor-pointer"><input type="checkbox" id="badge_m5_${u.id}" ${customBadges.m5 ? 'checked' : ''} class="w-3 h-3 text-emerald-500 rounded bg-black"> 🧼</label>
-                                    <label title="Gran Negocio" class="cursor-pointer"><input type="checkbox" id="badge_m6_${u.id}" ${customBadges.m6 ? 'checked' : ''} class="w-3 h-3 text-yellow-400 rounded bg-black"> ⚡</label>
-                                    <label title="Medio Millón" class="cursor-pointer"><input type="checkbox" id="badge_m7_${u.id}" ${customBadges.m7 ? 'checked' : ''} class="w-3 h-3 text-teal-400 rounded bg-black"> 💎</label>
-                                    <label title="Millonario" class="cursor-pointer"><input type="checkbox" id="badge_m8_${u.id}" ${customBadges.m8 ? 'checked' : ''} class="w-3 h-3 text-rose-500 rounded bg-black"> 💰</label>
-                                </div>
-                            </td>
-                            <td class="p-3 text-right space-x-1">
-                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-ae-action text-xs px-3 py-1 rounded-xl transition shadow">
-                                    Guardar
-                                </button>
-                                ${u.id !== usuarioActual.id ? `
-                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2.5 py-1 rounded-xl border border-rose-500/30 transition">
-                                        🗑️
-                                    </button>
-                                ` : ''}
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                htmlFinal += `
-                    <div class="card-dark rounded-xl overflow-hidden border ${sec.borde}">
-                        <div class="p-3.5 ${sec.bg} border-b border-zinc-800/80 flex justify-between items-center">
-                            <h3 class="text-xs font-black uppercase tracking-wider ${sec.texto}">${sec.titulo}</h3>
-                            <span class="text-xs text-zinc-400 font-bold bg-black/60 px-2.5 py-0.5 rounded-lg border border-zinc-800">${usuariosEnRango.length} miembros</span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-sm">
-                                <thead>
-                                    <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[11px]">
-                                        <th class="p-3">Estado</th>
-                                        <th class="p-3">Trabajador</th>
-                                        <th class="p-3">Rango</th>
-                                        <th class="p-3">Permiso</th>
-                                        <th class="p-3">Nivel XP</th>
-                                        <th class="p-3">Medallas</th>
-                                        <th class="p-3 text-right">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-zinc-800/60">
-                                    ${filas || '<tr><td colspan="7" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            });
-
-            usuariosAdminGlobal.forEach(u => {
-                optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-                optsPuntos += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-            });
-
-            contenedorSecciones.innerHTML = htmlFinal;
-            selectFiltro.innerHTML = optionsHTML;
-            if (selPuntos) selPuntos.innerHTML = optsPuntos;
-            if (valorPrevio) selectFiltro.value = valorPrevio;
-
-            const resFacturas = await fetch('/api/admin/todas-facturas');
-            facturasAdminGlobal = await resFacturas.json();
-            filtrarHistorialAdmin();
-        }
-
-        async function guardarCambiosUsuario(usuario_id) {
-            const preset = document.getElementById(`rangoPreset-${usuario_id}`).value;
-            let rol = document.getElementById(`permisoAdmin-${usuario_id}`).value;
-            
-            let comision_porcentaje = 30;
-
-            if (preset === 'jefe') {
-                comision_porcentaje = 0;
-                if (rol === 'empleado') rol = 'jefe';
-            } else if (preset === 'subjefe') {
-                comision_porcentaje = 0;
-            } else if (preset === 'encargado') {
-                comision_porcentaje = 45;
-            } else if (preset === 'experto') {
-                comision_porcentaje = 40;
-            } else if (preset === 'mecanico') {
-                comision_porcentaje = 35;
-            } else if (preset === 'pruebas') {
-                comision_porcentaje = 30;
-            }
-
-            const customLvlVal = document.getElementById(`inputCustomLvl-${usuario_id}`).value.trim();
-            if (customLvlVal) {
-                localStorage.setItem(`ae_custom_lvl_${usuario_id}`, customLvlVal);
-            } else {
-                localStorage.removeItem(`ae_custom_lvl_${usuario_id}`);
-            }
-
-            const badgesObj = {
-                m1: document.getElementById(`badge_m1_${usuario_id}`).checked,
-                m2: document.getElementById(`badge_m2_${usuario_id}`).checked,
-                m3: document.getElementById(`badge_m3_${usuario_id}`).checked,
-                m4: document.getElementById(`badge_m4_${usuario_id}`).checked,
-                m5: document.getElementById(`badge_m5_${usuario_id}`).checked,
-                m6: document.getElementById(`badge_m6_${usuario_id}`).checked,
-                m7: document.getElementById(`badge_m7_${usuario_id}`).checked,
-                m8: document.getElementById(`badge_m8_${usuario_id}`).checked
-            };
-            localStorage.setItem(`ae_custom_badges_${usuario_id}`, JSON.stringify(badgesObj));
-
-            const res = await fetch('/api/usuarios/modificar', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
-            });
-
-            if (res.ok) {
-                mostrarAviso('Usuario Actualizado', `¡Rango (${preset.toUpperCase()}), nivel y medallas guardados con éxito!`);
-                actualizarBarraNivelHeader();
-            } else {
-                mostrarAviso('Error', 'Error al actualizar el usuario.', true);
-            }
-        }
-
-        async function eliminarCuentaUsuario(id, nombre) {
-            if (!confirm(`¿Estás seguro de que deseas eliminar la cuenta de "${nombre}"?`)) return;
-            const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
-            if (res.ok) mostrarAviso('Cuenta Eliminada', `La cuenta de ${nombre} fue eliminada.`);
-            else mostrarAviso('Error', 'No se pudo eliminar la cuenta.', true);
-        }
-
-        function abrirModalTransferir(facturaId, cliente, trabajadorActual) {
-            facturaIdParaTransferir = facturaId;
-            document.getElementById('txtTransferirDetalle').innerText = `Transferir Orden #${facturaId} (Cliente: ${cliente}) actualmente de ${trabajadorActual}.`;
-            
-            const sel = document.getElementById('selNuevoTrabajador');
-            let opts = '';
-            usuariosAdminGlobal.forEach(u => {
-                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
-            });
-            sel.innerHTML = opts;
-            document.getElementById('modalTransferir').classList.remove('hidden');
-        }
-
-        function cerrarModalTransferir() {
-            document.getElementById('modalTransferir').classList.add('hidden');
-            facturaIdParaTransferir = null;
-        }
-
-        async function confirmarTransferencia() {
-            if (!facturaIdParaTransferir) return;
-            const nuevo_usuario_id = document.getElementById('selNuevoTrabajador').value;
-
-            const res = await fetch(`/api/facturas/${facturaIdParaTransferir}/transferir`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nuevo_usuario_id })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                cerrarModalTransferir();
-                mostrarAviso('Orden Transferida', 'La orden y comisiones se reasignaron.');
-            } else mostrarAviso('Error', data.error, true);
-        }
-
-        async function eliminarFactura(facturaId) {
-            if (!confirm(`¿Eliminar Orden #${facturaId}?`)) return;
-            const res = await fetch(`/api/facturas/${facturaId}`, { method: 'DELETE' });
-            if (res.ok) mostrarAviso('Orden Eliminada', `La Orden #${facturaId} ha sido eliminada.`);
-            else mostrarAviso('Error', 'No se pudo eliminar la factura.', true);
-        }
-
-        function filtrarHistorialAdmin() {
-            const filtroId = document.getElementById('selectFiltroTrabajador').value;
-            const container = document.getElementById('historialAdminContenedor');
-
-            const filtradas = filtroId === 'todos' 
-                ? facturasAdminGlobal 
-                : facturasAdminGlobal.filter(f => f.usuario_id == filtroId);
-
-            if (filtradas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">No hay órdenes registradas para este filtro.</p>`;
-                return;
-            }
-
-            let html = '';
-            filtradas.forEach(f => {
-                const fecha = formatearFechaConZona(f.fecha);
-                const avatar = obtenerAvatarTrabajador(f.usuario_id);
-                let itemsHTML = '';
-                if (f.items_json) {
-                    try {
-                        const parsedItems = JSON.parse(f.items_json);
-                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
-                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
-                        parsedItems.forEach(item => {
-                            const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
-                            const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
-                            itemsHTML += `
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-bold text-zinc-300">${item.nombre}</span>
-                                    <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
-                                </div>
-                            `;
-                        });
-                        itemsHTML += '</div>';
-                    } catch(e) {}
-                }
-
-                html += `
-                    <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2">
-                                <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
-                                <div>
-                                    <span class="font-bold text-cyan-300 text-sm">👷 ${f.trabajador_nombre}</span>
-                                    <span class="text-xs text-zinc-400 ml-1 font-mono">(${fecha})</span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
-                                <div class="text-xs text-zinc-400">Total Cobrado</div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
-                            <div>
-                                <span class="text-zinc-400 font-medium">Ganancia Taller:</span>
-                                <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <span class="text-zinc-400 font-medium">Comisión Trabajador:</span>
-                                <div class="text-sm font-bold text-cyan-400">+$${f.comision_empleado.toLocaleString()}</div>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-wrap justify-between items-center text-xs pt-1 gap-2">
-                            <div>
-                                <span>Cliente: <strong class="text-zinc-200">${f.cliente}</strong></span>
-                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-rose-400 font-bold">Desc: ${f.descuento_porcentaje}%</span>` : ''}
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-900 hover:bg-zinc-800 text-cyan-300 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
-                                    🔁 Transferir
-                                </button>
-                                <button onclick="eliminarFactura(${f.id})" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 transition">
-                                    🗑️ Eliminar
-                                </button>
-                            </div>
-                        </div>
-                        ${itemsHTML}
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        async function cargarTop() {
-            const res = await fetch('/api/top-trabajadores');
-            const lista = await res.json();
-            const container = document.getElementById('topContenedor');
-            const insignias = ['🥇 PUESTO #1', '🥈 PUESTO #2', '🥉 PUESTO #3'];
-
-            let html = '';
-            for (let index = 0; index < lista.length; index++) {
-                const item = lista[index];
-                const badge = insignias[index] || `PUESTO #${index + 1}`;
-                const estaOnline = usuariosOnlineSet.has(Number(item.id));
-                const colorClase = obtenerClaseColorNombre(item.rol, item.comision_porcentaje);
-                const stats = calcularNivelYProgreso(item.total_vendido, item.id, item.xp_historica);
-                const avatar = obtenerAvatarTrabajador(item.id);
-
-                const medallas = generarMedallas([], item.total_vendido, item.id);
-                const medallasTopHTML = generarMedallasTopHTML(medallas);
-                const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
-
-                const misPuntos = calcularPuntosTrabajador(item.ganancia_generada, item.total_facturas, item.puntos_saldo);
-
-                html += `
-                    <div class="flex flex-wrap justify-between items-center bg-black/70 p-4 rounded-xl border border-zinc-800 gap-4 hover:border-zinc-700 transition">
-                        <div class="flex items-center gap-3.5">
-                            <span class="text-xs font-black bg-zinc-900 px-3 py-2 rounded-xl text-yellow-400 border border-yellow-500/30">${badge}</span>
-                            <div class="shrink-0">${avatarClean}</div>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full ${estaOnline ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
-                                    <h3 class="font-bold text-white text-base ${colorClase}">${item.nombre}</h3>
-                                    <span class="text-xs text-zinc-500">(@${item.usuario})</span>
-                                    <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
-                                    <span class="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-black">💎 ${misPuntos} PTS</span>
-                                    ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
-                                </div>
-                                <p class="text-xs text-zinc-400 mt-0.5">
-                                    XP Total: <strong class="text-cyan-400 font-bold">${stats.xpTotal.toLocaleString()}</strong> · 
-                                    Órdenes Realizadas: <strong class="text-white font-bold">${item.total_facturas}</strong>
-                                </p>
-                                ${medallasTopHTML}
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xs text-cyan-300 font-black">Comisiones: $${(Number(item.comision_ganada) || 0).toLocaleString()}</div>
-                            <div class="text-xl font-black text-emerald-400 tracking-tight">Ganancia Taller: $${(Number(item.ganancia_generada) || 0).toLocaleString()}</div>
-                        </div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
         }
 
         async function cargarHistorial() {
@@ -2640,66 +1783,63 @@
             let totalComision = 0;
             const container = document.getElementById('misFacturasLista');
 
-            if (facturas.length === 0) {
+            if (!Array.isArray(facturas) || facturas.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-500 italic">Aún no has realizado ventas en esta semana.</p>`;
-            }
+            } else {
+                let html = '';
+                facturas.forEach(f => {
+                    totalVendido += f.total_cliente;
+                    if (f.estado_pago === 'pendiente') totalComision += f.comision_empleado;
 
-            let html = '';
-            facturas.forEach(f => {
-                totalVendido += f.total_cliente;
-                if (f.estado_pago === 'pendiente') totalComision += f.comision_empleado;
+                    const fecha = formatearFechaConZona(f.fecha);
+                    let itemsHTML = '';
+                    if (f.items_json) {
+                        try {
+                            const parsedItems = JSON.parse(f.items_json);
+                            itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
+                            itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
+                            parsedItems.forEach(item => {
+                                const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
+                                const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
+                                itemsHTML += `
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="font-bold text-zinc-300">${item.nombre}</span>
+                                        <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
+                                    </div>
+                                `;
+                            });
+                            itemsHTML += '</div>';
+                        } catch(e) {}
+                    }
 
-                const fecha = formatearFechaConZona(f.fecha);
-                let itemsHTML = '';
-                if (f.items_json) {
-                    try {
-                        const parsedItems = JSON.parse(f.items_json);
-                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
-                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
-                        parsedItems.forEach(item => {
-                            const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
-                            const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
-                            itemsHTML += `
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-bold text-zinc-300">${item.nombre}</span>
-                                    <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
+                    html += `
+                        <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-white text-sm">Trabajador: ${usuarioActual.nombre}</span>
+                                    <span class="text-xs text-zinc-400 ml-2 font-mono">(${fecha})</span>
                                 </div>
-                            `;
-                        });
-                        itemsHTML += '</div>';
-                    } catch(e) {}
-                }
+                                <div class="text-right">
+                                    <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
+                                    <div class="text-xs text-zinc-400">Total Vendido</div>
+                                </div>
+                            </div>
 
-                html += `
-                    <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <span class="font-bold text-white text-sm">Trabajador: ${usuarioActual.nombre}</span>
-                                <span class="text-xs text-zinc-400 ml-2 font-mono">(${fecha})</span>
+                            <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
+                                <div>
+                                    <span class="text-zinc-400 font-medium">Ganancia Neta Taller:</span>
+                                    <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-xl font-black text-white">$${f.total_cliente.toLocaleString()}</div>
-                                <div class="text-xs text-zinc-400">Total Vendido</div>
-                            </div>
+
+                            <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
+                            ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado: ${f.descuento_porcentaje}% (V12 y Mano de Obra protegidos)</div>` : ''}
+                            ${itemsHTML}
                         </div>
-
-                        <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
-                            <div>
-                                <span class="text-zinc-400 font-medium">Ganancia Neta Taller:</span>
-                                <div class="text-sm font-bold text-emerald-400">$${f.ganancia_neta.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <span class="text-zinc-400 font-medium">Mi Comisión:</span>
-                                <div class="text-sm font-bold text-cyan-300">+$${f.comision_empleado.toLocaleString()}</div>
-                            </div>
-                        </div>
-
-                        <div class="text-xs text-zinc-400">Cliente: <strong class="text-zinc-200">${f.cliente}</strong></div>
-                        ${f.descuento_porcentaje > 0 ? `<div class="text-xs text-rose-400 font-bold">Descuento aplicado: ${f.descuento_porcentaje}% (V12 y Mano de Obra protegidos)</div>` : ''}
-                        ${itemsHTML}
-                    </div>
-                `;
-            });
+                    `;
+                });
+                container.innerHTML = html;
+            }
 
             const resTop = await fetch('/api/top-trabajadores');
             const ranking = await resTop.json();
@@ -2721,7 +1861,7 @@
             document.getElementById('barraProgresoXPPerfil').style.width = `${stats.porcentaje}%`;
             document.getElementById('lblPerfilRacha').innerText = `${racha} ${racha === 1 ? 'día activo' : 'días activos'}`;
 
-            const medallas = generarMedallas(facturas, totalVendido, usuarioActual.id);
+            const medallas = generarMedallas(facturas || [], totalVendido, usuarioActual.id);
             document.getElementById('perfilRibbonBar').innerHTML = generarRibbonBarHTML(medallas);
 
             const contenedorMedallas = document.getElementById('contenedorMedallasPerfil');
@@ -2739,10 +1879,9 @@
             });
             contenedorMedallas.innerHTML = medallasHTML;
 
-            container.innerHTML = html;
             document.getElementById('mTotalVendido').innerText = `$${totalVendido.toLocaleString()}`;
             document.getElementById('mComisionesPendientes').innerText = `$${totalComision.toLocaleString()}`;
-            document.getElementById('mTotalFacturas').innerText = facturas.length;
+            document.getElementById('mTotalFacturas').innerText = facturas ? facturas.length : 0;
         }
 
         function renderCatalogo() {
@@ -2827,7 +1966,6 @@
             }
         }
 
-        // AGREGAR: Desglosa los combos en piezas individuales + Mano de Obra para cuadrar el precio total oficial
         function agregar(id) {
             const itemSeleccionado = catalogo.find(x => x.id === id);
             if (!itemSeleccionado) return;
@@ -2835,7 +1973,6 @@
             if (itemSeleccionado.esCombo && itemSeleccionado.componentes) {
                 itemSeleccionado.componentes.forEach(comp => {
                     if (comp.id === 99) {
-                        // Ítem de mano de obra
                         const idManoObra = `mano_obra_${id}`;
                         if (!carrito[idManoObra]) {
                             carrito[idManoObra] = {
@@ -2936,7 +2073,6 @@
                     subtotalBruto += subtotalLinea;
                     totalCantidad += item.cantidad;
 
-                    // REGLA: Motor V12 (id: 7) y Mano de Obra (noDescuento) están protegidos
                     const admiteDescuento = !modoPrecioFabrica && !item.noDescuento && item.id !== 7 && descuentoPorcentaje > 0;
                     const pctLinea = admiteDescuento ? descuentoPorcentaje : 0;
                     const descuentoLinea = subtotalLinea * (pctLinea / 100);
@@ -3077,6 +2213,324 @@
 
         function cerrarModal() {
             document.getElementById('modalExito').classList.add('hidden');
+        }
+
+        async function cargarGestionAdmin() {
+            const res = await fetch('/api/usuarios');
+            usuariosAdminGlobal = await res.json();
+            const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
+
+            const selectFiltro = document.getElementById('selectFiltroTrabajador');
+            const valorPrevio = selectFiltro ? selectFiltro.value : null;
+            let optionsHTML = '<option value="todos">Todos los trabajadores</option>';
+
+            const selPuntos = document.getElementById('selAdminTrabajadorPuntos');
+            let optsPuntos = '';
+
+            const secciones = [
+                { key: 'jefe', titulo: '👑 JEFES (0% COMISIÓN - DIRECCIÓN GENERAL)', borde: 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]', texto: 'text-amber-300', bg: 'bg-amber-950/20' },
+                { key: 'subjefe', titulo: '🛡️ SUBJEFES (0% COMISIÓN - GANAN DE CAPITAL)', borde: 'border-rose-500/40', texto: 'text-rose-400', bg: 'bg-rose-950/10' },
+                { key: 'encargado', titulo: '👔 ENCARGADOS (45% COMISIÓN)', borde: 'border-yellow-500/40', texto: 'text-yellow-400', bg: 'bg-yellow-950/10' },
+                { key: 'experto', titulo: '⭐ MECÁNICOS EXPERTOS (40% COMISIÓN)', borde: 'border-purple-500/40', texto: 'text-purple-400', bg: 'bg-purple-950/10' },
+                { key: 'mecanico', titulo: '🔧 MECÁNICOS (35% COMISIÓN)', borde: 'border-zinc-700', texto: 'text-zinc-300', bg: 'bg-zinc-900/40' },
+                { key: 'pruebas', titulo: '🔰 MECÁNICOS EN PRUEBAS (30% COMISIÓN)', borde: 'border-emerald-500/40', texto: 'text-emerald-400', bg: 'bg-emerald-950/10' }
+            ];
+
+            let htmlFinal = '';
+
+            secciones.forEach(sec => {
+                const usuariosEnRango = (usuariosAdminGlobal || []).filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
+
+                let filas = '';
+                usuariosEnRango.forEach(u => {
+                    const estaOnline = usuariosOnlineSet.has(Number(u.id));
+                    const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje);
+                    const presetActual = obtenerClaveRango(u.rol, u.comision_porcentaje);
+                    const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
+                    const avatar = obtenerAvatarTrabajador(u.id);
+
+                    const customLvl = localStorage.getItem(`ae_custom_lvl_${u.id}`) || '';
+                    const customBadges = JSON.parse(localStorage.getItem(`ae_custom_badges_${u.id}`)) || {};
+
+                    filas += `
+                        <tr class="hover:bg-zinc-900/40 transition">
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold ${estaOnline ? 'text-emerald-400' : 'text-zinc-500'}">
+                                    <span class="w-2 h-2 rounded-full ${estaOnline ? 'bg-emerald-500 animate-pulse shadow-[0_0_6px_#10b981]' : 'bg-zinc-600'}"></span>
+                                    ${estaOnline ? 'En Línea' : 'Desconectado'}
+                                </span>
+                            </td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-2">
+                                    <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
+                                    <div>
+                                        <span class="${colorClase}">${u.nombre}</span>
+                                        ${esAdminOJefe ? '<span class="text-xs" title="Tiene permisos de Administrador">👑</span>' : ''}
+                                        <div class="text-[11px] text-zinc-500">@${u.usuario}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <select id="rangoPreset-${u.id}" class="input-dark px-2.5 py-1 rounded-xl text-xs font-bold w-full max-w-[170px]">
+                                    <option value="jefe" ${presetActual === 'jefe' ? 'selected' : ''}>👑 Jefe (0%)</option>
+                                    <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0%)</option>
+                                    <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45%)</option>
+                                    <option value="experto" ${presetActual === 'experto' ? 'selected' : ''}>⭐ M. Experto (40%)</option>
+                                    <option value="mecanico" ${presetActual === 'mecanico' ? 'selected' : ''}>🔧 Mecánico (35%)</option>
+                                    <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 En Pruebas (30%)</option>
+                                </select>
+                            </td>
+                            <td class="p-3">
+                                <select id="permisoAdmin-${u.id}" class="input-dark px-2 py-1 rounded-xl text-xs font-bold ${esAdminOJefe ? 'text-amber-400 border-amber-500/40 font-black' : 'text-zinc-300'}">
+                                    <option value="empleado" ${u.rol === 'empleado' ? 'selected' : ''}>Empleado</option>
+                                    <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>👑 Acceso Admin</option>
+                                    <option value="jefe" ${u.rol === 'jefe' ? 'selected' : ''}>👑 Acceso Jefe</option>
+                                </select>
+                            </td>
+                            <td class="p-3">
+                                <div class="flex items-center gap-1">
+                                    <input type="number" id="inputCustomLvl-${u.id}" value="${customLvl}" placeholder="Auto" min="1" max="100" class="w-16 input-dark px-2 py-1 rounded-lg text-xs font-bold text-center text-cyan-300" title="Nivel (1-100)" />
+                                    <span class="text-[10px] text-zinc-500">Lvl</span>
+                                </div>
+                            </td>
+                            <td class="p-3">
+                                <div class="grid grid-cols-4 gap-1 text-[11px]">
+                                    <label title="Rey V12" class="cursor-pointer"><input type="checkbox" id="badge_m1_${u.id}" ${customBadges.m1 ? 'checked' : ''} class="w-3 h-3 text-amber-500 rounded bg-black"> 👑</label>
+                                    <label title="Nitro" class="cursor-pointer"><input type="checkbox" id="badge_m2_${u.id}" ${customBadges.m2 ? 'checked' : ''} class="w-3 h-3 text-cyan-500 rounded bg-black"> 💨</label>
+                                    <label title="Drift" class="cursor-pointer"><input type="checkbox" id="badge_m3_${u.id}" ${customBadges.m3 ? 'checked' : ''} class="w-3 h-3 text-fuchsia-500 rounded bg-black"> 🏎️</label>
+                                    <label title="Mente V8" class="cursor-pointer"><input type="checkbox" id="badge_m4_${u.id}" ${customBadges.m4 ? 'checked' : ''} class="w-3 h-3 text-blue-500 rounded bg-black"> ⚙️</label>
+                                    <label title="Detallador" class="cursor-pointer"><input type="checkbox" id="badge_m5_${u.id}" ${customBadges.m5 ? 'checked' : ''} class="w-3 h-3 text-emerald-500 rounded bg-black"> 🧼</label>
+                                    <label title="Gran Negocio" class="cursor-pointer"><input type="checkbox" id="badge_m6_${u.id}" ${customBadges.m6 ? 'checked' : ''} class="w-3 h-3 text-yellow-400 rounded bg-black"> ⚡</label>
+                                    <label title="Medio Millón" class="cursor-pointer"><input type="checkbox" id="badge_m7_${u.id}" ${customBadges.m7 ? 'checked' : ''} class="w-3 h-3 text-teal-400 rounded bg-black"> 💎</label>
+                                    <label title="Millonario" class="cursor-pointer"><input type="checkbox" id="badge_m8_${u.id}" ${customBadges.m8 ? 'checked' : ''} class="w-3 h-3 text-rose-500 rounded bg-black"> 💰</label>
+                                </div>
+                            </td>
+                            <td class="p-3 text-right space-x-1">
+                                <button onclick="guardarCambiosUsuario(${u.id})" class="btn-ae-action text-xs px-3 py-1 rounded-xl transition shadow">
+                                    Guardar
+                                </button>
+                                ${u.id !== usuarioActual.id ? `
+                                    <button onclick="eliminarCuentaUsuario(${u.id}, '${u.nombre}')" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold text-xs px-2.5 py-1 rounded-xl border border-rose-500/30 transition">
+                                        🗑️
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                htmlFinal += `
+                    <div class="card-dark rounded-xl overflow-hidden border ${sec.borde}">
+                        <div class="p-3.5 ${sec.bg} border-b border-zinc-800/80 flex justify-between items-center">
+                            <h3 class="text-xs font-black uppercase tracking-wider ${sec.texto}">${sec.titulo}</h3>
+                            <span class="text-xs text-zinc-400 font-bold bg-black/60 px-2.5 py-0.5 rounded-lg border border-zinc-800">${usuariosEnRango.length} miembros</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[11px]">
+                                        <th class="p-3">Estado</th>
+                                        <th class="p-3">Trabajador</th>
+                                        <th class="p-3">Rango</th>
+                                        <th class="p-3">Permiso</th>
+                                        <th class="p-3">Nivel XP</th>
+                                        <th class="p-3">Medallas</th>
+                                        <th class="p-3 text-right">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-zinc-800/60">
+                                    ${filas || '<tr><td colspan="7" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+
+            (usuariosAdminGlobal || []).forEach(u => {
+                optionsHTML += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
+                optsPuntos += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
+            });
+
+            if (contenedorSecciones) contenedorSecciones.innerHTML = htmlFinal;
+            if (selectFiltro) selectFiltro.innerHTML = optionsHTML;
+            if (selPuntos) selPuntos.innerHTML = optsPuntos;
+            if (valorPrevio && selectFiltro) selectFiltro.value = valorPrevio;
+
+            const resFacturas = await fetch('/api/admin/todas-facturas');
+            facturasAdminGlobal = await resFacturas.json();
+            filtrarHistorialAdmin();
+        }
+
+        async function guardarCambiosUsuario(usuario_id) {
+            const preset = document.getElementById(`rangoPreset-${usuario_id}`).value;
+            let rol = document.getElementById(`permisoAdmin-${usuario_id}`).value;
+            
+            let comision_porcentaje = 30;
+
+            if (preset === 'jefe') {
+                comision_porcentaje = 0;
+                if (rol === 'empleado') rol = 'jefe';
+            } else if (preset === 'subjefe') comision_porcentaje = 0;
+            else if (preset === 'encargado') comision_porcentaje = 45;
+            else if (preset === 'experto') comision_porcentaje = 40;
+            else if (preset === 'mecanico') comision_porcentaje = 35;
+            else if (preset === 'pruebas') comision_porcentaje = 30;
+
+            const customLvlVal = document.getElementById(`inputCustomLvl-${usuario_id}`).value.trim();
+            if (customLvlVal) localStorage.setItem(`ae_custom_lvl_${usuario_id}`, customLvlVal);
+            else localStorage.removeItem(`ae_custom_lvl_${usuario_id}`);
+
+            const badgesObj = {
+                m1: document.getElementById(`badge_m1_${usuario_id}`).checked,
+                m2: document.getElementById(`badge_m2_${usuario_id}`).checked,
+                m3: document.getElementById(`badge_m3_${usuario_id}`).checked,
+                m4: document.getElementById(`badge_m4_${usuario_id}`).checked,
+                m5: document.getElementById(`badge_m5_${usuario_id}`).checked,
+                m6: document.getElementById(`badge_m6_${usuario_id}`).checked,
+                m7: document.getElementById(`badge_m7_${usuario_id}`).checked,
+                m8: document.getElementById(`badge_m8_${usuario_id}`).checked
+            };
+            localStorage.setItem(`ae_custom_badges_${usuario_id}`, JSON.stringify(badgesObj));
+
+            const res = await fetch('/api/usuarios/modificar', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario_id, comision_porcentaje, rol })
+            });
+
+            if (res.ok) {
+                mostrarAviso('Usuario Actualizado', `¡Rango (${preset.toUpperCase()}) guardado con éxito!`);
+                actualizarBarraNivelHeader();
+            } else mostrarAviso('Error', 'Error al actualizar el usuario.', true);
+        }
+
+        async function eliminarCuentaUsuario(id, nombre) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar la cuenta de "${nombre}"?`)) return;
+            const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+            if (res.ok) mostrarAviso('Cuenta Eliminada', `La cuenta de ${nombre} fue eliminada.`);
+            else mostrarAviso('Error', 'No se pudo eliminar la cuenta.', true);
+        }
+
+        function abrirModalTransferir(facturaId, cliente, trabajadorActual) {
+            facturaIdParaTransferir = facturaId;
+            document.getElementById('txtTransferirDetalle').innerText = `Transferir Orden #${facturaId} (Cliente: ${cliente}) de ${trabajadorActual}.`;
+            const sel = document.getElementById('selNuevoTrabajador');
+            let opts = '';
+            usuariosAdminGlobal.forEach(u => {
+                opts += `<option value="${u.id}">${u.nombre} (@${u.usuario})</option>`;
+            });
+            sel.innerHTML = opts;
+            document.getElementById('modalTransferir').classList.remove('hidden');
+        }
+
+        function cerrarModalTransferir() {
+            document.getElementById('modalTransferir').classList.add('hidden');
+            facturaIdParaTransferir = null;
+        }
+
+        async function confirmarTransferencia() {
+            if (!facturaIdParaTransferir) return;
+            const nuevo_usuario_id = document.getElementById('selNuevoTrabajador').value;
+            const res = await fetch(`/api/facturas/${facturaIdParaTransferir}/transferir`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nuevo_usuario_id })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                cerrarModalTransferir();
+                mostrarAviso('Orden Transferida', 'La orden y comisiones se reasignaron.');
+            } else mostrarAviso('Error', data.error, true);
+        }
+
+        async function eliminarFactura(facturaId) {
+            if (!confirm(`¿Eliminar Orden #${facturaId}?`)) return;
+            const res = await fetch(`/api/facturas/${facturaId}`, { method: 'DELETE' });
+            if (res.ok) mostrarAviso('Orden Eliminada', `La Orden #${facturaId} ha sido eliminada.`);
+            else mostrarAviso('Error', 'No se pudo eliminar la factura.', true);
+        }
+
+        function filtrarHistorialAdmin() {
+            const filtroId = document.getElementById('selectFiltroTrabajador').value;
+            const container = document.getElementById('historialAdminContenedor');
+            const filtradas = filtroId === 'todos' ? facturasAdminGlobal : facturasAdminGlobal.filter(f => f.usuario_id == filtroId);
+
+            if (filtradas.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">No hay órdenes registradas para este filtro.</p>`;
+                return;
+            }
+
+            let html = '';
+            filtradas.forEach(f => {
+                const fecha = formatearFechaConZona(f.fecha);
+                const avatar = obtenerAvatarTrabajador(f.usuario_id);
+                let itemsHTML = '';
+                if (f.items_json) {
+                    try {
+                        const parsedItems = JSON.parse(f.items_json);
+                        itemsHTML = '<div class="mt-3 pt-3 border-t border-zinc-800 space-y-1.5">';
+                        itemsHTML += '<p class="text-[10px] font-black text-cyan-400 uppercase tracking-wider mb-2">PRODUCTO / CANT. / PRECIO</p>';
+                        parsedItems.forEach(item => {
+                            const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
+                            const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
+                            itemsHTML += `
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="font-bold text-zinc-300">${item.nombre}</span>
+                                    <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
+                                </div>
+                            `;
+                        });
+                        itemsHTML += '</div>';
+                    } catch (e) {}
+                }
+
+                html += `
+                    <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
+                                <div>
+                                    <span class="font-bold text-cyan-300 text-sm">👷 ${f.trabajador_nombre}</span>
+                                    <span class="text-xs text-zinc-400 ml-1 font-mono">(${fecha})</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-black text-white">$${Number(f.total_cliente).toLocaleString()}</div>
+                                <div class="text-xs text-zinc-400">Total Cobrado</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
+                            <div>
+                                <span class="text-zinc-400 font-medium">Ganancia Taller:</span>
+                                <div class="text-sm font-bold text-emerald-400">$${Number(f.ganancia_neta).toLocaleString()}</div>
+                            </div>
+                            <div>
+                                <span class="text-zinc-400 font-medium">Comisión Trabajador:</span>
+                                <div class="text-sm font-bold text-cyan-400">+$${Number(f.comision_empleado).toLocaleString()}</div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap justify-between items-center text-xs pt-1 gap-2">
+                            <div>
+                                <span>Cliente: <strong class="text-zinc-200">${f.cliente}</strong></span>
+                                ${f.descuento_porcentaje > 0 ? `<span class="ml-3 text-rose-400 font-bold">Desc: ${f.descuento_porcentaje}%</span>` : ''}
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="abrirModalTransferir(${f.id}, '${f.cliente}', '${f.trabajador_nombre}')" class="bg-zinc-900 hover:bg-zinc-800 text-cyan-300 font-bold px-3 py-1.5 rounded-lg border border-zinc-700 transition">
+                                    🔁 Transferir
+                                </button>
+                                <button onclick="eliminarFactura(${f.id})" class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 transition">
+                                    🗑️ Eliminar
+                                </button>
+                            </div>
+                        </div>
+                        ${itemsHTML}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
         }
 
         actualizarVistaUsuario();
