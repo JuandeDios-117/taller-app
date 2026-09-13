@@ -23,7 +23,6 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización segura de todas las tablas de la base de datos
 (async function initDB() {
     try {
         await db.execute(`
@@ -109,9 +108,11 @@ async function queryRows(sql, args = []) {
         if (res && typeof res === 'object') return [res];
         return [];
     } catch (e) {
-        const res2 = await db.execute(sql);
-        if (Array.isArray(res2)) return res2;
-        if (res2 && Array.isArray(res2.rows)) return res2.rows;
+        try {
+            const res2 = await db.execute(sql);
+            if (Array.isArray(res2)) return res2;
+            if (res2 && Array.isArray(res2.rows)) return res2.rows;
+        } catch (err2) {}
         return [];
     }
 }
@@ -454,9 +455,8 @@ app.post('/api/facturas', async (req, res) => {
             args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, pctDescuentoGeneral, itemsJSON, fechaLocalMx]
         });
 
-        const facturaId = Number(insertRes.lastInsertRowid);
+        const facturaId = Number(insertRes.lastInsertRowid || 1);
 
-        // Otorgar Puntos y XP automáticos por cada venta realizada
         const puntosGanados = Math.floor(total_cliente / 5000);
         const xpGanada = Math.floor(total_cliente / 100);
 
