@@ -2017,48 +2017,48 @@
         }
 
 function cambiarPestana(pestana) {
-            if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
+    if (!usuarioActual) return mostrarAviso('Acceso Restringido', 'Debes iniciar sesión primero con tu cuenta.');
 
-            const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
-            if ((pestana === 'admin' || pestana === 'almacen') && !esAdminOJefe) {
-                return mostrarAviso('Acceso Denegado', 'Solo los administradores y jefes tienen permiso para acceder a esta sección.', true);
-            }
+    const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
+    if ((pestana === 'admin' || pestana === 'almacen') && !esAdminOJefe) {
+        return mostrarAviso('Acceso Denegado', 'Solo los administradores y jefes tienen permiso para acceder a esta sección.', true);
+    }
 
-            pestanaActiva = pestana;
+    pestanaActiva = pestana;
 
-            const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin', 'tienda'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition';
-            });
+    const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin', 'tienda'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition';
+    });
 
-            const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
-            if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
+    const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
+    if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
 
-            const secciones = ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin', 'tienda'];
-            secciones.forEach(s => {
-                const el = document.getElementById(`seccion-${s}`);
-                if (el) {
-                    el.classList.remove('tab-content-anim');
-                    if (s === pestana) {
-                        el.classList.remove('hidden');
-                        void el.offsetWidth;
-                        el.classList.add('tab-content-anim');
-                    } else {
-                        el.classList.add('hidden');
-                    }
-                }
-            });
-
-            if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
-            if (pestana === 'historial') cargarHistorial();
-            if (pestana === 'top') cargarTop();
-            if (pestana === 'tienda') cargarTienda();
-            if (pestana === 'admin' && esAdminOJefe) {
-                cargarGestionAdmin();
-                cargarConvenios();
+    const secciones = ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin', 'tienda'];
+    secciones.forEach(s => {
+        const el = document.getElementById(`seccion-${s}`);
+        if (el) {
+            el.classList.remove('tab-content-anim');
+            if (s === pestana) {
+                el.classList.remove('hidden');
+                void el.offsetWidth;
+                el.classList.add('tab-content-anim');
+            } else {
+                el.classList.add('hidden');
             }
         }
+    });
+
+    if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
+    if (pestana === 'historial') cargarHistorial();
+    if (pestana === 'top') cargarTop();
+    if (pestana === 'tienda') cargarTienda();
+    if (pestana === 'admin') {
+        cargarConvenios();
+        cargarGestionAdmin();
+    }
+}
 
         async function cargarAlmacen() {
             const res = await fetch('/api/almacen/estado');
@@ -2201,7 +2201,9 @@ function cambiarPestana(pestana) {
      async function cargarGestionAdmin() {
     try {
         const res = await fetch('/api/usuarios');
-        usuariosAdminGlobal = await res.json();
+        const dataUsuarios = await res.json();
+        usuariosAdminGlobal = Array.isArray(dataUsuarios) ? dataUsuarios : (dataUsuarios.rows || []);
+        
         const contenedorSecciones = document.getElementById('contenedorSeccionesRangos');
         const selectFiltro = document.getElementById('selectFiltroTrabajador');
 
@@ -2222,7 +2224,7 @@ function cambiarPestana(pestana) {
         let htmlFinal = '';
 
         secciones.forEach(sec => {
-            const usuariosEnRango = (usuariosAdminGlobal || []).filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
+            const usuariosEnRango = usuariosAdminGlobal.filter(u => obtenerClaveRango(u.rol, u.comision_porcentaje) === sec.key);
 
             let filas = '';
             usuariosEnRango.forEach(u => {
@@ -2311,15 +2313,13 @@ function cambiarPestana(pestana) {
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[11px]">
-                                    <th class="p-3">Estado</th>
-                                    <th class="p-3">Trabajador</th>
-                                    <th class="p-3">Rango</th>
-                                    <th class="p-3">Permiso</th>
-                                    <th class="p-3">Nivel XP</th>
-                                    <th class="p-3">Medallas</th>
-                                    <th class="p-3 text-right">Acciones</th>
-                                </tr>
+                                <th class="p-3">Estado</th>
+                                <th class="p-3">Trabajador</th>
+                                <th class="p-3">Rango</th>
+                                <th class="p-3">Permiso</th>
+                                <th class="p-3">Nivel XP</th>
+                                <th class="p-3">Medallas</th>
+                                <th class="p-3 text-right">Acciones</th>
                             </thead>
                             <tbody class="divide-y divide-zinc-800/60">
                                 ${filas || '<tr><td colspan="7" class="p-3 text-xs text-zinc-500 italic text-center">No hay miembros registrados en este rango.</td></tr>'}
@@ -2339,7 +2339,8 @@ function cambiarPestana(pestana) {
         if (valorPrevio) selectFiltro.value = valorPrevio;
 
         const resFacturas = await fetch('/api/admin/todas-facturas');
-        facturasAdminGlobal = await resFacturas.json();
+        const dataFacturas = await resFacturas.json();
+        facturasAdminGlobal = Array.isArray(dataFacturas) ? dataFacturas : (dataFacturas.rows || []);
         filtrarHistorialAdmin();
     } catch (e) {
         console.error("Error al cargar gestión admin:", e);
