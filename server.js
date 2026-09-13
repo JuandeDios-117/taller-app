@@ -105,7 +105,7 @@ function notificarCambioGlobal(evento, data = {}) {
 app.get('/api/convenios', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM convenios_facciones ORDER BY faccion ASC");
-        res.json(result.rows || []);
+        res.json(result.rows || result || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -146,7 +146,9 @@ app.post('/api/register', async (req, res) => {
 
     try {
         const checkUser = await db.execute("SELECT COUNT(*) as total FROM usuarios");
-        const esPrimerUsuario = checkUser.rows[0].total === 0;
+        const rowsCheck = checkUser.rows || checkUser || [];
+        const totalRows = rowsCheck[0]?.total || 0;
+        const esPrimerUsuario = totalRows === 0;
         const rolInicial = esPrimerUsuario ? 'jefe' : 'empleado';
         const comisionInicial = esPrimerUsuario ? 0 : 30;
 
@@ -180,10 +182,11 @@ app.post('/api/login', async (req, res) => {
     try {
         const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
+        const rows = result.rows || result || [];
         
-        if (!result.rows || result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
+        if (rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
         
-        const user = result.rows[0];
+        const user = rows[0];
         await db.execute({
             sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
             args: [user.id]
@@ -200,7 +203,9 @@ app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
         const movsRes = await db.execute("SELECT * FROM movimientos_capital ORDER BY fecha DESC LIMIT 30");
-        res.json({ estado: (estadoRes.rows && estadoRes.rows[0]) || { capital: 0, stock_v8: 0, stock_v12: 0 }, movimientos: movsRes.rows || [] });
+        const rowsEstado = estadoRes.rows || estadoRes || [];
+        const rowsMovs = movsRes.rows || movsRes || [];
+        res.json({ estado: rowsEstado[0] || { capital: 0, stock_v8: 0, stock_v12: 0 }, movimientos: rowsMovs });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -236,7 +241,8 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
 
     try {
         const estadoRes = await db.execute("SELECT capital FROM taller_estado WHERE id = 1");
-        const estado = estadoRes.rows && estadoRes.rows[0];
+        const rowsEstado = estadoRes.rows || estadoRes || [];
+        const estado = rowsEstado[0];
 
         if (!estado || estado.capital < costoTotal) {
             return res.status(400).json({ error: `Capital insuficiente. Se requieren $${costoTotal.toLocaleString()} y dispones de $${(estado ? estado.capital : 0).toLocaleString()}` });
@@ -291,7 +297,7 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
-        res.json(result.rows || []);
+        res.json(result.rows || result || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -333,13 +339,15 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
 
     try {
         const userRes = await db.execute({ sql: "SELECT COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [nuevo_usuario_id] });
-        if (!userRes.rows || userRes.rows.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
-        const pctComision = userRes.rows[0].comision / 100;
+        const rowsUser = userRes.rows || userRes || [];
+        if (rowsUser.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
+        const pctComision = rowsUser[0].comision / 100;
 
         const factRes = await db.execute({ sql: "SELECT ganancia_neta FROM facturas WHERE id = ?", args: [factura_id] });
-        if (!factRes.rows || factRes.rows.length === 0) return res.status(404).json({ error: "La factura no existe." });
+        const rowsFact = factRes.rows || factRes || [];
+        if (rowsFact.length === 0) return res.status(404).json({ error: "La factura no existe." });
         
-        const ganancia = factRes.rows[0].ganancia_neta;
+        const ganancia = rowsFact[0].ganancia_neta;
         const nuevaComision = ganancia > 0 ? ganancia * pctComision : 0;
 
         await db.execute({
@@ -382,7 +390,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA (Actualizado para otorgar Puntos y XP)
+// 13. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -390,8 +398,9 @@ app.post('/api/facturas', async (req, res) => {
 
     try {
         const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [usuario_id] });
-        if (!userRes.rows || userRes.rows.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
-        const user = userRes.rows[0];
+        const rowsUser = userRes.rows || userRes || [];
+        if (rowsUser.length === 0) return res.status(400).json({ error: "Usuario no encontrado." });
+        const user = rowsUser[0];
 
         const aplicarFabrica = es_precio_fabrica && (user.rol === 'admin' || user.rol === 'jefe');
         const pctDescuentoGeneral = aplicarFabrica ? 0 : Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
@@ -405,7 +414,8 @@ app.post('/api/facturas', async (req, res) => {
         });
 
         const estadoRes = await db.execute("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1");
-        const estado = (estadoRes.rows && estadoRes.rows[0]) || { stock_v8: 0, stock_v12: 0 };
+        const rowsEstado = estadoRes.rows || estadoRes || [];
+        const estado = rowsEstado[0] || { stock_v8: 0, stock_v12: 0 };
 
         if (v12Necesarios > 0 && estado.stock_v12 < v12Necesarios) {
             return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12 y solo hay ${estado.stock_v12} en stock.` });
@@ -452,7 +462,6 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        // Otorgar Puntos y XP automáticos basados en la venta (1 XP por cada $100 vendidos, 1 Punto por cada $5,000 vendidos)
         const puntosGanados = Math.floor(total_cliente / 5000);
         const xpGanada = Math.floor(total_cliente / 100);
 
@@ -502,7 +511,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
             sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60",
             args: [req.params.usuario_id]
         });
-        res.json(result.rows || []);
+        res.json(result.rows || result || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -519,7 +528,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
             LIMIT 80
         `;
         const result = await db.execute(sql);
-        res.json(result.rows || []);
+        res.json(result.rows || result || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -531,8 +540,8 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const usersRes = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios");
         const facturasRes = await db.execute("SELECT usuario_id, total_cliente, ganancia_neta, comision_empleado FROM facturas");
 
-        const users = usersRes.rows || [];
-        const facturas = facturasRes.rows || [];
+        const users = usersRes.rows || usersRes || [];
+        const facturas = facturasRes.rows || facturasRes || [];
 
         const mapaTotales = {};
         users.forEach(u => {
@@ -579,7 +588,8 @@ app.get('/api/recompensas/:usuario_id', async (req, res) => {
             sql: "SELECT * FROM recompensas_usuarios WHERE usuario_id = ?",
             args: [uid]
         });
-        res.json(result.rows[0] || { puntos: 0, xp: 0 });
+        const rows = result.rows || result || [];
+        res.json(rows[0] || { puntos: 0, xp: 0 });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -598,7 +608,8 @@ app.post('/api/recompensas/canjear', async (req, res) => {
 
     try {
         const rec = await db.execute({ sql: "SELECT puntos FROM recompensas_usuarios WHERE usuario_id = ?", args: [usuario_id] });
-        if (!rec.rows || rec.rows.length === 0 || rec.rows[0].puntos < costo) {
+        const rowsRec = rec.rows || rec || [];
+        if (rowsRec.length === 0 || rowsRec[0].puntos < costo) {
             return res.status(400).json({ error: "Puntos insuficientes." });
         }
 
@@ -620,7 +631,8 @@ app.post('/api/recompensas/transferir', async (req, res) => {
 
     try {
         const origen = await db.execute({ sql: "SELECT puntos FROM recompensas_usuarios WHERE usuario_id = ?", args: [origen_id] });
-        if (!origen.rows || origen.rows[0].puntos < pts) return res.status(400).json({ error: "No tienes suficientes puntos." });
+        const rowsOrigen = origen.rows || origen || [];
+        if (rowsOrigen.length === 0 || rowsOrigen[0].puntos < pts) return res.status(400).json({ error: "No tienes suficientes puntos." });
 
         await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos - ? WHERE usuario_id = ?", args: [pts, origen_id] });
         await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos + ? WHERE usuario_id = ?", args: [pts, destino_id] });
@@ -649,7 +661,7 @@ app.get('/api/recompensas/transferencias/:usuario_id', async (req, res) => {
             ORDER BY t.created_at DESC LIMIT 20
         `;
         const result = await db.execute({ sql, args: [uid, uid, uid, uid] });
-        res.json(result.rows || []);
+        res.json(result.rows || result || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -659,10 +671,11 @@ app.get('/api/recompensas/ruleta/estado/:usuario_id', async (req, res) => {
     try {
         const uid = req.params.usuario_id;
         const resUser = await db.execute({ sql: "SELECT ultimo_giro FROM recompensas_usuarios WHERE usuario_id = ?", args: [uid] });
-        if (!resUser.rows || resUser.rows.length === 0 || !resUser.rows[0].ultimo_giro) {
+        const rowsUser = resUser.rows || resUser || [];
+        if (rowsUser.length === 0 || !rowsUser[0].ultimo_giro) {
             return res.json({ puede_girar: true, restante_ms: 0 });
         }
-        const ultimo = new Date(resUser.rows[0].ultimo_giro).getTime();
+        const ultimo = new Date(rowsUser[0].ultimo_giro).getTime();
         const ahora = Date.now();
         const intervalo = 24 * 3600 * 1000;
         const diff = ahora - ultimo;
@@ -680,8 +693,9 @@ app.post('/api/recompensas/ruleta/girar', async (req, res) => {
     const { usuario_id } = req.body;
     try {
         const resUser = await db.execute({ sql: "SELECT ultimo_giro FROM recompensas_usuarios WHERE usuario_id = ?", args: [usuario_id] });
-        if (resUser.rows && resUser.rows.length > 0 && resUser.rows[0].ultimo_giro) {
-            const ultimo = new Date(resUser.rows[0].ultimo_giro).getTime();
+        const rowsUser = resUser.rows || resUser || [];
+        if (rowsUser.length > 0 && rowsUser[0].ultimo_giro) {
+            const ultimo = new Date(rowsUser[0].ultimo_giro).getTime();
             if (Date.now() - ultimo < 24 * 3600 * 1000) {
                 return res.status(400).json({ error: "Ya giraste la ruleta en las últimas 24 horas." });
             }
@@ -721,7 +735,7 @@ app.get('/api/recompensas/ruleta/historial/:usuario_id', async (req, res) => {
             sql: "SELECT premio, created_at FROM historial_ruleta WHERE usuario_id = ? ORDER BY created_at DESC LIMIT 15",
             args: [req.params.usuario_id]
         });
-        res.json(result.rows || []);
+        res.json(result.rows || result || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -736,7 +750,7 @@ app.get('/api/recompensas/admin/lista', async (req, res) => {
             ORDER BY u.id ASC
         `;
         const result = await db.execute(sql);
-        res.json(result.rows || []);
+        res.json(result.rows || result || []);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
