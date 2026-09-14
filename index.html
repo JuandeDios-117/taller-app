@@ -550,11 +550,18 @@
                             <td class="p-3">Tracción AWD</td>
                         </tr>
                         <tr>
-                            <td class="p-3 font-bold text-zinc-400">POR PEDIDO (RENDIMIENTOS)</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza Rendimiento</td>
-                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
-                            <td class="p-3 text-cyan-400 font-semibold">1x Pieza (Turbo)</td>
-                            <td class="p-3 text-cyan-400 font-semibold">4x Piezas Rendimiento</td>
+                            <td class="p-3 font-bold text-zinc-400">TURBO</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo</td>
+                            <td class="p-3 text-cyan-400 font-semibold">1x Turbo</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-zinc-400">PIEZAS RENDIMIENTO</td>
+                            <td class="p-3 text-zinc-500 italic">Ninguna</td>
+                            <td class="p-3 text-cyan-400 font-semibold">3x Piezas Rendimiento</td>
+                            <td class="p-3 text-zinc-500 italic">Ninguna</td>
+                            <td class="p-3 text-cyan-400 font-semibold">3x Piezas Rendimiento</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1156,15 +1163,16 @@
         };
 
         const catalogo = [
-           { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
-{ id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
-{ id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
-{ id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500 },
-{ id: 4, categoria: 'GENERAL', nombre: 'Piezas Cosméticas', venta: 3000, costo: 2000 },
-{ id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
-{ id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
-{ id: 28, categoria: 'GENERAL', nombre: 'Kit Stance', venta: 10000, costo: 3000 },
-{ id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
+            { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
+            { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
+            { id: 29, categoria: 'GENERAL', nombre: 'Turbo', venta: 10000, costo: 7000 },
+            { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
+            { id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500 },
+            { id: 4, categoria: 'GENERAL', nombre: 'Piezas Cosméticas', venta: 3000, costo: 2000 },
+            { id: 5, categoria: 'GENERAL', nombre: 'Kit de pintura', venta: 1500, costo: 500 },
+            { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
+            { id: 28, categoria: 'GENERAL', nombre: 'Kit Stance', venta: 10000, costo: 3000 },
+            { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
             { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
@@ -1178,7 +1186,7 @@
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS: Desglosan automáticamente piezas individuales + Mano de Obra para cuadrar el precio total
+            // COMBOS: Actualizados con Turbo y piezas de rendimiento correspondientes
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1187,12 +1195,13 @@
                 costo: 95000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
-                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
-                    { id: 12, cantidad: 1 }, // Slick ($6,000)
-                    { id: 1, cantidad: 4 },  // 4x Piezas Rendimiento ($40,000)
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 11500, costoPersonalizado: 0, noDescuento: true }
+                    { id: 8, cantidad: 1 },  // Motor V8
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
+                    { id: 9, cantidad: 1 },  // Tracción AWD
+                    { id: 12, cantidad: 1 }, // Slick
+                    { id: 29, cantidad: 1 }, // 1x Turbo
+                    { id: 1, cantidad: 3 },  // 3x Piezas Rendimiento
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
@@ -1203,11 +1212,11 @@
                 costo: 67000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
-                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
-                    { id: 12, cantidad: 1 }, // Slick ($6,000)
-                    { id: 1, cantidad: 1 },  // 1x Piezas Rendimiento ($10,000)
+                    { id: 8, cantidad: 1 },  // Motor V8
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
+                    { id: 9, cantidad: 1 },  // Tracción AWD
+                    { id: 12, cantidad: 1 }, // Slick
+                    { id: 29, cantidad: 1 }, // 1x Turbo
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1219,11 +1228,11 @@
                 costo: 327000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12 ($500,000 - Fijo sin descuento)
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
-                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
-                    { id: 12, cantidad: 1 }, // Slick ($6,000)
-                    { id: 1, cantidad: 1 },  // 1x Rendimiento ($10,000)
+                    { id: 7, cantidad: 1 },  // Motor V12 (Fijo $500K)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
+                    { id: 9, cantidad: 1 },  // Tracción AWD
+                    { id: 12, cantidad: 1 }, // Slick
+                    { id: 29, cantidad: 1 }, // 1x Turbo
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1235,11 +1244,12 @@
                 costo: 348000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12 ($500,000 - Fijo sin descuento)
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
-                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
-                    { id: 12, cantidad: 1 }, // Slick ($6,000)
-                    { id: 1, cantidad: 4 },  // 4x Rendimiento ($40,000)
+                    { id: 7, cantidad: 1 },  // Motor V12 (Fijo $500K)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
+                    { id: 9, cantidad: 1 },  // Tracción AWD
+                    { id: 12, cantidad: 1 }, // Slick
+                    { id: 29, cantidad: 1 }, // 1x Turbo
+                    { id: 1, cantidad: 3 },  // 3x Piezas Rendimiento
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1251,8 +1261,8 @@
                 costo: 600000, 
                 esCombo: true,
                 componentes: [
-                    { id: 25, cantidad: 1 }, // Kit Nitro ($900,000)
-                    { id: 26, cantidad: 3 }, // 3x Botellas ($600,000)
+                    { id: 25, cantidad: 1 }, 
+                    { id: 26, cantidad: 3 }, 
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Nitro', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1264,9 +1274,9 @@
                 costo: 1800000, 
                 esCombo: true,
                 componentes: [
-                    { id: 24, cantidad: 1 }, // Kit Drift ($1,700,000)
-                    { id: 25, cantidad: 1 }, // Kit Nitro ($900,000)
-                    { id: 26, cantidad: 3 }, // 3x Botellas ($600,000)
+                    { id: 24, cantidad: 1 }, 
+                    { id: 25, cantidad: 1 }, 
+                    { id: 26, cantidad: 3 }, 
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación NFS', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             }
