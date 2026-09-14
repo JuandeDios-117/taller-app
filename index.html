@@ -953,36 +953,9 @@
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
 
+        // SONIDOS DESACTIVADOS
         function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const ahora = audioCtx.currentTime;
-
-                const emitirTono = (freq, inicio, duracion, tipo = 'triangle', ganancia = 0.2) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = tipo;
-                    osc.frequency.setValueAtTime(freq, ahora + inicio);
-                    gain.gain.setValueAtTime(ganancia, ahora + inicio);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ahora + inicio + duracion);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(ahora + inicio);
-                    osc.stop(ahora + inicio + duracion);
-                };
-
-                if (total >= 1000000) {
-                    [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => emitirTono(f, i * 0.12, 0.5, 'sine', 0.25));
-                } else if (total >= 500000 || tieneV12) {
-                    [220, 329.63, 440, 554.37, 659.25].forEach((f) => emitirTono(f, 0, 0.8, 'sawtooth', 0.12));
-                } else if (total >= 100000) {
-                    emitirTono(880, 0, 0.15, 'triangle', 0.2);
-                    emitirTono(1318.51, 0.12, 0.4, 'triangle', 0.2);
-                } else {
-                    emitirTono(659.25, 0, 0.1, 'sine', 0.15);
-                    emitirTono(880, 0.08, 0.25, 'sine', 0.15);
-                }
-            } catch (e) {}
+            // Sin reproducción de tonos de audio
         }
 
         const socket = io();
@@ -1153,6 +1126,7 @@
 
         const categoriaConfig = {
             'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
+            'TURBO': { colorBadge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30', bordeCard: 'border-yellow-500/30 hover:border-yellow-400/60', bgCard: 'bg-gradient-to-r from-yellow-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🚀', colorVenta: 'text-yellow-300', colorBtn: 'bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black' },
             'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
             'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
             'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
@@ -1165,7 +1139,6 @@
         const catalogo = [
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
             { id: 1, categoria: 'GENERAL', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
-            { id: 29, categoria: 'GENERAL', nombre: 'Turbo', venta: 10000, costo: 7000 },
             { id: 2, categoria: 'GENERAL', nombre: 'Set de Rines', venta: 10000, costo: 7000 },
             { id: 3, categoria: 'GENERAL', nombre: 'Kit de humo para neumáticos', venta: 5000, costo: 2500 },
             { id: 4, categoria: 'GENERAL', nombre: 'Piezas Cosméticas', venta: 3000, costo: 2000 },
@@ -1173,9 +1146,15 @@
             { id: 6, categoria: 'GENERAL', nombre: 'Kit de reparación', venta: 1000, costo: 500 },
             { id: 28, categoria: 'GENERAL', nombre: 'Kit Stance', venta: 10000, costo: 3000 },
             { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
-            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1700000, costo: 1200000 },
-            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 900000, costo: 300000 },
+            
+            // SECCIÓN INDEPENDIENTE PARA EL TURBO
+            { id: 29, categoria: 'TURBO', nombre: 'Turbo', venta: 10000, costo: 7000 },
+
+            // DRIFT Y NITRO ACTUALIZADOS
+            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1100000 },
+            { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 200000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
+            
             { id: 7, categoria: 'MOTOR', nombre: 'Motor V12', venta: 500000, costo: 300000, noDescuento: true },
             { id: 8, categoria: 'MOTOR', nombre: 'Motor V8', venta: 50000, costo: 40000 },
             { id: 15, categoria: 'FRENOS', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
@@ -1186,7 +1165,7 @@
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS: Actualizados con Turbo y piezas de rendimiento correspondientes
+            // COMBOS: FULL TUNNING V8 PRO A $140,000 EXACTOS
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1195,13 +1174,13 @@
                 costo: 95000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // 1x Turbo
-                    { id: 1, cantidad: 3 },  // 3x Piezas Rendimiento
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
+                    { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                    { id: 12, cantidad: 1 }, // Slick ($6,000)
+                    { id: 29, cantidad: 1 }, // Turbo ($10,000)
+                    { id: 1, cantidad: 3 },  // 3x Rendimiento ($30,000)
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 11500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
@@ -1216,7 +1195,7 @@
                     { id: 15, cantidad: 1 }, // Frenos Cerámicos
                     { id: 9, cantidad: 1 },  // Tracción AWD
                     { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // 1x Turbo
+                    { id: 29, cantidad: 1 }, // Turbo
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1228,11 +1207,11 @@
                 costo: 327000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12 (Fijo $500K)
+                    { id: 7, cantidad: 1 },  // Motor V12
                     { id: 15, cantidad: 1 }, // Frenos Cerámicos
                     { id: 9, cantidad: 1 },  // Tracción AWD
                     { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // 1x Turbo
+                    { id: 29, cantidad: 1 }, // Turbo
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1244,12 +1223,12 @@
                 costo: 348000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12 (Fijo $500K)
+                    { id: 7, cantidad: 1 },  // Motor V12
                     { id: 15, cantidad: 1 }, // Frenos Cerámicos
                     { id: 9, cantidad: 1 },  // Tracción AWD
                     { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // 1x Turbo
-                    { id: 1, cantidad: 3 },  // 3x Piezas Rendimiento
+                    { id: 29, cantidad: 1 }, // Turbo
+                    { id: 1, cantidad: 3 },  // 3x Rendimiento
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1257,12 +1236,12 @@
                 id: 22, 
                 categoria: 'PAQUETES ESPECIALES', 
                 nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', 
-                venta: 1350000, 
-                costo: 600000, 
+                venta: 1100000, 
+                costo: 500000, 
                 esCombo: true,
                 componentes: [
-                    { id: 25, cantidad: 1 }, 
-                    { id: 26, cantidad: 3 }, 
+                    { id: 25, cantidad: 1 }, // Kit Nitro ($500,000)
+                    { id: 26, cantidad: 3 }, // 3x Botellas ($600,000)
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Nitro', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1270,13 +1249,13 @@
                 id: 23, 
                 categoria: 'PAQUETES ESPECIALES', 
                 nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', 
-                venta: 2900000, 
-                costo: 1800000, 
+                venta: 2600000, 
+                costo: 1600000, 
                 esCombo: true,
                 componentes: [
-                    { id: 24, cantidad: 1 }, 
-                    { id: 25, cantidad: 1 }, 
-                    { id: 26, cantidad: 3 }, 
+                    { id: 24, cantidad: 1 }, // Kit Drift ($1,500,000)
+                    { id: 25, cantidad: 1 }, // Kit Nitro ($500,000)
+                    { id: 26, cantidad: 3 }, // 3x Botellas ($600,000)
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación NFS', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             }
@@ -1303,33 +1282,34 @@
         }
 
         function obtenerClaveRango(rol, comision) {
-            if (rol === 'jefe' || comision == -1) return 'jefe';
-            if (comision == 0) return 'subjefe';
-            if (comision >= 45) return 'encargado';
-            if (comision >= 40) return 'experto';
-            if (comision >= 35) return 'mecanico';
+            if (rol === 'jefe' || Number(comision) === -1) return 'jefe';
+            if (Number(comision) === 0 && rol !== 'jefe') return 'subjefe';
+            if (Number(comision) >= 45) return 'encargado';
+            if (Number(comision) === 40) return 'experto';
+            if (Number(comision) === 35) return 'mecanico';
             return 'pruebas';
         }
 
         function obtenerBadgeRango(rol, comision) {
             let badgeAdmin = rol === 'admin' ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/40 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ml-1">👑 Admin</span>' : '';
+            const com = Number(comision);
 
-            if (rol === 'jefe' || comision == -1) {
+            if (rol === 'jefe' || com === -1) {
                 return `<span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/50 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-[0_0_10px_rgba(245,158,11,0.2)]">👑 Jefe (0%)</span>`;
             }
-            if (comision == 0) {
+            if (com === 0) {
                 return `<span class="inline-flex items-center gap-1 bg-rose-500/15 text-rose-400 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🛡️ Subjefe (0%)${badgeAdmin}</span>`;
             }
-            if (comision >= 45) {
-                return `<span class="inline-flex items-center gap-1 bg-yellow-500/15 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">👔 Encargado (45%)${badgeAdmin}</span>`;
+            if (com >= 45) {
+                return `<span class="inline-flex items-center gap-1 bg-yellow-500/15 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">👔 Encargado (${com}%)${badgeAdmin}</span>`;
             }
-            if (comision >= 40) {
-                return `<span class="inline-flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">⭐ M. Experto (40%)${badgeAdmin}</span>`;
+            if (com === 40) {
+                return `<span class="inline-flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">⭐ M. Experto (${com}%)${badgeAdmin}</span>`;
             }
-            if (comision >= 35) {
-                return `<span class="inline-flex items-center gap-1 bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔧 Mecánico (35%)${badgeAdmin}</span>`;
+            if (com === 35) {
+                return `<span class="inline-flex items-center gap-1 bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔧 Mecánico (${com}%)${badgeAdmin}</span>`;
             }
-            return `<span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔰 En Pruebas (30%)${badgeAdmin}</span>`;
+            return `<span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔰 En Pruebas (${com || 30}%)${badgeAdmin}</span>`;
         }
 
         function obtenerClaseColorNombre(rol, comision) {
@@ -1472,7 +1452,6 @@
                     tieneV12 = data.items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
                 }
 
-                reproducirSonidoGlobalVenta(data.total, tieneV12);
                 mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
 
                 if (data.total >= 500000 || tieneV12) {
@@ -2669,7 +2648,6 @@
                 const data = await res.json();
                 if (res.ok) {
                     let tieneV12 = items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
-                    reproducirSonidoGlobalVenta(data.total, tieneV12);
 
                     if (typeof confetti === 'function') {
                         confetti({
