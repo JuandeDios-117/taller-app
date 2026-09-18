@@ -214,17 +214,24 @@ app.post('/api/login', async (req, res) => {
             [userClean, password]
         );
         
-        if (rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
+        if (!rows || rows.length === 0) {
+            return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
+        }
         
         const user = rows[0];
-        await db.execute({
-            sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
-            args: [user.id]
-        });
+
+        // Asegurar registro de recompensas de forma silenciosa
+        try {
+            await db.execute({
+                sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
+                args: [user.id]
+            });
+        } catch(e) {}
 
         res.json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Error en login:", err);
+        res.status(500).json({ error: "Error en el servidor al intentar iniciar sesión." });
     }
 });
 

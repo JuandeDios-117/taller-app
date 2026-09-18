@@ -1864,9 +1864,13 @@
             document.getElementById('toggleBtn').innerText = esModoRegistro ? 'Ingresa aquí' : 'Regístrate';
         }
 
-        async function procesarAuth() {
+     async function procesarAuth() {
             const usuario = document.getElementById('authUsuario').value.trim();
             const password = document.getElementById('authPassword').value.trim();
+
+            if (!usuario || !password) {
+                return mostrarAviso('Campos Vacíos', 'Por favor ingresa tu usuario y contraseña.');
+            }
 
             if (esModoRegistro) {
                 const nombre = document.getElementById('regNombre').value.trim();
@@ -1881,17 +1885,23 @@
                     document.getElementById('modalRegistro').classList.remove('hidden');
                 } else mostrarAviso('Error de Registro', data.error, true);
             } else {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    usuarioActual = data;
-                    await cargarUsuariosGlobales();
-                    actualizarVistaUsuario();
-                } else mostrarAviso('Error de Acceso', data.error, true);
+                try {
+                    const res = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuario, password })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        usuarioActual = data;
+                        actualizarVistaUsuario();
+                        cargarUsuariosGlobales(); // Se ejecuta en segundo plano
+                    } else {
+                        mostrarAviso('Error de Acceso', data.error || 'Credenciales inválidas', true);
+                    }
+                } catch(err) {
+                    mostrarAviso('Error de Red', 'No se pudo conectar con el servidor.', true);
+                }
             }
         }
 
@@ -2908,10 +2918,10 @@
             document.getElementById('modalExito').classList.add('hidden');
         }
 
-        cargarUsuariosGlobales().then(() => {
-            actualizarVistaUsuario();
-            renderCatalogo();
-        });
+       actualizarVistaUsuario();
+        renderCatalogo();
+        cargarUsuariosGlobales();
+        
     </script>
 </body>
 </html>
