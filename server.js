@@ -23,6 +23,23 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
+async function queryRows(sql, args = []) {
+    try {
+        const res = await db.execute({ sql, args });
+        if (res && Array.isArray(res.rows)) return res.rows;
+        if (Array.isArray(res)) return res;
+        if (res && res.rows && typeof res.rows[Symbol.iterator] === 'function') return [...res.rows];
+        return [];
+    } catch (e) {
+        try {
+            const res2 = await db.execute(sql);
+            if (res2 && Array.isArray(res2.rows)) return res2.rows;
+            if (Array.isArray(res2)) return res2;
+        } catch (err2) {}
+        return [];
+    }
+}
+
 (async function initDB() {
     try {
         await db.execute(`
@@ -58,7 +75,6 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
             )
         `);
 
-        // Tabla de Pedidos de la tienda
         await db.execute(`
             CREATE TABLE IF NOT EXISTS pedidos_tienda (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +86,6 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
             )
         `);
 
-        // Añadir columna de avatar de forma segura por si no existe
         try {
             await db.execute(`ALTER TABLE usuarios ADD COLUMN avatar TEXT`);
         } catch (e) {}
@@ -111,27 +126,6 @@ function emitirUsuariosOnline() {
 
 function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
-}
-
-async function queryRows(sql, args = []) {
-    try {
-        const res = await db.execute({ sql, args });
-        if (Array.isArray(res)) return res;
-        if (res && Array.isArray(res.rows)) return res.rows;
-        if (res && typeof res === 'object') {
-            if (res.rows) return Array.isArray(res.rows) ? res.rows : [res.rows];
-            return [res];
-        }
-        return [];
-    } catch (e) {
-        try {
-            const res2 = await db.execute(sql);
-            if (Array.isArray(res2)) return res2;
-            if (res2 && Array.isArray(res2.rows)) return res2.rows;
-            if (res2 && res2.rows) return [res2.rows];
-        } catch (err2) {}
-        return [];
-    }
 }
 
 app.get('/api/convenios', async (req, res) => {
@@ -209,23 +203,20 @@ app.post('/api/login', async (req, res) => {
     const userClean = (usuario || '').trim().toLowerCase();
 
     if (!userClean || !password) {
-        return res.status(400).json({ error: "Ingresa usuario y contraseña." });
+        return res.status(400).json({ error: "Por favor ingresa usuario y contraseña." });
     }
 
     try {
-        // Consulta simplificada para evitar fallos si alguna columna opcional no existe
         const rows = await queryRows(
             `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE LOWER(usuario) = ? AND password = ?`,
             [userClean, password]
         );
-
+        
         if (!rows || rows.length === 0) {
             return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
         }
-
+        
         const user = rows[0];
-
-        // Inicialización pasiva de recompensas
         try {
             await db.execute({
                 sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
@@ -233,10 +224,10 @@ app.post('/api/login', async (req, res) => {
             });
         } catch (e) {}
 
-        return res.json(user);
+        res.json(user);
     } catch (err) {
-        console.error("Error en login:", err.message);
-        return res.status(500).json({ error: "Error interno del servidor: " + err.message });
+        console.error("Error en login:", err);
+        res.status(500).json({ error: "Error en el servidor al intentar iniciar sesión." });
     }
 });
 
@@ -328,7 +319,6 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// OBTENER TODOS LOS USUARIOS (CON AVATAR)
 app.get('/api/usuarios', async (req, res) => {
     try {
         await db.execute(`
@@ -342,13 +332,12 @@ app.get('/api/usuarios', async (req, res) => {
     }
 });
 
-// ACTUALIZAR AVATAR
 app.put('/api/usuarios/:id/avatar', async (req, res) => {
     const { avatar } = req.body;
     try {
         await db.execute({ sql: "UPDATE usuarios SET avatar = ? WHERE id = ?", args: [avatar, req.params.id] });
         notificarCambioGlobal('avatar_actualizado', { usuario_id: req.params.id });
-        res.json({ message: "Avatar guardado en la base de datos." });
+        res.json({ message: "Avatar guardado." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -591,7 +580,6 @@ app.get('/api/top-trabajadores', async (req, res) => {
     }
 });
 
-// --- RUTAS DE TIENDA Y RECOMPENSAS ---
 app.get('/api/recompensas/:usuario_id', async (req, res) => {
     try {
         const uid = req.params.usuario_id;
@@ -606,7 +594,6 @@ app.get('/api/recompensas/:usuario_id', async (req, res) => {
     }
 });
 
-// NUEVO: SISTEMA DE PEDIDOS DE TIENDA (CANJEAR)
 app.post('/api/recompensas/canjear', async (req, res) => {
     const { usuario_id, producto_id, nombre_producto } = req.body;
     const costos = {
@@ -641,7 +628,6 @@ app.post('/api/recompensas/canjear', async (req, res) => {
     }
 });
 
-// OBTENER MIS PEDIDOS (TRABAJADOR)
 app.get('/api/pedidos/:usuario_id', async (req, res) => {
     try {
         const rows = await queryRows("SELECT * FROM pedidos_tienda WHERE usuario_id = ? ORDER BY created_at DESC", [req.params.usuario_id]);
@@ -651,7 +637,6 @@ app.get('/api/pedidos/:usuario_id', async (req, res) => {
     }
 });
 
-// OBTENER TODOS LOS PEDIDOS (ADMIN)
 app.get('/api/admin/pedidos', async (req, res) => {
     try {
         const sql = `
@@ -667,7 +652,6 @@ app.get('/api/admin/pedidos', async (req, res) => {
     }
 });
 
-// MARCAR ESTADO DEL PEDIDO (ADMIN)
 app.put('/api/pedidos/:id/estado', async (req, res) => {
     const { estado } = req.body;
     try {
