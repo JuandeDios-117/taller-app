@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tablas
+// Inicializar tabla de convenios
 (async function initDB() {
     try {
         await db.execute(`
@@ -35,51 +35,8 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
-
-        // Tabla de recompensas y puntos
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS recompensas_usuarios (
-                usuario_id INTEGER PRIMARY KEY,
-                puntos INTEGER DEFAULT 0,
-                xp INTEGER DEFAULT 0
-            )
-        `);
-
-        await db.execute(`
-            INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp)
-            SELECT id, 0, 0 FROM usuarios
-        `);
-
-        // Tabla de transferencias
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS transferencias_puntos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                origen_id INTEGER,
-                destino_id INTEGER,
-                puntos INTEGER,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Tabla de pedidos de tienda
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS pedidos_tienda (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER,
-                producto_id TEXT,
-                nombre_producto TEXT,
-                estado TEXT DEFAULT 'pendiente',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Columna de avatar en usuarios
-        try {
-            await db.execute(`ALTER TABLE usuarios ADD COLUMN avatar TEXT`);
-        } catch (e) {} // Ignorar si ya existe
-
     } catch (e) {
-        console.error("Error iniciando tablas:", e.message);
+        console.error("Error iniciando tabla convenios:", e.message);
     }
 })();
 
@@ -116,7 +73,7 @@ function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
 
-// CONVENIOS
+// CONVENIOS DE FACCIONES
 app.get('/api/convenios', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM convenios_facciones ORDER BY faccion ASC");
@@ -154,7 +111,7 @@ app.delete('/api/convenios/:id', async (req, res) => {
     }
 });
 
-// REGISTRO
+// 1. REGISTRO
 app.post('/api/register', async (req, res) => {
     const { nombre, usuario, password } = req.body;
     if (!nombre || !usuario || !password) return res.status(400).json({ error: "Faltan campos por llenar." });
@@ -171,14 +128,8 @@ app.post('/api/register', async (req, res) => {
             args: [nombre, usuario.trim().toLowerCase(), password, comisionInicial, rolInicial]
         });
 
-        const newId = Number(result.lastInsertRowid);
-        await db.execute({
-            sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
-            args: [newId]
-        });
-
         notificarCambioGlobal('nuevo_usuario');
-        res.json({ id: newId, nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial });
+        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial });
     } catch (err) {
         if (err.message && err.message.includes('UNIQUE')) {
             return res.status(400).json({ error: "El nombre de usuario ya está registrado." });
@@ -187,7 +138,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// LOGIN
+// 2. LOGIN
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
@@ -197,19 +148,13 @@ app.post('/api/login', async (req, res) => {
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
-        
-        const user = result.rows[0];
-        try {
-            await db.execute({sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)", args: [user.id]});
-        } catch(e) {}
-        
-        res.json(user);
+        res.json(result.rows[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// ALMACÉN
+// 3. ALMACÉN ESTADO
 app.get('/api/almacen/estado', async (req, res) => {
     try {
         const estadoRes = await db.execute("SELECT * FROM taller_estado WHERE id = 1");
@@ -220,6 +165,7 @@ app.get('/api/almacen/estado', async (req, res) => {
     }
 });
 
+// 4. INGRESAR CAPITAL
 app.post('/api/almacen/ingresar-capital', async (req, res) => {
     const { monto, descripcion, usuario_nombre } = req.body;
     const montoNum = parseFloat(monto);
@@ -238,6 +184,7 @@ app.post('/api/almacen/ingresar-capital', async (req, res) => {
     }
 });
 
+// 5. COMPRA DE MOTORES A FÁBRICA
 app.post('/api/almacen/comprar-motor', async (req, res) => {
     const { tipo_motor, cantidad, usuario_nombre } = req.body;
     const cant = parseInt(cantidad);
@@ -270,6 +217,7 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
     }
 });
 
+// 6. AJUSTE MANUAL ALMACÉN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
     const capNum = parseFloat(capital);
@@ -298,14 +246,14 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// LISTA DE USUARIOS Y AVATARES
+// 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(avatar, '/logo.png') as avatar, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
         try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, '/logo.png' as avatar, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
+            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
             res.json(fallback.rows);
         } catch (e2) {
             res.status(500).json({ error: err.message });
@@ -313,17 +261,7 @@ app.get('/api/usuarios', async (req, res) => {
     }
 });
 
-app.put('/api/usuarios/:id/avatar', async (req, res) => {
-    const { avatar } = req.body;
-    try {
-        await db.execute({ sql: "UPDATE usuarios SET avatar = ? WHERE id = ?", args: [avatar, req.params.id] });
-        notificarCambioGlobal('avatar_actualizado');
-        res.json({ message: "Avatar guardado." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
+// 8. MODIFICAR RANGO Y PERMISOS DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol } = req.body;
     try {
@@ -338,12 +276,11 @@ app.put('/api/usuarios/modificar', async (req, res) => {
     }
 });
 
+// 9. ELIMINAR USUARIO
 app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
-        await db.execute({ sql: "DELETE FROM recompensas_usuarios WHERE usuario_id = ?", args: [usuario_id] });
-        await db.execute({ sql: "DELETE FROM pedidos_tienda WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
         notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
         res.json({ message: "Cuenta eliminada correctamente." });
@@ -352,6 +289,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     }
 });
 
+// 10. TRANSFERIR FACTURA
 app.put('/api/facturas/:id/transferir', async (req, res) => {
     const factura_id = req.params.id;
     const { nuevo_usuario_id } = req.body;
@@ -379,6 +317,7 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
     }
 });
 
+// 11. ELIMINAR FACTURA
 app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
@@ -390,6 +329,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
+// 12. REINICIAR SEMANA
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -405,6 +345,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
+// 13. REGISTRAR FACTURA (CÁLCULO INDIVIDUAL DE DESCUENTO RESPETANDO V12 Y MANO DE OBRA)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -443,6 +384,7 @@ app.post('/api/facturas', async (req, res) => {
             coste_fabrica_total += item.costo * item.cantidad;
             subtotal_bruto += subtotalLinea;
 
+            // REGLAS: Ni el Motor V12 (id: 7) ni la Mano de Obra (noDescuento) admiten descuento
             const admiteDescuento = !aplicarFabrica && !item.noDescuento && item.id !== 7 && pctDescuentoGeneral > 0;
             const pctLinea = admiteDescuento ? pctDescuentoGeneral : 0;
             const descuentoMontoLinea = subtotalLinea * (pctLinea / 100);
@@ -473,15 +415,6 @@ app.post('/api/facturas', async (req, res) => {
         });
 
         const facturaId = Number(insertRes.lastInsertRowid);
-
-        const puntosGanados = Math.floor(total_cliente / 5000);
-        const xpGanada = Math.floor(total_cliente / 100);
-
-        await db.execute({sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)", args: [usuario_id]});
-        await db.execute({
-            sql: `UPDATE recompensas_usuarios SET puntos = puntos + ?, xp = xp + ? WHERE usuario_id = ?`,
-            args: [puntosGanados, xpGanada, usuario_id]
-        });
 
         if (v8Necesarios > 0 || v12Necesarios > 0) {
             const descuentoV8 = Math.min(estado.stock_v8, v8Necesarios);
@@ -516,7 +449,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// HISTORIAL PERSONAL
+// 14. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({
@@ -529,7 +462,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     }
 });
 
-// HISTORIAL GLOBAL
+// 15. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
@@ -546,7 +479,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// TOP TRABAJADORES
+// 16. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -579,178 +512,6 @@ app.get('/api/top-trabajadores', async (req, res) => {
         } catch (e2) {
             res.status(500).json({ error: err.message });
         }
-    }
-});
-
-// ---------------- RUTAS DE TIENDA Y RECOMPENSAS ----------------
-
-app.get('/api/recompensas/:usuario_id', async (req, res) => {
-    try {
-        const uid = req.params.usuario_id;
-        await db.execute({sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)", args: [uid]});
-        const result = await db.execute({sql: "SELECT * FROM recompensas_usuarios WHERE usuario_id = ?", args: [uid]});
-        res.json(result.rows[0] || { puntos: 0, xp: 0 });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// CANJEAR PEDIDO
-app.post('/api/recompensas/canjear', async (req, res) => {
-    const { usuario_id, producto_id, nombre_producto } = req.body;
-    const costos = {
-        'limpieza_x2': 2, 'reparacion': 2, 'pintura': 3, 'cosmeticas': 5,
-        'stance': 6, 'humo': 8, 'semi_slick': 12, 'slick': 15,
-        'turbo': 25, 'rendimiento': 25, 'frenos': 30, 'awd': 30,
-        'v8': 120, 'nitro': 180, 'inst_nitro': 350, 'v12': 400, 'drift': 800
-    };
-    const costo = costos[producto_id];
-    if (!costo) return res.status(400).json({ error: "Producto no válido." });
-
-    try {
-        const result = await db.execute({sql: "SELECT puntos FROM recompensas_usuarios WHERE usuario_id = ?", args: [usuario_id]});
-        if (result.rows.length === 0 || result.rows[0].puntos < costo) {
-            return res.status(400).json({ error: "Puntos insuficientes." });
-        }
-
-        await db.execute({
-            sql: "UPDATE recompensas_usuarios SET puntos = puntos - ? WHERE usuario_id = ?",
-            args: [costo, usuario_id]
-        });
-
-        await db.execute({
-            sql: "INSERT INTO pedidos_tienda (usuario_id, producto_id, nombre_producto, estado) VALUES (?, ?, ?, 'pendiente')",
-            args: [usuario_id, producto_id, nombre_producto || producto_id]
-        });
-
-        notificarCambioGlobal('pedidos_actualizados');
-        res.json({ message: "Canje exitoso", producto: nombre_producto, puntos: costo });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// MIS PEDIDOS
-app.get('/api/pedidos/:usuario_id', async (req, res) => {
-    try {
-        const result = await db.execute({sql: "SELECT * FROM pedidos_tienda WHERE usuario_id = ? ORDER BY created_at DESC", args: [req.params.usuario_id]});
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ADMIN: VER TODOS LOS PEDIDOS
-app.get('/api/admin/pedidos', async (req, res) => {
-    try {
-        const sql = `
-            SELECT p.*, u.nombre as trabajador_nombre, u.usuario as trabajador_usuario 
-            FROM pedidos_tienda p 
-            JOIN usuarios u ON p.usuario_id = u.id 
-            ORDER BY p.estado DESC, p.created_at DESC
-        `;
-        const result = await db.execute(sql);
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ADMIN: CAMBIAR ESTADO PEDIDO
-app.put('/api/pedidos/:id/estado', async (req, res) => {
-    const { estado } = req.body;
-    try {
-        await db.execute({
-            sql: "UPDATE pedidos_tienda SET estado = ? WHERE id = ?",
-            args: [estado, req.params.id]
-        });
-        notificarCambioGlobal('pedidos_actualizados');
-        res.json({ message: "Estado de pedido actualizado." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// TRANSFERIR PUNTOS
-app.post('/api/recompensas/transferir', async (req, res) => {
-    const { origen_id, destino_id, puntos } = req.body;
-    const pts = Number(puntos);
-    if (!pts || pts <= 0 || origen_id === destino_id) return res.status(400).json({ error: "Datos de transferencia inválidos." });
-
-    try {
-        const result = await db.execute({sql: "SELECT puntos FROM recompensas_usuarios WHERE usuario_id = ?", args: [origen_id]});
-        if (result.rows.length === 0 || result.rows[0].puntos < pts) return res.status(400).json({ error: "No tienes suficientes puntos." });
-
-        await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos - ? WHERE usuario_id = ?", args: [pts, origen_id] });
-        await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos + ? WHERE usuario_id = ?", args: [pts, destino_id] });
-        await db.execute({
-            sql: "INSERT INTO transferencias_puntos (origen_id, destino_id, puntos) VALUES (?, ?, ?)",
-            args: [origen_id, destino_id, pts]
-        });
-
-        res.json({ message: "Transferencia exitosa" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// HISTORIAL TRANSFERENCIAS
-app.get('/api/recompensas/transferencias/:usuario_id', async (req, res) => {
-    try {
-        const uid = req.params.usuario_id;
-        const sql = `
-            SELECT t.*, 
-            CASE WHEN t.origen_id = ? THEN 'salida' ELSE 'entrada' END as direccion,
-            CASE WHEN t.origen_id = ? THEN u2.nombre ELSE u1.nombre END as persona
-            FROM transferencias_puntos t
-            JOIN usuarios u1 ON t.origen_id = u1.id
-            JOIN usuarios u2 ON t.destino_id = u2.id
-            WHERE t.origen_id = ? OR t.destino_id = ?
-            ORDER BY t.created_at DESC LIMIT 20
-        `;
-        const result = await db.execute({sql, args: [uid, uid, uid, uid]});
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ADMIN: LISTA PARA SUMAR PUNTOS
-app.get('/api/recompensas/admin/lista', async (req, res) => {
-    try {
-        const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(r.puntos, 0) as puntos 
-            FROM usuarios u 
-            LEFT JOIN recompensas_usuarios r ON u.id = r.usuario_id 
-            ORDER BY u.id ASC
-        `;
-        const result = await db.execute(sql);
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.post('/api/recompensas/admin/ajustar-puntos', async (req, res) => {
-    const { usuario_id, cantidad, modo } = req.body;
-    const cant = Number(cantidad);
-    if (isNaN(cant) || cant < 0) return res.status(400).json({ error: "Cantidad inválida." });
-
-    try {
-        await db.execute({
-            sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
-            args: [usuario_id]
-        });
-
-        if (modo === 'fijar') {
-            await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = ? WHERE usuario_id = ?", args: [cant, usuario_id] });
-        } else {
-            await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos + ? WHERE usuario_id = ?", args: [cant, usuario_id] });
-        }
-        notificarCambioGlobal('pedidos_actualizados');
-        res.json({ message: "Puntos ajustados correctamente." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
     }
 });
 
