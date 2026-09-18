@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoExotic - Gestión & Facturación</title>
-    <!-- FAVICON DINÁMICO CIRCULAR -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <!-- LIBRERÍA DE CONFETI -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { 
@@ -67,7 +65,6 @@
             box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45);
         }
 
-        /* FOTOS DE PERFIL TOTALMENTE LIMPIAS SIN BORDES */
         .avatar-clean {
             border-radius: 50%;
             object-fit: cover;
@@ -75,7 +72,6 @@
             display: block;
         }
 
-        /* MEDALLAS EN EL TOP */
         .top-medal-badge {
             display: inline-flex;
             align-items: center;
@@ -91,7 +87,6 @@
             transform: translateY(-2px) scale(1.05);
         }
 
-        /* PASADOR DE CINTAS */
         .ribbon-bar {
             display: inline-flex;
             flex-wrap: wrap;
@@ -117,7 +112,6 @@
 <body class="p-4 md:p-6 min-h-screen">
     <div class="max-w-7xl mx-auto space-y-4">
         
-        <!-- BARRA SUPERIOR DE RELOJES CON BANDERAS EN SVG -->
         <div class="card-dark px-4 py-2.5 rounded-xl flex flex-wrap justify-between items-center text-xs border-b border-zinc-800 gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-base">🕒</span>
@@ -160,7 +154,6 @@
             </div>
         </div>
 
-        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP) -->
         <div id="liveFeedVentas" class="card-dark p-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 hidden flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-pulse">
             <div class="flex items-center gap-2.5 text-xs">
                 <span class="text-base">🔥</span>
@@ -222,7 +215,7 @@
                     📋 COMBOS Y PIEZAS
                 </button>
                 <button onclick="cambiarPestana('tienda')" id="tab-tienda" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-purple-300 hover:text-white hover:bg-zinc-800 transition border border-purple-500/20">
-                    🛒 TIENDA & RULETA
+                    🛒 TIENDA DE PUNTOS
                 </button>
                 <button onclick="cambiarPestana('historial')" id="tab-hist" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition">
                     📊 MI HISTORIAL & PERFIL
@@ -491,7 +484,7 @@
             </div>
         </div>
 
-        <!-- TIENDA DE PUNTOS + RULETA -->
+        <!-- TIENDA DE PUNTOS -->
         <div id="seccion-tienda" class="space-y-6 hidden">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div class="card-dark p-6 rounded-2xl border-l-4 border-purple-500">
@@ -512,6 +505,7 @@
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <!-- CATÁLOGO TIENDA -->
                 <div class="card-dark p-6 rounded-2xl space-y-5">
                     <div class="flex justify-between items-center">
                         <div>
@@ -525,55 +519,26 @@
                     <div id="tiendaProductos" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                 </div>
 
-                <div class="card-dark p-6 rounded-2xl space-y-5">
-                    <div>
-                        <h2 class="text-xl font-black text-white uppercase">🎡 Ruleta Mecánica</h2>
-                        <p class="text-xs text-zinc-400 mt-1">Una tirada cada 24 horas. El premio se decide en el servidor.</p>
-                    </div>
-                    <div class="flex flex-col items-center gap-5">
-                        <div class="relative w-64 h-64">
-                            <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 text-2xl">▼</div>
-                            <div id="ruletaWheel" class="w-64 h-64 rounded-full border-8 border-zinc-800 shadow-2xl flex items-center justify-center overflow-hidden transition-transform duration-[5000ms] ease-out"
-                                 style="background: conic-gradient(#22d3ee 0deg 45deg,#a855f7 45deg 90deg,#10b981 90deg 135deg,#f59e0b 135deg 180deg,#ef4444 180deg 225deg,#3b82f6 225deg 270deg,#ec4899 270deg 315deg,#84cc16 315deg 360deg);">
-                                <div class="w-20 h-20 rounded-full bg-zinc-950 border-4 border-white/20 flex items-center justify-center text-3xl">🔧</div>
-                            </div>
-                        </div>
-                        <button id="btnGirarRuleta" onclick="girarRuleta()" class="w-full max-w-sm bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl transition shadow-lg shadow-purple-600/20">
-                            🎡 GIRAR RULETA
-                        </button>
-                        <div id="ruletaEstado" class="text-center text-xs text-zinc-400">Comprobando disponibilidad...</div>
-                        <div id="ruletaPremio" class="text-center text-lg font-black text-amber-300 min-h-[28px]"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div class="card-dark p-6 rounded-2xl space-y-4">
-                    <h2 class="text-lg font-black text-white uppercase">🔁 Pasar puntos a un compañero</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <select id="selDestinoPuntos" class="input-dark px-3 py-3 rounded-xl text-xs font-bold md:col-span-2"></select>
-                        <input id="inpPuntosTransferir" type="number" min="1" placeholder="Puntos" class="input-dark px-3 py-3 rounded-xl text-xs font-bold">
-                    </div>
-                    <button onclick="transferirPuntos()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-3 rounded-xl text-xs uppercase">
-                        🔁 Transferir puntos
-                    </button>
-                    <div id="historialTransferenciasPuntos" class="space-y-2 max-h-48 overflow-auto"></div>
-                </div>
-
-                <div class="card-dark p-6 rounded-2xl space-y-4">
-                    <h2 class="text-lg font-black text-white uppercase">🎁 Mis premios de ruleta</h2>
-                    <div id="historialRuleta" class="space-y-2 max-h-56 overflow-auto">
+                <!-- MIS PEDIDOS -->
+                <div class="card-dark p-6 rounded-2xl space-y-4 border border-cyan-500/20">
+                    <h2 class="text-lg font-black text-white uppercase">📦 MIS PEDIDOS DE CANJE</h2>
+                    <p class="text-xs text-zinc-400">Tus solicitudes de artículos canjeados que deben ser entregados por un Admin.</p>
+                    <div id="misPedidosLista" class="space-y-2 max-h-96 overflow-auto pr-1">
                         <p class="text-xs text-zinc-500 italic">Cargando...</p>
                     </div>
                 </div>
             </div>
 
-            <div id="panelGestionPuntos" class="card-dark p-6 rounded-2xl border border-rose-500/30 hidden space-y-4">
-                <div>
-                    <h2 class="text-lg font-black text-rose-300 uppercase">👑 Administración de puntos</h2>
-                    <p class="text-xs text-zinc-400">Asigna puntos iniciales o realiza ajustes sin afectar XP ni medallas.</p>
+            <div class="card-dark p-6 rounded-2xl space-y-4 max-w-2xl">
+                <h2 class="text-lg font-black text-white uppercase">🔁 Pasar puntos a un compañero</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select id="selDestinoPuntos" class="input-dark px-3 py-3 rounded-xl text-xs font-bold md:col-span-2"></select>
+                    <input id="inpPuntosTransferir" type="number" min="1" placeholder="Puntos" class="input-dark px-3 py-3 rounded-xl text-xs font-bold">
                 </div>
-                <div id="listaGestionPuntos" class="space-y-2"></div>
+                <button onclick="transferirPuntos()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-3 rounded-xl text-xs uppercase">
+                    🔁 Transferir puntos
+                </button>
+                <div id="historialTransferenciasPuntos" class="space-y-2 max-h-48 overflow-auto mt-4"></div>
             </div>
         </div>
 
@@ -780,6 +745,30 @@
                 </button>
             </div>
 
+            <!-- ADMINISTRACIÓN DE PUNTOS -->
+            <div class="card-dark p-6 rounded-xl space-y-4 border border-rose-500/40">
+                <div>
+                    <h3 class="text-lg font-black text-rose-300 uppercase flex items-center gap-2">👑 ADMINISTRACIÓN DE PUNTOS</h3>
+                    <p class="text-xs text-zinc-400">Asigna puntos iniciales o realiza ajustes sin afectar XP ni medallas.</p>
+                </div>
+                <div id="listaGestionPuntos" class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- GESTIÓN DE PEDIDOS DE TIENDA -->
+            <div class="card-dark p-6 rounded-xl space-y-4 border border-purple-500/40">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                    <div>
+                        <h3 class="text-lg font-black text-purple-400 uppercase flex items-center gap-2">
+                            📦 PEDIDOS DE TIENDA (CANJES)
+                        </h3>
+                        <p class="text-xs text-zinc-400">Marca los artículos canjeados por los trabajadores como entregados.</p>
+                    </div>
+                </div>
+                <div id="listaPedidosAdmin" class="space-y-2 max-h-96 overflow-y-auto pr-1">
+                    <p class="text-xs text-zinc-500 italic">Cargando pedidos...</p>
+                </div>
+            </div>
+
             <!-- GESTOR DE CONVENIOS CON FACCIONES -->
             <div class="card-dark p-6 rounded-xl border border-amber-500/40 space-y-4">
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
@@ -934,6 +923,16 @@
     </div>
 
     <script>
+        let usuariosGlobal = [];
+
+        async function cargarUsuariosGlobales() {
+            try {
+                const res = await fetch('/api/usuarios');
+                usuariosGlobal = await res.json();
+                usuariosAdminGlobal = usuariosGlobal;
+            } catch (e) {}
+        }
+
         const tiendaCatalogoPuntos = [
             {id:'limpieza_x2', nombre:'Kit de Limpieza (x2)', puntos:2, icon:'🧼'},
             {id:'reparacion', nombre:'Kit de Reparación', puntos:2, icon:'🔧'},
@@ -954,8 +953,6 @@
             {id:'drift', nombre:'Kit Tuning Drift', puntos:800, icon:'🏎️'}
         ];
 
-        let ruletaTimerInterval = null;
-
         function escapeHTML(text) {
             return String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
         }
@@ -971,7 +968,7 @@
                 document.getElementById('tiendaPuntosMini').innerText = Number(data.puntos || 0).toLocaleString();
                 document.getElementById('tiendaXP').innerText = Number(data.xp || 0).toLocaleString();
 
-                const stats = calcularNivelYProgreso(0, usuarioActual.id); // Leveling in the frontend uses total_vendido
+                const stats = calcularNivelYProgreso(0, usuarioActual.id);
                 document.getElementById('tiendaNivel').innerText = `Nivel ${stats.nivel} · ${stats.xpActualNivel}/${stats.xpPorNivel} XP`;
                 const medallas = generarMedallas([], 0, usuarioActual.id);
                 document.getElementById('tiendaMedallas').innerText = medallas.filter(m => m.activa).length;
@@ -979,15 +976,8 @@
                 renderTiendaProductos(data.puntos);
                 cargarUsuariosDestinoPuntos();
                 cargarHistorialTransferencias();
-                cargarHistorialRuleta();
-                cargarEstadoRuleta();
+                cargarMisPedidos();
 
-                const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
-                const panel = document.getElementById('panelGestionPuntos');
-                if (panel) {
-                    panel.classList.toggle('hidden', !esAdminOJefe);
-                    if (esAdminOJefe) cargarGestionPuntos();
-                }
             } catch(e) {}
         }
 
@@ -1000,7 +990,7 @@
                             <div class="text-xs font-black text-white">${p.icon} ${escapeHTML(p.nombre)}</div>
                             <div class="text-xs text-purple-300 font-black mt-1">${p.puntos} puntos</div>
                         </div>
-                        <button ${disponible ? '' : 'disabled'} onclick="canjearProductoPuntos('${p.id}')"
+                        <button ${disponible ? '' : 'disabled'} onclick="canjearProductoPuntos('${p.id}', '${escapeHTML(p.nombre)}')"
                             class="px-3 py-2 rounded-lg text-[11px] font-black ${disponible ? 'bg-purple-600 hover:bg-purple-500 text-white' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}">
                             CANJEAR
                         </button>
@@ -1008,22 +998,92 @@
             }).join('');
         }
 
-        async function canjearProductoPuntos(producto_id) {
-            if (!confirm('¿Confirmas el canje de este producto por puntos?')) return;
+        async function canjearProductoPuntos(producto_id, nombre_producto) {
+            if (!confirm(`¿Confirmas el canje de ${nombre_producto} por puntos?`)) return;
             const res = await fetch('/api/recompensas/canjear', {
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({usuario_id:usuarioActual.id, producto_id})
+                body:JSON.stringify({usuario_id:usuarioActual.id, producto_id, nombre_producto})
             });
             const data = await res.json();
             if (!res.ok) return mostrarAviso('Error', data.error || 'No se pudo realizar el canje.', true);
-            mostrarAviso('Canje realizado', `${data.producto} descontó ${data.puntos} puntos.`);
+            mostrarAviso('Canje realizado', `${data.producto} descontó ${data.puntos} puntos. El pedido está pendiente de entrega.`);
             await cargarTienda();
         }
 
-        async function cargarUsuariosDestinoPuntos() {
-            const res = await fetch('/api/usuarios');
+        async function cargarMisPedidos() {
+            const res = await fetch(`/api/pedidos/${usuarioActual.id}`);
             if (!res.ok) return;
-            const users = await res.json();
+            const rows = await res.json();
+            const el = document.getElementById('misPedidosLista');
+            
+            if (rows.length === 0) {
+                el.innerHTML = '<p class="text-xs text-zinc-500 italic">No tienes pedidos pendientes.</p>';
+                return;
+            }
+
+            el.innerHTML = rows.map(p => {
+                const isPendiente = p.estado === 'pendiente';
+                const estadoClass = isPendiente ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
+                return `
+                    <div class="bg-black/60 rounded-xl border border-zinc-800 p-3 flex justify-between items-center text-xs">
+                        <div>
+                            <strong class="text-white">${escapeHTML(p.nombre_producto)}</strong>
+                            <div class="text-[10px] text-zinc-500 mt-1">${new Date(p.created_at).toLocaleDateString('es-MX')}</div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg border ${estadoClass} font-black uppercase text-[10px]">${p.estado}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function cargarPedidosAdmin() {
+            const res = await fetch('/api/admin/pedidos');
+            if (!res.ok) return;
+            const rows = await res.json();
+            const el = document.getElementById('listaPedidosAdmin');
+
+            if (rows.length === 0) {
+                el.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay pedidos registrados.</p>';
+                return;
+            }
+
+            el.innerHTML = rows.map(p => {
+                const isPendiente = p.estado === 'pendiente';
+                const avatar = obtenerAvatarTrabajador(p.usuario_id);
+                return `
+                    <div class="bg-black/80 rounded-xl border ${isPendiente ? 'border-amber-500/40' : 'border-zinc-800'} p-3.5 flex flex-wrap justify-between items-center gap-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${avatar}" class="w-8 h-8 rounded-full object-cover">
+                            <div>
+                                <strong class="text-purple-300 text-sm block">${escapeHTML(p.nombre_producto)}</strong>
+                                <span class="text-[11px] text-zinc-400">Por: <strong class="text-white">${escapeHTML(p.trabajador_nombre)}</strong></span>
+                            </div>
+                        </div>
+                        ${isPendiente ? `
+                            <button onclick="marcarPedidoEntregado(${p.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-3 py-1.5 rounded-lg text-[10px] transition">
+                                MARCAR ENTREGADO
+                            </button>
+                        ` : `
+                            <div class="flex items-center gap-2">
+                                <span class="text-emerald-400 font-bold text-[10px] uppercase bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/30">✔ Entregado</span>
+                                <button onclick="marcarPedidoPendiente(${p.id})" class="text-zinc-500 hover:text-zinc-300 text-[10px] underline">Deshacer</button>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function marcarPedidoEntregado(id) {
+            await fetch(`/api/pedidos/${id}/estado`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({estado:'entregado'}) });
+        }
+
+        async function marcarPedidoPendiente(id) {
+            await fetch(`/api/pedidos/${id}/estado`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({estado:'pendiente'}) });
+        }
+
+        async function cargarUsuariosDestinoPuntos() {
+            const users = usuariosGlobal || [];
             document.getElementById('selDestinoPuntos').innerHTML =
                 `<option value="">Selecciona un compañero...</option>` +
                 users.filter(u => Number(u.id) !== Number(usuarioActual.id))
@@ -1057,65 +1117,6 @@
                 </div>`).join('') : '<p class="text-xs text-zinc-600 italic">Sin transferencias.</p>';
         }
 
-        async function cargarEstadoRuleta() {
-            const res=await fetch(`/api/recompensas/ruleta/estado/${usuarioActual.id}`);
-            if(!res.ok)return;
-            const d=await res.json();
-            const btn=document.getElementById('btnGirarRuleta');
-            if(d.puede_girar){
-                btn.disabled=false; btn.classList.remove('opacity-50','cursor-not-allowed');
-                document.getElementById('ruletaEstado').innerText='🎉 ¡Tu giro está disponible!';
-            }else{
-                btn.disabled=true; btn.classList.add('opacity-50','cursor-not-allowed');
-                iniciarCuentaRegresivaRuleta(d.restante_ms);
-            }
-        }
-
-        function iniciarCuentaRegresivaRuleta(ms) {
-            clearInterval(ruletaTimerInterval);
-            const el=document.getElementById('ruletaEstado');
-            const btn=document.getElementById('btnGirarRuleta');
-            btn.disabled=true;
-            const fin=Date.now()+Number(ms||0);
-            function tick(){
-                const restante=Math.max(0,fin-Date.now());
-                if(!restante){ clearInterval(ruletaTimerInterval); el.innerText='🎉 ¡Tu giro está disponible!'; btn.disabled=false; return; }
-                const h=Math.floor(restante/3600000), m=Math.floor((restante%3600000)/60000), s=Math.floor((restante%60000)/1000);
-                el.innerText=`⏳ Próximo giro en ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-            }
-            tick(); ruletaTimerInterval=setInterval(tick,1000);
-        }
-
-        async function girarRuleta() {
-            const btn=document.getElementById('btnGirarRuleta');
-            btn.disabled=true;
-            const res=await fetch('/api/recompensas/ruleta/girar',{
-                method:'POST',headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({usuario_id:usuarioActual.id})
-            });
-            const d=await res.json();
-            if(!res.ok){mostrarAviso('Ruleta',d.error||'No se pudo girar.',true);cargarEstadoRuleta();return;}
-            const segmentos=8;
-            const vueltas=5;
-            const rotacion=vueltas*360 + (360-(d.indice*(360/segmentos)+360/segmentos/2));
-            document.getElementById('ruletaWheel').style.transform=`rotate(${rotacion}deg)`;
-            setTimeout(()=>{
-                document.getElementById('ruletaPremio').innerText=`🎁 Premio: ${d.premio}`;
-                mostrarAviso('¡Premio de ruleta!',d.premio);
-                cargarTienda();
-            },5200);
-        }
-
-        async function cargarHistorialRuleta() {
-            const res=await fetch(`/api/recompensas/ruleta/historial/${usuarioActual.id}`);
-            if(!res.ok)return;
-            const rows=await res.json();
-            document.getElementById('historialRuleta').innerHTML=rows.length ? rows.map(x=>`
-                <div class="bg-zinc-950 rounded-lg border border-zinc-800 p-2 flex justify-between text-[11px]">
-                    <span>🎁 ${escapeHTML(x.premio)}</span><span class="text-zinc-500">${escapeHTML(x.created_at)}</span>
-                </div>`).join('') : '<p class="text-xs text-zinc-600 italic">Aún no tienes premios.</p>';
-        }
-
         async function cargarGestionPuntos() {
             const res=await fetch('/api/recompensas/admin/lista');
             if(!res.ok)return;
@@ -1145,7 +1146,7 @@
             const d=await res.json();
             if(!res.ok)return mostrarAviso('Error',d.error||'No se pudo ajustar.',true);
             mostrarAviso('Puntos actualizados',d.message);
-            cargarTienda();
+            cargarGestionPuntos();
         }
 
         function crearFaviconCircular() {
@@ -1257,11 +1258,7 @@
         actualizarRelojesMultiZona();
 
         // SONIDOS DESACTIVADOS
-        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
-            // Sin reproducción de tonos de audio
-        }
-
-        const socket = io();
+        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {}
 
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
@@ -1291,6 +1288,19 @@
                 if (pestanaActiva === 'top') cargarTop();
             }
 
+            if (data.evento === 'pedidos_actualizados') {
+                if (pestanaActiva === 'tienda') cargarMisPedidos();
+                if (pestanaActiva === 'admin' && usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe')) cargarPedidosAdmin();
+            }
+
+            if (data.evento === 'avatar_actualizado') {
+                cargarUsuariosGlobales().then(() => {
+                    actualizarBarraNivelHeader();
+                    if (pestanaActiva === 'top') cargarTop();
+                    if (pestanaActiva === 'admin' && usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe')) cargarGestionAdmin();
+                });
+            }
+
             if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
                 mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
                 usuarioActual = null;
@@ -1311,32 +1321,12 @@
             }, 250);
         });
 
-        function calcularRachaDiaria(usuarioId) {
-            const hoyStr = new Date().toISOString().split('T')[0];
-            const claveStorage = `ae_streak_${usuarioId}`;
-            const streakData = JSON.parse(localStorage.getItem(claveStorage)) || { racha: 1, ultimaFecha: hoyStr };
-
-            if (streakData.ultimaFecha !== hoyStr) {
-                const ayer = new Date();
-                ayer.setDate(ayer.getDate() - 1);
-                const ayerStr = ayer.toISOString().split('T')[0];
-
-                if (streakData.ultimaFecha === ayerStr) {
-                    streakData.racha += 1;
-                } else {
-                    streakData.racha = 1;
-                }
-                streakData.ultimaFecha = hoyStr;
-                localStorage.setItem(claveStorage, JSON.stringify(streakData));
-            }
-            return streakData.racha;
+        function obtenerAvatarTrabajador(id) {
+            const u = usuariosGlobal.find(user => user.id == id);
+            return u && u.avatar ? u.avatar : '/logo.png';
         }
 
-        function obtenerAvatarTrabajador(usuarioId) {
-            return localStorage.getItem(`ae_avatar_${usuarioId}`) || '/logo.png';
-        }
-
-        function subirFotoPerfilTrabajador(event) {
+        async function subirFotoPerfilTrabajador(event) {
             if (!usuarioActual) return;
             const file = event.target.files[0];
             if (!file) return;
@@ -1348,7 +1338,7 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
-                img.onload = () => {
+                img.onload = async () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     const maxDim = 512;
@@ -1372,12 +1362,18 @@
                     ctx.drawImage(img, 0, 0, width, height);
 
                     const base64Optimizado = canvas.toDataURL('image/jpeg', 0.85);
-                    localStorage.setItem(`ae_avatar_${usuarioActual.id}`, base64Optimizado);
-                    
-                    actualizarBarraNivelHeader();
-                    if (pestanaActiva === 'historial') cargarHistorial();
-                    socket.emit('db_update', { evento: 'avatar_actualizado' });
-                    mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
+
+                    // GUARDAR EN BASE DE DATOS PARA QUE TODOS LO VEAN
+                    try {
+                        const res = await fetch(`/api/usuarios/${usuarioActual.id}/avatar`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ avatar: base64Optimizado })
+                        });
+                        if (res.ok) mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
+                    } catch(err) {
+                        mostrarAviso('Error', 'No se pudo guardar la foto de perfil.', true);
+                    }
                 };
                 img.src = e.target.result;
             };
@@ -1586,20 +1582,20 @@
             { 
                 id: 22, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'La Nitrosa — Kit de Nitro + 2 Botellas Extra', 
+                nombre: 'La Nitrosa — Kit de Nitro + 3 Botellas', 
                 venta: 1200000, 
-                costo: 400000, 
+                costo: 500000, 
                 esCombo: true,
                 componentes: [
                     { id: 25, cantidad: 1 }, // Kit Nitro ($500,000 - incluye 1 botella)
                     { id: 26, cantidad: 2 }, // 2x Botellas extra ($400,000)
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Nitro', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Nitro', ventaPersonalizada: 300000, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
                 id: 23, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'Kit Need for Speed — Drift + Nitro + 2 Botellas Extra', 
+                nombre: 'Kit Need for Speed — Drift + Nitro + 3 Botellas', 
                 venta: 1800000, 
                 costo: 1600000, 
                 esCombo: true,
@@ -1607,7 +1603,7 @@
                     { id: 24, cantidad: 1 }, // Kit Drift ($1,500,000)
                     { id: 25, cantidad: 1 }, // Kit Nitro ($500,000 - incluye 1 botella)
                     { id: 26, cantidad: 2 }, // 2x Botellas extra ($400,000)
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación NFS', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación NFS', ventaPersonalizada: -600000, costoPersonalizado: 0, noDescuento: true }
                 ]
             }
         ];
@@ -1787,140 +1783,6 @@
             }
         }
 
-        let debounceTimer = null;
-        socket.on('online_users_update', (onlineList) => {
-            actualizarBarraOnline(onlineList);
-            if (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe') && pestanaActiva === 'admin') cargarGestionAdmin();
-            if (pestanaActiva === 'top') cargarTop();
-        });
-
-        socket.on('db_update', (data) => {
-            if (data.evento === 'convenios_actualizados') cargarConvenios();
-
-            if (data.evento === 'nueva_factura' && data.total) {
-                let tieneV12 = false;
-                if (data.items && Array.isArray(data.items)) {
-                    tieneV12 = data.items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
-                }
-
-                mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
-
-                if (data.total >= 500000 || tieneV12) {
-                    mostrarAviso(
-                        '🔥 ¡VENTA ÉPICA REGISTRADA!', 
-                        `👷 ${data.usuario_nombre} acaba de cerrar una orden de $${data.total.toLocaleString()} para ${data.cliente}`
-                    );
-                    if (typeof confetti === 'function') {
-                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
-                    }
-                }
-            }
-
-            if (data.evento === 'nueva_factura' || data.evento === 'factura_eliminada' || data.evento === 'factura_transferida') {
-                if (pestanaActiva === 'historial') cargarHistorial();
-                if (pestanaActiva === 'admin' && usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe')) cargarGestionAdmin();
-                if (pestanaActiva === 'top') cargarTop();
-            }
-
-            if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
-                usuarioActual = null;
-                actualizarVistaUsuario();
-                return;
-            }
-
-            if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                usuarioActual.comision_porcentaje = data.comision_porcentaje;
-                usuarioActual.rol = data.rol;
-                actualizarVistaUsuario();
-            }
-
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
-                actualizarBarraNivelHeader();
-            }, 250);
-        });
-
-        function mostrarLiveFeedVenta(trabajador, cliente, total) {
-            const feed = document.getElementById('liveFeedVentas');
-            const texto = document.getElementById('liveFeedTexto');
-            texto.innerText = `¡${trabajador} acaba de cerrar una orden de $${total.toLocaleString()} para ${cliente}!`;
-            feed.classList.remove('hidden');
-            setTimeout(() => { feed.classList.add('hidden'); }, 6500);
-        }
-
-        async function actualizarBarraNivelHeader() {
-            if (!usuarioActual) return;
-            try {
-                const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
-                const facturas = await res.json();
-                let totalVendido = 0;
-                facturas.forEach(f => totalVendido += f.total_cliente);
-                
-                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
-                const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
-
-                document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 52);
-                document.getElementById('headerRankCrestContainer').innerHTML = stats.rank.crestSvg;
-
-                document.getElementById('badgeNivelHeader').classList.remove('hidden');
-                document.getElementById('badgeNivelHeader').classList.add('flex');
-                document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
-                document.getElementById('txtTituloNivelHeader').innerText = stats.titulo;
-                document.getElementById('barraProgresoXPHeader').style.width = `${stats.porcentaje}%`;
-
-                const racha = calcularRachaDiaria(usuarioActual.id);
-                document.getElementById('badgeRachaHeader').classList.remove('hidden');
-                document.getElementById('badgeRachaHeader').classList.add('flex');
-                document.getElementById('txtRachaHeader').innerText = `${racha} ${racha === 1 ? 'día' : 'días'}`;
-            } catch (e) {}
-        }
-
-        function mostrarAviso(titulo, mensaje, esError = false) {
-            document.getElementById('modalAvisoTitulo').innerText = titulo;
-            document.getElementById('modalAvisoMensaje').innerText = mensaje;
-            const icono = document.getElementById('modalAvisoIcono');
-            icono.innerText = esError ? '❌' : '⚠️';
-            icono.className = `w-12 h-12 ${esError ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'} rounded-full flex items-center justify-center mx-auto text-2xl font-bold border`;
-            document.getElementById('modalAviso').classList.remove('hidden');
-        }
-
-        function cerrarModalAviso() {
-            document.getElementById('modalAviso').classList.add('hidden');
-        }
-
-        function actualizarBarraOnline(onlineList) {
-            usuariosOnlineSet = new Set(onlineList.map(u => Number(u.id)));
-            document.getElementById('txtOnlineCount').innerText = `${onlineList.length} en línea`;
-
-            const contenedor = document.getElementById('listaUsuariosOnlineChips');
-            const barra = document.getElementById('barraUsuariosOnline');
-            
-            if (!usuarioActual || onlineList.length === 0) {
-                barra.classList.add('hidden');
-                return;
-            }
-
-            barra.classList.remove('hidden');
-            let chipsHTML = '';
-            onlineList.forEach(u => {
-                const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje ?? (u.rol === 'admin' ? 0 : 30));
-                const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
-                const avatar = obtenerAvatarTrabajador(u.id);
-                chipsHTML += `
-                    <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
-                        <img src="${avatar}" class="w-5 h-5 rounded-full object-cover" />
-                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
-                        <span class="${colorClase}">${u.nombre}</span>
-                        ${esAdminOJefe ? '<span class="text-[9px] text-amber-400 font-bold">👑</span>' : ''}
-                        <span class="text-[10px] text-zinc-500">(@${u.usuario})</span>
-                    </div>
-                `;
-            });
-            contenedor.innerHTML = chipsHTML;
-        }
-
         function togglePrecioFabrica() {
             const esAdminOJefe = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
             if (!esAdminOJefe) {
@@ -2027,6 +1889,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     usuarioActual = data;
+                    await cargarUsuariosGlobales();
                     actualizarVistaUsuario();
                 } else mostrarAviso('Error de Acceso', data.error, true);
             }
@@ -2084,6 +1947,7 @@
             if (pestana === 'tienda') cargarTienda();
             if (pestana === 'admin' && esAdminOJefe) {
                 cargarGestionAdmin();
+                cargarPedidosAdmin();
                 cargarConvenios();
             }
         }
@@ -2363,6 +2227,8 @@
             selectFiltro.innerHTML = optionsHTML;
             if (valorPrevio) selectFiltro.value = valorPrevio;
 
+            cargarGestionPuntos();
+            
             const resFacturas = await fetch('/api/admin/todas-facturas');
             facturasAdminGlobal = await resFacturas.json();
             filtrarHistorialAdmin();
@@ -2797,7 +2663,6 @@
             }
         }
 
-        // AGREGAR: Desglosa los combos en piezas individuales + Mano de Obra para cuadrar el precio total oficial
         function agregar(id) {
             const itemSeleccionado = catalogo.find(x => x.id === id);
             if (!itemSeleccionado) return;
@@ -2805,7 +2670,6 @@
             if (itemSeleccionado.esCombo && itemSeleccionado.componentes) {
                 itemSeleccionado.componentes.forEach(comp => {
                     if (comp.id === 99) {
-                        // Ítem de mano de obra
                         const idManoObra = `mano_obra_${id}`;
                         if (!carrito[idManoObra]) {
                             carrito[idManoObra] = {
@@ -2906,7 +2770,6 @@
                     subtotalBruto += subtotalLinea;
                     totalCantidad += item.cantidad;
 
-                    // REGLA: Motor V12 (id: 7) y Mano de Obra (noDescuento) están protegidos
                     const admiteDescuento = !modoPrecioFabrica && !item.noDescuento && item.id !== 7 && descuentoPorcentaje > 0;
                     const pctLinea = admiteDescuento ? descuentoPorcentaje : 0;
                     const descuentoLinea = subtotalLinea * (pctLinea / 100);
@@ -3045,8 +2908,10 @@
             document.getElementById('modalExito').classList.add('hidden');
         }
 
-        actualizarVistaUsuario();
-        renderCatalogo();
+        cargarUsuariosGlobales().then(() => {
+            actualizarVistaUsuario();
+            renderCatalogo();
+        });
     </script>
 </body>
 </html>
