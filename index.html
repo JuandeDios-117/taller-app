@@ -1864,46 +1864,67 @@
             document.getElementById('toggleBtn').innerText = esModoRegistro ? 'Ingresa aquí' : 'Regístrate';
         }
 
-     async function procesarAuth() {
-            const usuario = document.getElementById('authUsuario').value.trim();
-            const password = document.getElementById('authPassword').value.trim();
+async function procesarAuth() {
+    const inputUser = document.getElementById('authUsuario');
+    const inputPass = document.getElementById('authPassword');
+    const btnAuth = document.getElementById('btnAuth');
 
-            if (!usuario || !password) {
-                return mostrarAviso('Campos Vacíos', 'Por favor ingresa tu usuario y contraseña.');
-            }
+    const usuario = inputUser ? inputUser.value.trim() : '';
+    const password = inputPass ? inputPass.value.trim() : '';
 
-            if (esModoRegistro) {
-                const nombre = document.getElementById('regNombre').value.trim();
-                const res = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, usuario, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    document.getElementById('modalRegistroMensaje').innerText = `El trabajador "${nombre}" (@${usuario}) ha sido creado con éxito.`;
-                    document.getElementById('modalRegistro').classList.remove('hidden');
-                } else mostrarAviso('Error de Registro', data.error, true);
+    if (!usuario || !password) {
+        return mostrarAviso('Campos Requeridos', 'Por favor llena tanto el usuario como la contraseña.');
+    }
+
+    if (btnAuth) {
+        btnAuth.disabled = true;
+        btnAuth.innerText = 'Verificando...';
+    }
+
+    try {
+        if (esModoRegistro) {
+            const inputNom = document.getElementById('regNombre');
+            const nombre = inputNom ? inputNom.value.trim() : '';
+
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, usuario, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('modalRegistroMensaje').innerText = `El trabajador "${nombre}" (@${usuario}) ha sido creado con éxito.`;
+                document.getElementById('modalRegistro').classList.remove('hidden');
             } else {
-                try {
-                    const res = await fetch('/api/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ usuario, password })
-                    });
-                    const data = await res.json();
-                    if (res.ok) {
-                        usuarioActual = data;
-                        actualizarVistaUsuario();
-                        cargarUsuariosGlobales(); // Se ejecuta en segundo plano
-                    } else {
-                        mostrarAviso('Error de Acceso', data.error || 'Credenciales inválidas', true);
-                    }
-                } catch(err) {
-                    mostrarAviso('Error de Red', 'No se pudo conectar con el servidor.', true);
-                }
+                mostrarAviso('Error de Registro', data.error || 'No se pudo registrar.', true);
+            }
+        } else {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data && data.id) {
+                usuarioActual = data;
+                actualizarVistaUsuario();
+                cargarUsuariosGlobales().catch(() => {});
+            } else {
+                mostrarAviso('Acceso Denegado', data.error || 'Usuario o contraseña incorrectos.', true);
             }
         }
+    } catch (err) {
+        console.error("Error al autenticar:", err);
+        mostrarAviso('Error de Red', 'No hubo respuesta del servidor. Revisa tu conexión o el estado de Render.', true);
+    } finally {
+        if (btnAuth) {
+            btnAuth.disabled = false;
+            btnAuth.innerText = esModoRegistro ? 'Registrar Trabajador' : 'Ingresar al Sistema';
+        }
+    }
+}
 
         function cerrarModalRegistro() {
             document.getElementById('modalRegistro').classList.add('hidden');

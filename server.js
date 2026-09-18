@@ -208,30 +208,35 @@ app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
 
+    if (!userClean || !password) {
+        return res.status(400).json({ error: "Ingresa usuario y contraseña." });
+    }
+
     try {
+        // Consulta simplificada para evitar fallos si alguna columna opcional no existe
         const rows = await queryRows(
-            `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`,
+            `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE LOWER(usuario) = ? AND password = ?`,
             [userClean, password]
         );
-        
+
         if (!rows || rows.length === 0) {
             return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
         }
-        
+
         const user = rows[0];
 
-        // Asegurar registro de recompensas de forma silenciosa
+        // Inicialización pasiva de recompensas
         try {
             await db.execute({
                 sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
                 args: [user.id]
             });
-        } catch(e) {}
+        } catch (e) {}
 
-        res.json(user);
+        return res.json(user);
     } catch (err) {
-        console.error("Error en login:", err);
-        res.status(500).json({ error: "Error en el servidor al intentar iniciar sesión." });
+        console.error("Error en login:", err.message);
+        return res.status(500).json({ error: "Error interno del servidor: " + err.message });
     }
 });
 
