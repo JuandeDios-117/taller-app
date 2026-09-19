@@ -295,7 +295,7 @@
                         <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-dark px-4 py-3 rounded-xl font-bold uppercase text-cyan-300 placeholder:text-zinc-600 focus:border-cyan-400">
                     </div>
 
-                    <!-- APARTADO CONVENIOS CON FACCIONES -->
+                    <!-- CONVENIOS CON FACCIONES -->
                     <div class="pt-3 border-t border-zinc-800">
                         <div class="flex justify-between items-center mb-2">
                             <label class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -1184,7 +1184,7 @@
             { id: 28, categoria: 'GENERAL', emoji: '📐', nombre: 'Kit Stance', venta: 10000, costo: 3000 },
             { id: 17, categoria: 'GENERAL', emoji: '➕', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
             
-            // SECCIÓN INDEPENDIENTE PARA EL TURBO
+            // TURBO
             { id: 29, categoria: 'TURBO', emoji: '🚀', nombre: 'Turbo', venta: 10000, costo: 7000 },
 
             // DRIFT Y NITRO
@@ -1485,7 +1485,7 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
-        // ESCUCHA DE EVENTOS WEBSOCKETS EN TIEMPO REAL
+        // ESCUCHA DE EVENTOS EN TIEMPO REAL
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
 
@@ -1526,8 +1526,8 @@
                 if (pestanaActiva === 'admin') cargarPedidosAdmin();
             }
 
-            // ACTUALIZACIÓN DIRECTA E INMEDIATA DEL TOP TRABAJADORES
-            if (pestanaActiva === 'top' || data.evento === 'nueva_factura' || data.evento === 'usuario_modificado' || data.evento === 'pedido_puntos_creado' || data.evento === 'pedido_puntos_actualizado') {
+            // REFRESCAR EL TOP INMEDIATAMENTE AL RECIBIR CAMBIOS DE PUNTOS O FACTURAS
+            if (pestanaActiva === 'top' || data.evento === 'top_actualizado' || data.evento === 'nueva_factura' || data.evento === 'usuario_modificado') {
                 cargarTop();
             }
 
@@ -2319,7 +2319,6 @@
                                         <span class="text-xs text-zinc-500">(@${item.usuario})</span>
                                         <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
                                         ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
-                                        <!-- BADGE DE PUNTOS DINÁMICO EN EL TOP -->
                                         <span class="text-[11px] font-black bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/50 px-2.5 py-0.5 rounded-lg shadow-sm">
                                             🪙 ${item.puntos || 0} Pts
                                         </span>
@@ -2795,8 +2794,8 @@
             let html = '';
             catalogo.forEach(item => {
                 if (item.id === 99) return;
-                const costoPuntos = Math.max(1, Math.floor(item.costo / 1000));
-                const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.emoji || '🎁');
+                const costoPuntos = Math.max(1, Math.floor(item.costo / 50000));
+                const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.icon || '🎁');
                 const badgeCombo = item.esCombo ? '<span class="ml-1 text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-black">COMBO</span>' : '';
 
                 html += `

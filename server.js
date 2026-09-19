@@ -48,6 +48,7 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
 
+        // Retroactividad: 1 punto por cada $50,000 cobrados históricamente si están en 0 o NULL
         try {
             await db.execute(`
                 UPDATE usuarios 
@@ -162,7 +163,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN CON FALLBACK
+// 2. LOGIN
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
@@ -276,7 +277,7 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// 7. LISTA DE USUARIOS PROTEGIDA
+// 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
@@ -304,6 +305,7 @@ app.put('/api/usuarios/modificar', async (req, res) => {
             args: [comision_porcentaje, rol, usuario_id]
         });
         notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol, puntos: Number(puntos) || 0 });
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Usuario actualizado." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -318,6 +320,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
         await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
         notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Cuenta eliminada correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -346,6 +349,7 @@ app.put('/api/facturas/:id/transferir', async (req, res) => {
         });
 
         notificarCambioGlobal('factura_transferida');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Factura transferida con éxito." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -358,6 +362,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE id = ?", args: [factura_id] });
         notificarCambioGlobal('factura_eliminada');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Factura eliminada correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -374,6 +379,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
             args: [usuario_nombre || 'Admin']
         });
         notificarCambioGlobal('reinicio_semana');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Semana reiniciada correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -474,6 +480,7 @@ app.post('/api/facturas', async (req, res) => {
             total: total_cliente,
             items: itemsDetallados
         });
+        notificarCambioGlobal('top_actualizado');
 
         res.json({
             id: facturaId,
@@ -519,7 +526,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES
+// 16. TOP TRABAJADORES (Puntos dinámicos en tiempo real)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -555,11 +562,12 @@ app.get('/api/top-trabajadores', async (req, res) => {
     }
 });
 
-// TIENDA DE PUNTOS Y AVATARES GLOBALES
+// GESTIÓN DE TIENDA Y AVATARES
 app.put('/api/usuarios/:id/avatar', async (req, res) => {
     try {
         await db.execute({ sql: "UPDATE usuarios SET avatar = ? WHERE id = ?", args: [req.body.avatar, req.params.id] });
         notificarCambioGlobal('avatar_actualizado');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Avatar guardado globalmente." });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -583,7 +591,8 @@ app.post('/api/pedidos-puntos', async (req, res) => {
         await db.execute({ sql: "UPDATE usuarios SET puntos = puntos - ? WHERE id = ?", args: [costo_puntos, usuario_id] });
         await db.execute({ sql: "INSERT INTO pedidos_puntos (usuario_id, item_nombre, costo_puntos) VALUES (?, ?, ?)", args: [usuario_id, item_nombre, costo_puntos] });
         
-        notificarCambioGlobal('pedido_puntos_creado', { usuario_id: Number(usuario_id) });
+        notificarCambioGlobal('pedido_puntos_creado');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Pedido realizado con éxito." });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -599,6 +608,7 @@ app.put('/api/pedidos-puntos/:id/estado', async (req, res) => {
         }
         await db.execute({ sql: "UPDATE pedidos_puntos SET estado = ? WHERE id = ?", args: [estado, req.params.id] });
         notificarCambioGlobal('pedido_puntos_actualizado');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: `Pedido ${estado}.` });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
