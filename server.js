@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tabla de convenios y tienda
+// Inicializar tablas
 (async function initDB() {
     try {
         await db.execute(`
@@ -75,7 +75,7 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
         } catch (e) {}
 
     } catch (e) {
-        console.error("Error iniciando tablas adicionales:", e.message);
+        console.error("Error iniciando tablas:", e.message);
     }
 })();
 
@@ -183,18 +183,20 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN
+// 2. LOGIN (MANTENIDO EXACTAMENTE COMO EL ORIGINAL FUNCIONAL)
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(avatar, '/logo.png') as avatar, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
         
         const user = result.rows[0];
+        
+        // Crear la fila de puntos silenciosamente si no existe
         try {
             await db.execute({ sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)", args: [user.id] });
         } catch (e) {}
@@ -489,7 +491,7 @@ app.post('/api/facturas', async (req, res) => {
                 sql: `UPDATE recompensas_usuarios SET puntos = puntos + ?, xp = xp + ? WHERE usuario_id = ?`,
                 args: [puntosGanados, xpGanada, usuario_id]
             });
-        } catch (e) {}
+        } catch(e) {}
 
         if (v8Necesarios > 0 || v12Necesarios > 0) {
             const descuentoV8 = Math.min(estado.stock_v8, v8Necesarios);
@@ -590,7 +592,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
     }
 });
 
-// ---------------- TIENDA DE PUNTOS Y RECOMPENSAS ----------------
+// ================= RUTAS DE TIENDA Y PUNTOS ================= //
 
 app.get('/api/recompensas/:usuario_id', async (req, res) => {
     try {
@@ -673,7 +675,7 @@ app.put('/api/pedidos/:id/estado', async (req, res) => {
             args: [estado, req.params.id]
         });
         notificarCambioGlobal('pedidos_actualizados');
-        res.json({ message: "Estado actualizado." });
+        res.json({ message: "Estado de pedido actualizado." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

@@ -245,7 +245,7 @@
             <div id="listaUsuariosOnlineChips" class="flex flex-wrap gap-2"></div>
         </div>
 
-        <!-- LOGIN / REGISTRO -->
+        <!-- LOGIN / REGISTRO (ORIGINAL Y FUNCIONAL) -->
         <div id="seccion-auth" class="max-w-md mx-auto card-dark p-8 rounded-2xl space-y-5 border border-cyan-500/20 tab-content-anim">
             <div class="text-center space-y-2">
                 <div class="w-24 h-24 mx-auto flex items-center justify-center">
@@ -554,7 +554,7 @@
         <div id="seccion-combos" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-cyan-400 uppercase">🛠️ COMPONENTES POR COMBO (PRECIOS FIJOS)</h2>
-                <p class="text-xs text-zinc-400">Tabla de rendimiento oficial AutoExotic. Los combos desglosan sus piezas en el resumen y añaden mano de obra para cuadrar exactamente el precio pactado.</p>
+                <p class="text-xs text-zinc-400">Tabla de rendimiento oficial AutoExotic. Los combos desglosan sus piezas en el resumen incluyendo el Turbo y la mano de obra.</p>
             </div>
 
             <div class="overflow-x-auto">
@@ -1406,10 +1406,8 @@
             { id: 28, categoria: 'GENERAL', nombre: 'Kit Stance', venta: 10000, costo: 3000 },
             { id: 17, categoria: 'GENERAL', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
             
-            // SECCIÓN INDEPENDIENTE PARA EL TURBO
             { id: 29, categoria: 'TURBO', nombre: 'Turbo', venta: 10000, costo: 7000 },
 
-            // DRIFT Y NITRO CON PRECIOS SOLICITADOS
             { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 200000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
@@ -1424,7 +1422,6 @@
             { id: 13, categoria: 'NEUMÁTICOS', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS (V8 Pro a $140,000 con Turbo y 3 rendimientos)
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1433,12 +1430,12 @@
                 costo: 95000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
-                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
-                    { id: 12, cantidad: 1 }, // Slick ($6,000)
-                    { id: 29, cantidad: 1 }, // Turbo ($10,000)
-                    { id: 1, cantidad: 3 },  // 3x Rendimiento ($30,000)
+                    { id: 8, cantidad: 1 },
+                    { id: 15, cantidad: 1 },
+                    { id: 9, cantidad: 1 },
+                    { id: 12, cantidad: 1 },
+                    { id: 29, cantidad: 1 },
+                    { id: 1, cantidad: 3 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 11500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1450,11 +1447,11 @@
                 costo: 67000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // Turbo
+                    { id: 8, cantidad: 1 },
+                    { id: 15, cantidad: 1 },
+                    { id: 9, cantidad: 1 },
+                    { id: 12, cantidad: 1 },
+                    { id: 29, cantidad: 1 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1466,11 +1463,11 @@
                 costo: 327000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // Turbo
+                    { id: 7, cantidad: 1 },
+                    { id: 15, cantidad: 1 },
+                    { id: 9, cantidad: 1 },
+                    { id: 12, cantidad: 1 },
+                    { id: 29, cantidad: 1 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1482,12 +1479,12 @@
                 costo: 348000, 
                 esCombo: true,
                 componentes: [
-                    { id: 7, cantidad: 1 },  // Motor V12
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // Turbo
-                    { id: 1, cantidad: 3 },  // 3x Rendimiento
+                    { id: 7, cantidad: 1 },
+                    { id: 15, cantidad: 1 },
+                    { id: 9, cantidad: 1 },
+                    { id: 12, cantidad: 1 },
+                    { id: 29, cantidad: 1 },
+                    { id: 1, cantidad: 3 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1499,7 +1496,7 @@
                 costo: 600000, 
                 esCombo: true,
                 componentes: [
-                    { id: 25, cantidad: 3 }, // 3x Kits de Instalación de Nitro ($1,500,000 en valor individual)
+                    { id: 25, cantidad: 3 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Ajuste Especial Paquete La Nitrosa', ventaPersonalizada: -300000, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1511,12 +1508,267 @@
                 costo: 1400000, 
                 esCombo: true,
                 componentes: [
-                    { id: 24, cantidad: 1 }, // Kit Drift ($1,500,000)
-                    { id: 25, cantidad: 1 }, // Kit Nitro ($500,000)
+                    { id: 24, cantidad: 1 },
+                    { id: 25, cantidad: 1 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Ajuste Especial Paquete Speed', ventaPersonalizada: -200000, costoPersonalizado: 0, noDescuento: true }
                 ]
             }
         ];
+
+        let usuarioActual = null;
+        let pestanaActiva = 'calculadora';
+        let esModoRegistro = false;
+        let carrito = {};
+        let descuentoPorcentaje = 0;
+        let convenioActivo = null;
+        let listaConvenios = [];
+        let modoPrecioFabrica = false;
+        let facturasAdminGlobal = [];
+        let usuariosAdminGlobal = [];
+        let facturaIdParaTransferir = null;
+        let usuariosOnlineSet = new Set();
+        let catalogoRenderizado = false;
+
+        function formatearFechaIngreso(fechaStr) {
+            if (!fechaStr) return 'Reciente';
+            const d = new Date(fechaStr);
+            return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function obtenerClaveRango(rol, comision) {
+            if (rol === 'jefe' || Number(comision) === -1) return 'jefe';
+            if (Number(comision) === 0 && rol !== 'jefe') return 'subjefe';
+            if (Number(comision) >= 45) return 'encargado';
+            if (Number(comision) === 40) return 'experto';
+            if (Number(comision) === 35) return 'mecanico';
+            return 'pruebas';
+        }
+
+        function obtenerBadgeRango(rol, comision) {
+            let badgeAdmin = rol === 'admin' ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/40 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ml-1">👑 Admin</span>' : '';
+            const com = Number(comision);
+
+            if (rol === 'jefe' || com === -1) {
+                return `<span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/50 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-[0_0_10px_rgba(245,158,11,0.2)]">👑 Jefe (0%)</span>`;
+            }
+            if (com === 0) {
+                return `<span class="inline-flex items-center gap-1 bg-rose-500/15 text-rose-400 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🛡️ Subjefe (0%)${badgeAdmin}</span>`;
+            }
+            if (com >= 45) {
+                return `<span class="inline-flex items-center gap-1 bg-yellow-500/15 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">👔 Encargado (${com}%)${badgeAdmin}</span>`;
+            }
+            if (com === 40) {
+                return `<span class="inline-flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">⭐ M. Experto (${com}%)${badgeAdmin}</span>`;
+            }
+            if (com === 35) {
+                return `<span class="inline-flex items-center gap-1 bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔧 Mecánico (${com}%)${badgeAdmin}</span>`;
+            }
+            return `<span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔰 En Pruebas (${com || 30}%)${badgeAdmin}</span>`;
+        }
+
+        function obtenerClaseColorNombre(rol, comision) {
+            if (rol === 'jefe' || comision == -1) return 'text-amber-300 font-black';
+            if (comision == 0) return 'text-rose-400 font-black';
+            if (comision >= 45) return 'text-yellow-300 font-black';
+            if (comision >= 40) return 'text-purple-300 font-bold';
+            if (comision >= 35) return 'text-cyan-300 font-bold';
+            return 'text-emerald-300 font-bold';
+        }
+
+        async function cargarConvenios() {
+            try {
+                const res = await fetch('/api/convenios');
+                listaConvenios = await res.json();
+                renderizarConveniosCalculadora();
+                renderizarConveniosAdmin();
+            } catch (e) {}
+        }
+
+        function renderizarConveniosCalculadora() {
+            const container = document.getElementById('contenedorBotonesConvenios');
+            if (!container) return;
+
+            let html = `
+                <button onclick="seleccionarConvenio(null)" class="px-3 py-2 rounded-xl text-xs font-black border transition ${!convenioActivo ? 'bg-cyan-600 text-white border-cyan-400 shadow-sm' : 'bg-black/60 text-zinc-400 border-zinc-800 hover:text-white'}">
+                    ❌ Sin Convenio
+                </button>
+            `;
+
+            listaConvenios.forEach(conv => {
+                const activo = convenioActivo && convenioActivo.id === conv.id;
+                html += `
+                    <button onclick="seleccionarConvenio(${conv.id})" class="px-3 py-2 rounded-xl text-xs font-black border transition flex items-center justify-between gap-1.5 ${activo ? 'bg-amber-500 text-black border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]' : 'bg-black/60 text-amber-300 border-amber-500/30 hover:border-amber-400'}">
+                        <span class="truncate">${conv.faccion}</span>
+                        <span class="px-1.5 py-0.5 rounded text-[10px] ${activo ? 'bg-black text-amber-400' : 'bg-amber-500/20 text-amber-300'} font-black">${conv.porcentaje}%</span>
+                    </button>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function seleccionarConvenio(id) {
+            if (id === null) {
+                convenioActivo = null;
+                document.getElementById('tagConvenioSeleccionado').innerText = 'Ningún convenio aplicado';
+                aplicarDescuento(0);
+            } else {
+                const conv = listaConvenios.find(c => c.id === id);
+                if (conv) {
+                    convenioActivo = conv;
+                    document.getElementById('tagConvenioSeleccionado').innerHTML = `Convenio: <strong class="text-amber-400 uppercase">${conv.faccion} (${conv.porcentaje}%)</strong>`;
+                    
+                    const inputCliente = document.getElementById('nombreCliente');
+                    if (!inputCliente.value.includes(conv.faccion)) {
+                        inputCliente.value = `${conv.faccion} - ${inputCliente.value}`.trim().replace(/^ - /, '');
+                        document.getElementById('nombreClienteText').innerText = inputCliente.value;
+                    }
+                    aplicarDescuento(conv.porcentaje);
+                }
+            }
+            renderizarConveniosCalculadora();
+        }
+
+        function renderizarConveniosAdmin() {
+            const container = document.getElementById('listaConveniosAdmin');
+            if (!container) return;
+
+            if (listaConvenios.length === 0) {
+                container.innerHTML = '<p class="text-xs text-zinc-500 italic col-span-full">No hay convenios registrados.</p>';
+                return;
+            }
+
+            let html = '';
+            listaConvenios.forEach(conv => {
+                html += `
+                    <div class="flex justify-between items-center bg-black/80 p-3.5 rounded-xl border border-zinc-800">
+                        <div>
+                            <span class="font-bold text-white text-xs uppercase">${conv.faccion}</span>
+                            <span class="ml-2 text-xs font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">${conv.porcentaje}% DCTO</span>
+                        </div>
+                        <button onclick="eliminarConvenio(${conv.id})" class="text-rose-400 hover:text-rose-300 text-xs font-bold px-2.5 py-1 bg-rose-500/10 rounded-lg border border-rose-500/20 transition">
+                            🗑️ Retirar
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        async function guardarNuevoConvenio() {
+            const faccion = document.getElementById('inpNombreConvenio').value.trim();
+            const porcentaje = parseInt(document.getElementById('inpPorcentajeConvenio').value);
+
+            if (!faccion || isNaN(porcentaje) || porcentaje <= 0 || porcentaje > 50) {
+                return mostrarAviso('Datos Inválidos', 'Ingresa el nombre de la facción y un porcentaje entre 1% y 50%.');
+            }
+
+            const res = await fetch('/api/convenios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ faccion, porcentaje, usuario_nombre: usuarioActual.nombre })
+            });
+
+            if (res.ok) {
+                document.getElementById('inpNombreConvenio').value = '';
+                document.getElementById('inpPorcentajeConvenio').value = '';
+                mostrarAviso('Convenio Creado', `Convenio de ${porcentaje}% guardado para ${faccion}.`);
+                cargarConvenios();
+            } else {
+                const data = await res.json();
+                mostrarAviso('Error', data.error, true);
+            }
+        }
+
+        async function eliminarConvenio(id) {
+            if (!confirm('¿Deseas retirar este convenio?')) return;
+            const res = await fetch(`/api/convenios/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                if (convenioActivo && convenioActivo.id === id) seleccionarConvenio(null);
+                cargarConvenios();
+            }
+        }
+
+        function togglePrecioFabrica() {
+            const esAdminOJefe = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
+            if (!esAdminOJefe) {
+                document.getElementById('checkPrecioFabrica').checked = false;
+                modoPrecioFabrica = false;
+                return mostrarAviso('Acceso Restringido', 'Solo los administradores y jefes pueden cobrar a precio de fábrica.', true);
+            }
+
+            modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
+            if (modoPrecioFabrica) {
+                descuentoPorcentaje = 0;
+                document.getElementById('inputDescuentoManual').value = '';
+                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
+            }
+
+            document.getElementById('seccionDescuentosContenedor').classList.toggle('opacity-40', modoPrecioFabrica);
+            document.getElementById('seccionDescuentosContenedor').classList.toggle('pointer-events-none', modoPrecioFabrica);
+            
+            actualizarCarrito();
+        }
+
+        function actualizarVistaUsuario() {
+            const container = document.getElementById('userInfo');
+            const btnAdmin = document.getElementById('tab-admin');
+            const btnAlmacen = document.getElementById('tab-almacen');
+            const contModoFabrica = document.getElementById('contenedorModoFabrica');
+
+            if (usuarioActual) {
+                const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
+                if (esAdminOJefe) {
+                    btnAdmin.classList.remove('hidden');
+                    btnAlmacen.classList.remove('hidden');
+                    contModoFabrica.classList.remove('hidden');
+                } else {
+                    btnAdmin.classList.add('hidden');
+                    btnAlmacen.classList.add('hidden');
+                    contModoFabrica.classList.add('hidden');
+                    modoPrecioFabrica = false;
+                    document.getElementById('checkPrecioFabrica').checked = false;
+                }
+
+                container.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
+                        ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
+                    </div>
+                    <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
+                `;
+                document.getElementById('seccion-auth').classList.add('hidden');
+                cambiarPestana('calculadora');
+                cambiarZonaHorariaFacturas(zonaHorariaActiva);
+                actualizarBarraNivelHeader();
+                cargarConvenios();
+
+                socket.emit('user_connected', usuarioActual);
+            } else {
+                btnAdmin.classList.add('hidden');
+                btnAlmacen.classList.add('hidden');
+                contModoFabrica.classList.add('hidden');
+                modoPrecioFabrica = false;
+                document.getElementById('barraUsuariosOnline').classList.add('hidden');
+                document.getElementById('badgeNivelHeader').classList.add('hidden');
+                document.getElementById('badgeRachaHeader').classList.add('hidden');
+                container.innerHTML = `<span>No has iniciado sesión</span>`;
+                document.getElementById('seccion-auth').classList.remove('hidden');
+                ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin', 'tienda'].forEach(s => {
+                    const el = document.getElementById(`seccion-${s}`);
+                    if (el) el.classList.add('hidden');
+                });
+            }
+        }
+
+        function toggleModoAuth() {
+            esModoRegistro = !esModoRegistro;
+            document.getElementById('campoNombre').classList.toggle('hidden', !esModoRegistro);
+            document.getElementById('authTitle').innerText = esModoRegistro ? 'Crear Cuenta' : 'Acceso AutoExotic';
+            document.getElementById('btnAuth').innerText = esModoRegistro ? 'Registrar Trabajador' : 'Ingresar al Sistema';
+            document.getElementById('toggleText').innerText = esModoRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
+            document.getElementById('toggleBtn').innerText = esModoRegistro ? 'Ingresa aquí' : 'Regístrate';
+        }
 
         async function procesarAuth() {
             const usuario = document.getElementById('authUsuario').value.trim();
