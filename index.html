@@ -160,7 +160,7 @@
             </div>
         </div>
 
-        <!-- BANNER GLOBAL DE VENTAS EN VIVO (LOOT DROP) -->
+        <!-- BANNER GLOBAL DE VENTAS EN VIVO -->
         <div id="liveFeedVentas" class="card-dark p-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-zinc-950/80 to-amber-950/40 hidden flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.15)] animate-pulse">
             <div class="flex items-center gap-2.5 text-xs">
                 <span class="text-base">🔥</span>
@@ -220,6 +220,9 @@
                 </button>
                 <button onclick="cambiarPestana('combos')" id="tab-combos" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-amber-300 hover:text-white hover:bg-zinc-800 transition border border-amber-500/20">
                     📋 COMBOS Y PIEZAS
+                </button>
+                <button onclick="cambiarPestana('tienda')" id="tab-tienda" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-purple-300 hover:text-white hover:bg-zinc-800 transition border border-purple-500/20">
+                    🛒 TIENDA DE PUNTOS
                 </button>
                 <button onclick="cambiarPestana('historial')" id="tab-hist" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition">
                     📊 MI HISTORIAL & PERFIL
@@ -488,6 +491,65 @@
             </div>
         </div>
 
+        <!-- TIENDA DE PUNTOS -->
+        <div id="seccion-tienda" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div class="card-dark p-6 rounded-2xl border-l-4 border-purple-500">
+                    <p class="text-xs text-zinc-400 font-black uppercase">Mis puntos</p>
+                    <p id="tiendaPuntos" class="text-4xl font-black text-purple-400 mt-1">0</p>
+                    <p class="text-xs text-zinc-500 mt-2">Los puntos NO se borran en el corte semanal.</p>
+                </div>
+                <div class="card-dark p-6 rounded-2xl border-l-4 border-cyan-500">
+                    <p class="text-xs text-zinc-400 font-black uppercase">XP permanente</p>
+                    <p id="tiendaXP" class="text-4xl font-black text-cyan-400 mt-1">0</p>
+                    <p id="tiendaNivel" class="text-xs text-zinc-500 mt-2">Nivel 1</p>
+                </div>
+                <div class="card-dark p-6 rounded-2xl border-l-4 border-amber-500">
+                    <p class="text-xs text-zinc-400 font-black uppercase">Medallas</p>
+                    <p id="tiendaMedallas" class="text-4xl font-black text-amber-400 mt-1">0</p>
+                    <p class="text-xs text-zinc-500 mt-2">Progreso acumulado.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <!-- CATÁLOGO TIENDA -->
+                <div class="card-dark p-6 rounded-2xl space-y-5">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-black text-white uppercase">🛒 Tienda de Puntos</h2>
+                            <p class="text-xs text-zinc-400 mt-1">Canjea tus puntos por piezas y kits del taller.</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-black">
+                            <span id="tiendaPuntosMini">0</span> PTS
+                        </span>
+                    </div>
+                    <div id="tiendaProductos" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+
+                <!-- MIS PEDIDOS -->
+                <div class="card-dark p-6 rounded-2xl space-y-4 border border-cyan-500/20">
+                    <h2 class="text-lg font-black text-white uppercase">📦 MIS PEDIDOS DE CANJE</h2>
+                    <p class="text-xs text-zinc-400">Solicitudes canjeadas pendientes de entrega por un Administrador.</p>
+                    <div id="misPedidosLista" class="space-y-2 max-h-96 overflow-auto pr-1">
+                        <p class="text-xs text-zinc-500 italic">Cargando pedidos...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRANSFERENCIAS -->
+            <div class="card-dark p-6 rounded-2xl space-y-4 max-w-2xl">
+                <h2 class="text-lg font-black text-white uppercase">🔁 Pasar puntos a un compañero</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select id="selDestinoPuntos" class="input-dark px-3 py-3 rounded-xl text-xs font-bold md:col-span-2"></select>
+                    <input id="inpPuntosTransferir" type="number" min="1" placeholder="Puntos" class="input-dark px-3 py-3 rounded-xl text-xs font-bold">
+                </div>
+                <button onclick="transferirPuntos()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-3 rounded-xl text-xs uppercase">
+                    🔁 Transferir puntos
+                </button>
+                <div id="historialTransferenciasPuntos" class="space-y-2 max-h-48 overflow-auto mt-4"></div>
+            </div>
+        </div>
+
         <!-- COMBOS Y PIEZAS (TABLA OFICIAL COMPLETA) -->
         <div id="seccion-combos" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
@@ -691,6 +753,30 @@
                 </button>
             </div>
 
+            <!-- GESTIÓN DE PUNTOS -->
+            <div class="card-dark p-6 rounded-xl space-y-4 border border-rose-500/40">
+                <div>
+                    <h3 class="text-lg font-black text-rose-300 uppercase flex items-center gap-2">👑 ADMINISTRACIÓN DE PUNTOS</h3>
+                    <p class="text-xs text-zinc-400">Asigna o ajusta los puntos de los trabajadores directamente en la base de datos.</p>
+                </div>
+                <div id="listaGestionPuntos" class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- GESTIÓN DE PEDIDOS DE TIENDA -->
+            <div class="card-dark p-6 rounded-xl space-y-4 border border-purple-500/40">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                    <div>
+                        <h3 class="text-lg font-black text-purple-400 uppercase flex items-center gap-2">
+                            📦 PEDIDOS DE TIENDA (CANJES)
+                        </h3>
+                        <p class="text-xs text-zinc-400">Marca los artículos canjeados por los trabajadores como entregados.</p>
+                    </div>
+                </div>
+                <div id="listaPedidosAdmin" class="space-y-2 max-h-96 overflow-y-auto pr-1">
+                    <p class="text-xs text-zinc-500 italic">Cargando pedidos...</p>
+                </div>
+            </div>
+
             <!-- GESTOR DE CONVENIOS CON FACCIONES -->
             <div class="card-dark p-6 rounded-xl border border-amber-500/40 space-y-4">
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
@@ -845,6 +931,234 @@
     </div>
 
     <script>
+        let usuariosGlobal = [];
+
+        async function cargarUsuariosGlobales() {
+            try {
+                const res = await fetch('/api/usuarios');
+                if (res.ok) {
+                    usuariosGlobal = await res.json();
+                    usuariosAdminGlobal = usuariosGlobal;
+                }
+            } catch (e) {}
+        }
+
+        const tiendaCatalogoPuntos = [
+            {id:'limpieza_x2', nombre:'Kit de Limpieza (x2)', puntos:2, icon:'🧼'},
+            {id:'reparacion', nombre:'Kit de Reparación', puntos:2, icon:'🔧'},
+            {id:'pintura', nombre:'Kit de Pintura', puntos:3, icon:'🎨'},
+            {id:'cosmeticas', nombre:'Piezas Cosméticas', puntos:5, icon:'✨'},
+            {id:'stance', nombre:'Kit Stance', puntos:6, icon:'🛞'},
+            {id:'humo', nombre:'Kit Humo Neumáticos', puntos:8, icon:'💨'},
+            {id:'semi_slick', nombre:'Neumáticos Semi-Slick', puntos:12, icon:'🏎️'},
+            {id:'slick', nombre:'Neumáticos Slick', puntos:15, icon:'🏁'},
+            {id:'turbo', nombre:'Turbo', puntos:25, icon:'🚀'},
+            {id:'rendimiento', nombre:'Piezas de Rendimiento', puntos:25, icon:'⚙️'},
+            {id:'frenos', nombre:'Frenos Cerámicos', puntos:30, icon:'🛑'},
+            {id:'awd', nombre:'Tracción AWD', puntos:30, icon:'🔩'},
+            {id:'v8', nombre:'Motor V8', puntos:120, icon:'🔧'},
+            {id:'nitro', nombre:'Botella de Nitro', puntos:180, icon:'💨'},
+            {id:'inst_nitro', nombre:'Kit Instalación Nitro', puntos:350, icon:'🧰'},
+            {id:'v12', nombre:'Motor V12', puntos:400, icon:'👑'},
+            {id:'drift', nombre:'Kit Tuning Drift', puntos:800, icon:'🏎️'}
+        ];
+
+        function escapeHTML(text) {
+            return String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+        }
+
+        async function cargarTienda() {
+            if (!usuarioActual) return;
+            try {
+                const res = await fetch(`/api/recompensas/${usuarioActual.id}`);
+                if (!res.ok) return;
+                const data = await res.json();
+
+                document.getElementById('tiendaPuntos').innerText = Number(data.puntos || 0).toLocaleString();
+                document.getElementById('tiendaPuntosMini').innerText = Number(data.puntos || 0).toLocaleString();
+                document.getElementById('tiendaXP').innerText = Number(data.xp || 0).toLocaleString();
+
+                const stats = calcularNivelYProgreso(0, usuarioActual.id);
+                document.getElementById('tiendaNivel').innerText = `Nivel ${stats.nivel} · ${stats.xpActualNivel}/${stats.xpPorNivel} XP`;
+                const medallas = generarMedallas([], 0, usuarioActual.id);
+                document.getElementById('tiendaMedallas').innerText = medallas.filter(m => m.activa).length;
+
+                renderTiendaProductos(data.puntos);
+                cargarUsuariosDestinoPuntos();
+                cargarHistorialTransferencias();
+                cargarMisPedidos();
+
+            } catch(e) {}
+        }
+
+        function renderTiendaProductos(puntos) {
+            document.getElementById('tiendaProductos').innerHTML = tiendaCatalogoPuntos.map(p => {
+                const disponible = Number(puntos) >= p.puntos;
+                return `
+                    <div class="bg-zinc-950/70 border border-zinc-800 rounded-xl p-4 flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-xs font-black text-white">${p.icon} ${escapeHTML(p.nombre)}</div>
+                            <div class="text-xs text-purple-300 font-black mt-1">${p.puntos} puntos</div>
+                        </div>
+                        <button ${disponible ? '' : 'disabled'} onclick="canjearProductoPuntos('${p.id}', '${escapeHTML(p.nombre)}')"
+                            class="px-3 py-2 rounded-lg text-[11px] font-black ${disponible ? 'bg-purple-600 hover:bg-purple-500 text-white' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}">
+                            CANJEAR
+                        </button>
+                    </div>`;
+            }).join('');
+        }
+
+        async function canjearProductoPuntos(producto_id, nombre_producto) {
+            if (!confirm(`¿Confirmas el canje de ${nombre_producto} por puntos?`)) return;
+            const res = await fetch('/api/recompensas/canjear', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({usuario_id:usuarioActual.id, producto_id, nombre_producto})
+            });
+            const data = await res.json();
+            if (!res.ok) return mostrarAviso('Error', data.error || 'No se pudo realizar el canje.', true);
+            mostrarAviso('Canje realizado', `${data.producto} descontó ${data.puntos} puntos. El pedido está pendiente de entrega.`);
+            await cargarTienda();
+        }
+
+        async function cargarMisPedidos() {
+            const res = await fetch(`/api/pedidos/${usuarioActual.id}`);
+            if (!res.ok) return;
+            const rows = await res.json();
+            const el = document.getElementById('misPedidosLista');
+            
+            if (rows.length === 0) {
+                el.innerHTML = '<p class="text-xs text-zinc-500 italic">No tienes pedidos pendientes.</p>';
+                return;
+            }
+
+            el.innerHTML = rows.map(p => {
+                const isPendiente = p.estado === 'pendiente';
+                const estadoClass = isPendiente ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
+                return `
+                    <div class="bg-black/60 rounded-xl border border-zinc-800 p-3 flex justify-between items-center text-xs">
+                        <div>
+                            <strong class="text-white">${escapeHTML(p.nombre_producto)}</strong>
+                            <div class="text-[10px] text-zinc-500 mt-1">${new Date(p.created_at).toLocaleDateString('es-MX')}</div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg border ${estadoClass} font-black uppercase text-[10px]">${p.estado}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function cargarPedidosAdmin() {
+            const res = await fetch('/api/admin/pedidos');
+            if (!res.ok) return;
+            const rows = await res.json();
+            const el = document.getElementById('listaPedidosAdmin');
+
+            if (rows.length === 0) {
+                el.innerHTML = '<p class="text-xs text-zinc-500 italic">No hay pedidos registrados.</p>';
+                return;
+            }
+
+            el.innerHTML = rows.map(p => {
+                const isPendiente = p.estado === 'pendiente';
+                const avatar = obtenerAvatarTrabajador(p.usuario_id);
+                return `
+                    <div class="bg-black/80 rounded-xl border ${isPendiente ? 'border-amber-500/40' : 'border-zinc-800'} p-3.5 flex flex-wrap justify-between items-center gap-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${avatar}" class="w-8 h-8 rounded-full object-cover">
+                            <div>
+                                <strong class="text-purple-300 text-sm block">${escapeHTML(p.nombre_producto)}</strong>
+                                <span class="text-[11px] text-zinc-400">Por: <strong class="text-white">${escapeHTML(p.trabajador_nombre)}</strong></span>
+                            </div>
+                        </div>
+                        ${isPendiente ? `
+                            <button onclick="marcarPedidoEntregado(${p.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-black px-3 py-1.5 rounded-lg text-[10px] transition">
+                                MARCAR ENTREGADO
+                            </button>
+                        ` : `
+                            <div class="flex items-center gap-2">
+                                <span class="text-emerald-400 font-bold text-[10px] uppercase bg-emerald-500/20 px-2 py-1 rounded border border-emerald-500/30">✔ Entregado</span>
+                                <button onclick="marcarPedidoPendiente(${p.id})" class="text-zinc-500 hover:text-zinc-300 text-[10px] underline">Deshacer</button>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function marcarPedidoEntregado(id) {
+            await fetch(`/api/pedidos/${id}/estado`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({estado:'entregado'}) });
+        }
+
+        async function marcarPedidoPendiente(id) {
+            await fetch(`/api/pedidos/${id}/estado`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({estado:'pendiente'}) });
+        }
+
+        async function cargarUsuariosDestinoPuntos() {
+            const users = usuariosGlobal || [];
+            document.getElementById('selDestinoPuntos').innerHTML =
+                `<option value="">Selecciona un compañero...</option>` +
+                users.filter(u => Number(u.id) !== Number(usuarioActual.id))
+                    .map(u => `<option value="${u.id}">${escapeHTML(u.nombre)} (@${escapeHTML(u.usuario)})</option>`).join('');
+        }
+
+        async function transferirPuntos() {
+            const destino_id = Number(document.getElementById('selDestinoPuntos').value);
+            const puntos = Number(document.getElementById('inpPuntosTransferir').value);
+            if (!destino_id || !Number.isInteger(puntos) || puntos <= 0) return mostrarAviso('Datos inválidos','Selecciona un compañero y una cantidad válida.',true);
+            const res = await fetch('/api/recompensas/transferir', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({origen_id:usuarioActual.id,destino_id,puntos})
+            });
+            const data = await res.json();
+            if (!res.ok) return mostrarAviso('Error',data.error || 'No se pudo transferir.',true);
+            document.getElementById('inpPuntosTransferir').value='';
+            mostrarAviso('Transferencia realizada',`Enviaste ${puntos} puntos correctamente.`);
+            cargarTienda();
+        }
+
+        async function cargarHistorialTransferencias() {
+            const res = await fetch(`/api/recompensas/transferencias/${usuarioActual.id}`);
+            if (!res.ok) return;
+            const rows = await res.json();
+            const el=document.getElementById('historialTransferenciasPuntos');
+            el.innerHTML=rows.length ? rows.map(x=>`
+                <div class="bg-zinc-950 rounded-lg border border-zinc-800 p-2 text-[11px] flex justify-between">
+                    <span>${x.direccion==='salida'?'➡️ A':'⬅️ De'} <strong class="text-white">${escapeHTML(x.persona)}</strong></span>
+                    <strong class="${x.direccion==='salida'?'text-rose-400':'text-emerald-400'}">${x.direccion==='salida'?'-':'+'}${x.puntos} pts</strong>
+                </div>`).join('') : '<p class="text-xs text-zinc-600 italic">Sin transferencias.</p>';
+        }
+
+        async function cargarGestionPuntos() {
+            const res=await fetch('/api/recompensas/admin/lista');
+            if(!res.ok)return;
+            const rows=await res.json();
+            const panel = document.getElementById('listaGestionPuntos');
+            if (panel) {
+                panel.innerHTML=rows.map(u=>`
+                    <div class="bg-zinc-950 rounded-xl border border-zinc-800 p-3 grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                        <div class="md:col-span-2"><strong class="text-white text-xs">${escapeHTML(u.nombre)}</strong><span class="text-zinc-500 text-xs ml-2">@${escapeHTML(u.usuario)}</span></div>
+                        <div class="text-purple-300 text-xs font-black">${Number(u.puntos).toLocaleString()} pts</div>
+                        <input id="adminPts_${u.id}" type="number" min="0" placeholder="Cantidad" class="input-dark px-2 py-2 rounded-lg text-xs">
+                        <div class="flex gap-2">
+                            <button onclick="ajustarPuntosAdmin(${u.id},'sumar')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-black py-2">+ SUMAR</button>
+                            <button onclick="ajustarPuntosAdmin(${u.id},'fijar')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-[10px] font-black py-2">FIJAR</button>
+                        </div>
+                    </div>`).join('');
+            }
+        }
+
+        async function ajustarPuntosAdmin(usuario_id, modo) {
+            const cantidad=Number(document.getElementById(`adminPts_${usuario_id}`).value);
+            if(!Number.isInteger(cantidad) || cantidad<0)return mostrarAviso('Cantidad inválida','Usa un número entero de puntos.',true);
+            const res=await fetch('/api/recompensas/admin/ajustar-puntos',{
+                method:'POST',headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({usuario_id,cantidad,modo,admin_id:usuarioActual.id})
+            });
+            const d=await res.json();
+            if(!res.ok)return mostrarAviso('Error',d.error||'No se pudo ajustar.',true);
+            mostrarAviso('Puntos actualizados',d.message);
+            cargarGestionPuntos();
+        }
+
         function crearFaviconCircular() {
             const img = new Image();
             img.crossOrigin = "anonymous";
@@ -954,38 +1268,77 @@
         actualizarRelojesMultiZona();
 
         // SONIDOS DESACTIVADOS
-        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {
-            // Sin reproducción de tonos de audio
-        }
+        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {}
 
         const socket = io();
 
-        function calcularRachaDiaria(usuarioId) {
-            const hoyStr = new Date().toISOString().split('T')[0];
-            const claveStorage = `ae_streak_${usuarioId}`;
-            const streakData = JSON.parse(localStorage.getItem(claveStorage)) || { racha: 1, ultimaFecha: hoyStr };
+        socket.on('db_update', (data) => {
+            if (data.evento === 'convenios_actualizados') cargarConvenios();
 
-            if (streakData.ultimaFecha !== hoyStr) {
-                const ayer = new Date();
-                ayer.setDate(ayer.getDate() - 1);
-                const ayerStr = ayer.toISOString().split('T')[0];
-
-                if (streakData.ultimaFecha === ayerStr) {
-                    streakData.racha += 1;
-                } else {
-                    streakData.racha = 1;
+            if (data.evento === 'nueva_factura' && data.total) {
+                let tieneV12 = false;
+                if (data.items && Array.isArray(data.items)) {
+                    tieneV12 = data.items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
                 }
-                streakData.ultimaFecha = hoyStr;
-                localStorage.setItem(claveStorage, JSON.stringify(streakData));
+
+                mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
+
+                if (data.total >= 500000 || tieneV12) {
+                    mostrarAviso(
+                        '🔥 ¡VENTA ÉPICA REGISTRADA!', 
+                        `👷 ${data.usuario_nombre} acaba de cerrar una orden de $${data.total.toLocaleString()} para ${data.cliente}`
+                    );
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+                    }
+                }
             }
-            return streakData.racha;
+
+            if (data.evento === 'nueva_factura' || data.evento === 'factura_eliminada' || data.evento === 'factura_transferida') {
+                if (pestanaActiva === 'historial') cargarHistorial();
+                if (pestanaActiva === 'admin' && usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe')) cargarGestionAdmin();
+                if (pestanaActiva === 'top') cargarTop();
+            }
+
+            if (data.evento === 'pedidos_actualizados') {
+                if (pestanaActiva === 'tienda') cargarMisPedidos();
+                if (pestanaActiva === 'admin' && usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe')) cargarPedidosAdmin();
+            }
+
+            if (data.evento === 'avatar_actualizado') {
+                cargarUsuariosGlobales().then(() => {
+                    actualizarBarraNivelHeader();
+                    if (pestanaActiva === 'top') cargarTop();
+                    if (pestanaActiva === 'admin' && usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe')) cargarGestionAdmin();
+                });
+            }
+
+            if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
+                mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
+                usuarioActual = null;
+                actualizarVistaUsuario();
+                return;
+            }
+
+            if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
+                usuarioActual.comision_porcentaje = data.comision_porcentaje;
+                usuarioActual.rol = data.rol;
+                actualizarVistaUsuario();
+            }
+
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
+                actualizarBarraNivelHeader();
+            }, 250);
+        });
+
+        function obtenerAvatarTrabajador(id) {
+            const u = usuariosGlobal.find(user => user.id == id);
+            return u && u.avatar ? u.avatar : '/logo.png';
         }
 
-        function obtenerAvatarTrabajador(usuarioId) {
-            return localStorage.getItem(`ae_avatar_${usuarioId}`) || '/logo.png';
-        }
-
-        function subirFotoPerfilTrabajador(event) {
+        async function subirFotoPerfilTrabajador(event) {
             if (!usuarioActual) return;
             const file = event.target.files[0];
             if (!file) return;
@@ -997,7 +1350,7 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
-                img.onload = () => {
+                img.onload = async () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     const maxDim = 512;
@@ -1021,120 +1374,26 @@
                     ctx.drawImage(img, 0, 0, width, height);
 
                     const base64Optimizado = canvas.toDataURL('image/jpeg', 0.85);
-                    localStorage.setItem(`ae_avatar_${usuarioActual.id}`, base64Optimizado);
-                    
-                    actualizarBarraNivelHeader();
-                    if (pestanaActiva === 'historial') cargarHistorial();
-                    socket.emit('db_update', { evento: 'avatar_actualizado' });
-                    mostrarAviso('Foto Guardada', 'Tu foto de perfil ha sido actualizada.');
+
+                    try {
+                        const res = await fetch(`/api/usuarios/${usuarioActual.id}/avatar`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ avatar: base64Optimizado })
+                        });
+                        if (res.ok) {
+                            await cargarUsuariosGlobales();
+                            mostrarAviso('Foto Guardada', 'Tu foto de perfil se guardó correctamente para todos.');
+                            if (pestanaActiva === 'historial') cargarHistorial();
+                        }
+                    } catch(err) {
+                        mostrarAviso('Error', 'No se pudo guardar la foto de perfil.', true);
+                    }
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
-
-        function calcularNivelYProgreso(totalVendido, usuarioId) {
-            const overrideNivel = localStorage.getItem(`ae_custom_lvl_${usuarioId}`);
-            let xpTotal = Math.floor((totalVendido || 0) / 100);
-
-            if (overrideNivel !== null && overrideNivel !== '') {
-                const lvlNum = parseInt(overrideNivel);
-                if (!isNaN(lvlNum) && lvlNum > 0) {
-                    xpTotal = (lvlNum - 1) * 1000 + (xpTotal % 1000);
-                }
-            }
-
-            const xpPorNivel = 1000;
-            const nivel = Math.floor(xpTotal / xpPorNivel) + 1;
-            const xpActualNivel = xpTotal % xpPorNivel;
-            const porcentaje = Math.min(100, Math.floor((xpActualNivel / xpPorNivel) * 100));
-
-            const rank = obtenerRankInfoPorNivel(nivel);
-            return { nivel, xpActualNivel, xpPorNivel, porcentaje, titulo: rank.nombre, xpTotal, rank };
-        }
-
-        function generarMedallas(facturas, totalVendido, usuarioId) {
-            let totalV12 = 0;
-            let totalV8 = 0;
-            let totalNitro = 0;
-            let facturasGrandes = 0;
-            let totalDrift = 0;
-            let totalLimpieza = 0;
-
-            facturas.forEach(f => {
-                if (f.total_cliente >= 1000000) facturasGrandes++;
-                if (f.items_json) {
-                    try {
-                        const items = JSON.parse(f.items_json);
-                        items.forEach(it => {
-                            if (it.id === 7 || it.id === 20 || it.id === 21) totalV12 += it.cantidad;
-                            if (it.id === 8 || it.id === 18 || it.id === 19) totalV8 += it.cantidad;
-                            if (it.id === 25 || it.id === 26 || it.id === 22 || it.id === 23) totalNitro += it.cantidad;
-                            if (it.id === 24 || it.id === 23) totalDrift += it.cantidad;
-                            if (it.id === 27) totalLimpieza += it.cantidad;
-                        });
-                    } catch (e) {}
-                }
-            });
-
-            const overrides = JSON.parse(localStorage.getItem(`ae_custom_badges_${usuarioId}`)) || {};
-
-            return [
-                { id: 'm1', titulo: 'Rey del V12', icon: '👑', colorRibbon: 'bg-amber-500', colorBorde: 'border-amber-500 text-amber-300', desc: 'Instala 3+ Motores V12', activa: overrides.m1 !== undefined ? overrides.m1 : (totalV12 >= 3) },
-                { id: 'm2', titulo: 'Adicto al Nitro', icon: '💨', colorRibbon: 'bg-cyan-500', colorBorde: 'border-cyan-500 text-cyan-300', desc: 'Vende 5+ Piezas de Nitro', activa: overrides.m2 !== undefined ? overrides.m2 : (totalNitro >= 5) },
-                { id: 'm3', titulo: 'Rey del Drift', icon: '🏎️', colorRibbon: 'bg-fuchsia-500', colorBorde: 'border-fuchsia-500 text-fuchsia-300', desc: 'Instala Kits de Drift', activa: overrides.m3 !== undefined ? overrides.m3 : (totalDrift >= 2) },
-                { id: 'm4', titulo: 'Mente V8', icon: '⚙️', colorRibbon: 'bg-blue-500', colorBorde: 'border-blue-500 text-blue-300', desc: 'Instala 5+ Motores V8', activa: overrides.m4 !== undefined ? overrides.m4 : (totalV8 >= 5) },
-                { id: 'm5', titulo: 'Detallador Pro', icon: '🧼', colorRibbon: 'bg-emerald-500', colorBorde: 'border-emerald-500 text-emerald-300', desc: '10+ Kits de Limpieza', activa: overrides.m5 !== undefined ? overrides.m5 : (totalLimpieza >= 10) },
-                { id: 'm6', titulo: 'Gran Negocio', icon: '⚡', colorRibbon: 'bg-yellow-400', colorBorde: 'border-yellow-400 text-yellow-300', desc: 'Factura de $1,000,000+', activa: overrides.m6 !== undefined ? overrides.m6 : (facturasGrandes >= 1) },
-                { id: 'm7', titulo: 'Medio Millón', icon: '💎', colorRibbon: 'bg-teal-400', colorBorde: 'border-teal-400 text-teal-300', desc: 'Vende $500,000+', activa: overrides.m7 !== undefined ? overrides.m7 : (totalVendido >= 500000) },
-                { id: 'm8', titulo: 'Millonario', icon: '💰', colorRibbon: 'bg-rose-500', colorBorde: 'border-rose-500 text-rose-400', desc: 'Factura $5,000,000+', activa: overrides.m8 !== undefined ? overrides.m8 : (totalVendido >= 5000000) }
-            ];
-        }
-
-        function generarRibbonBarHTML(medallas) {
-            let html = '<div class="ribbon-bar" title="Pasador de Medallas">';
-            let count = 0;
-            medallas.forEach(m => {
-                if (m.activa) {
-                    count++;
-                    html += `<span class="ribbon-chip ${m.colorRibbon}" title="${m.titulo}: ${m.desc}"></span>`;
-                }
-            });
-            if (count === 0) html += '<span class="text-[9px] text-zinc-600 px-1 italic">Sin medallas</span>';
-            html += '</div>';
-            return html;
-        }
-
-        function generarMedallasTopHTML(medallas) {
-            let html = '<div class="flex flex-wrap items-center gap-1.5 mt-2">';
-            let count = 0;
-            medallas.forEach(m => {
-                if (m.activa) {
-                    count++;
-                    html += `
-                        <div class="top-medal-badge border ${m.colorBorde}" title="${m.titulo}: ${m.desc}">
-                            <span class="text-xs leading-none">${m.icon}</span>
-                            <span class="text-[10px] font-black uppercase tracking-wider">${m.titulo}</span>
-                        </div>
-                    `;
-                }
-            });
-            if (count === 0) html += '<span class="text-[10px] text-zinc-500 italic">Sin condecoraciones</span>';
-            html += '</div>';
-            return html;
-        }
-
-        const categoriaConfig = {
-            'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
-            'TURBO': { colorBadge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30', bordeCard: 'border-yellow-500/30 hover:border-yellow-400/60', bgCard: 'bg-gradient-to-r from-yellow-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🚀', colorVenta: 'text-yellow-300', colorBtn: 'bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black' },
-            'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
-            'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
-            'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
-            'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
-            'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30 hover:border-teal-400/60', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
-            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
-            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
-        };
 
         const catalogo = [
             { id: 27, categoria: 'GENERAL', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
@@ -1150,8 +1409,8 @@
             // SECCIÓN INDEPENDIENTE PARA EL TURBO
             { id: 29, categoria: 'TURBO', nombre: 'Turbo', venta: 10000, costo: 7000 },
 
-            // DRIFT Y NITRO CON PRECIOS ACTUALIZADOS (Nitro: $500K con 1 botella incluida -> paquete con 2 botellas adicionales = 3 en total)
-            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1100000 },
+            // DRIFT Y NITRO CON PRECIOS SOLICITADOS
+            { id: 24, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 200000 },
             { id: 26, categoria: 'DRIFT Y NITRO', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
             
@@ -1174,12 +1433,12 @@
                 costo: 95000, 
                 esCombo: true,
                 componentes: [
-                    { id: 8, cantidad: 1 },  // Motor V8
-                    { id: 15, cantidad: 1 }, // Frenos Cerámicos
-                    { id: 9, cantidad: 1 },  // Tracción AWD
-                    { id: 12, cantidad: 1 }, // Slick
-                    { id: 29, cantidad: 1 }, // Turbo
-                    { id: 1, cantidad: 3 },  // 3x Rendimiento
+                    { id: 8, cantidad: 1 },  // Motor V8 ($50,000)
+                    { id: 15, cantidad: 1 }, // Frenos Cerámicos ($20,000)
+                    { id: 9, cantidad: 1 },  // Tracción AWD ($12,500)
+                    { id: 12, cantidad: 1 }, // Slick ($6,000)
+                    { id: 29, cantidad: 1 }, // Turbo ($10,000)
+                    { id: 1, cantidad: 3 },  // 3x Rendimiento ($30,000)
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V8 PRO', ventaPersonalizada: 11500, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
@@ -1235,422 +1494,37 @@
             { 
                 id: 22, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'La Nitrosa — Kit de Nitro + 2 Botellas Extra', 
-                venta: 900000, 
-                costo: 400000, 
+                nombre: 'La Nitrosa — 3 Kits de Instalación de Nitro', 
+                venta: 1200000, 
+                costo: 600000, 
                 esCombo: true,
                 componentes: [
-                    { id: 25, cantidad: 1 }, // Kit Nitro ($500,000 - incluye 1 botella)
-                    { id: 26, cantidad: 2 }, // 2x Botellas extra ($400,000)
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Nitro', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                    { id: 25, cantidad: 3 }, // 3x Kits de Instalación de Nitro ($1,500,000 en valor individual)
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Ajuste Especial Paquete La Nitrosa', ventaPersonalizada: -300000, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
             { 
                 id: 23, 
                 categoria: 'PAQUETES ESPECIALES', 
-                nombre: 'Kit Need for Speed — Drift + Nitro + 2 Botellas Extra', 
-                venta: 2400000, 
-                costo: 1500000, 
+                nombre: 'Kit Need for Speed — Drift + Nitro', 
+                venta: 1800000, 
+                costo: 1400000, 
                 esCombo: true,
                 componentes: [
                     { id: 24, cantidad: 1 }, // Kit Drift ($1,500,000)
-                    { id: 25, cantidad: 1 }, // Kit Nitro ($500,000 - incluye 1 botella)
-                    { id: 26, cantidad: 2 }, // 2x Botellas extra ($400,000)
-                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación NFS', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                    { id: 25, cantidad: 1 }, // Kit Nitro ($500,000)
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Ajuste Especial Paquete Speed', ventaPersonalizada: -200000, costoPersonalizado: 0, noDescuento: true }
                 ]
             }
         ];
 
-        let usuarioActual = null;
-        let pestanaActiva = 'calculadora';
-        let esModoRegistro = false;
-        let carrito = {};
-        let descuentoPorcentaje = 0;
-        let convenioActivo = null;
-        let listaConvenios = [];
-        let modoPrecioFabrica = false;
-        let facturasAdminGlobal = [];
-        let usuariosAdminGlobal = [];
-        let facturaIdParaTransferir = null;
-        let usuariosOnlineSet = new Set();
-        let catalogoRenderizado = false;
-
-        function formatearFechaIngreso(fechaStr) {
-            if (!fechaStr) return 'Reciente';
-            const d = new Date(fechaStr);
-            return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
-        }
-
-        function obtenerClaveRango(rol, comision) {
-            if (rol === 'jefe' || Number(comision) === -1) return 'jefe';
-            if (Number(comision) === 0 && rol !== 'jefe') return 'subjefe';
-            if (Number(comision) >= 45) return 'encargado';
-            if (Number(comision) === 40) return 'experto';
-            if (Number(comision) === 35) return 'mecanico';
-            return 'pruebas';
-        }
-
-        function obtenerBadgeRango(rol, comision) {
-            let badgeAdmin = rol === 'admin' ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/40 px-1.5 py-0.5 rounded text-[9px] font-black uppercase ml-1">👑 Admin</span>' : '';
-            const com = Number(comision);
-
-            if (rol === 'jefe' || com === -1) {
-                return `<span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/50 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-[0_0_10px_rgba(245,158,11,0.2)]">👑 Jefe (0%)</span>`;
-            }
-            if (com === 0) {
-                return `<span class="inline-flex items-center gap-1 bg-rose-500/15 text-rose-400 border border-rose-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🛡️ Subjefe (0%)${badgeAdmin}</span>`;
-            }
-            if (com >= 45) {
-                return `<span class="inline-flex items-center gap-1 bg-yellow-500/15 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">👔 Encargado (${com}%)${badgeAdmin}</span>`;
-            }
-            if (com === 40) {
-                return `<span class="inline-flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">⭐ M. Experto (${com}%)${badgeAdmin}</span>`;
-            }
-            if (com === 35) {
-                return `<span class="inline-flex items-center gap-1 bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔧 Mecánico (${com}%)${badgeAdmin}</span>`;
-            }
-            return `<span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">🔰 En Pruebas (${com || 30}%)${badgeAdmin}</span>`;
-        }
-
-        function obtenerClaseColorNombre(rol, comision) {
-            if (rol === 'jefe' || comision == -1) return 'text-amber-300 font-black';
-            if (comision == 0) return 'text-rose-400 font-black';
-            if (comision >= 45) return 'text-yellow-300 font-black';
-            if (comision >= 40) return 'text-purple-300 font-bold';
-            if (comision >= 35) return 'text-cyan-300 font-bold';
-            return 'text-emerald-300 font-bold';
-        }
-
-        // CONVENIOS
-        async function cargarConvenios() {
-            try {
-                const res = await fetch('/api/convenios');
-                listaConvenios = await res.json();
-                renderizarConveniosCalculadora();
-                renderizarConveniosAdmin();
-            } catch (e) {}
-        }
-
-        function renderizarConveniosCalculadora() {
-            const container = document.getElementById('contenedorBotonesConvenios');
-            if (!container) return;
-
-            let html = `
-                <button onclick="seleccionarConvenio(null)" class="px-3 py-2 rounded-xl text-xs font-black border transition ${!convenioActivo ? 'bg-cyan-600 text-white border-cyan-400 shadow-sm' : 'bg-black/60 text-zinc-400 border-zinc-800 hover:text-white'}">
-                    ❌ Sin Convenio
-                </button>
-            `;
-
-            listaConvenios.forEach(conv => {
-                const activo = convenioActivo && convenioActivo.id === conv.id;
-                html += `
-                    <button onclick="seleccionarConvenio(${conv.id})" class="px-3 py-2 rounded-xl text-xs font-black border transition flex items-center justify-between gap-1.5 ${activo ? 'bg-amber-500 text-black border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)]' : 'bg-black/60 text-amber-300 border-amber-500/30 hover:border-amber-400'}">
-                        <span class="truncate">${conv.faccion}</span>
-                        <span class="px-1.5 py-0.5 rounded text-[10px] ${activo ? 'bg-black text-amber-400' : 'bg-amber-500/20 text-amber-300'} font-black">${conv.porcentaje}%</span>
-                    </button>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        function seleccionarConvenio(id) {
-            if (id === null) {
-                convenioActivo = null;
-                document.getElementById('tagConvenioSeleccionado').innerText = 'Ningún convenio aplicado';
-                aplicarDescuento(0);
-            } else {
-                const conv = listaConvenios.find(c => c.id === id);
-                if (conv) {
-                    convenioActivo = conv;
-                    document.getElementById('tagConvenioSeleccionado').innerHTML = `Convenio: <strong class="text-amber-400 uppercase">${conv.faccion} (${conv.porcentaje}%)</strong>`;
-                    
-                    const inputCliente = document.getElementById('nombreCliente');
-                    if (!inputCliente.value.includes(conv.faccion)) {
-                        inputCliente.value = `${conv.faccion} - ${inputCliente.value}`.trim().replace(/^ - /, '');
-                        document.getElementById('nombreClienteText').innerText = inputCliente.value;
-                    }
-                    aplicarDescuento(conv.porcentaje);
-                }
-            }
-            renderizarConveniosCalculadora();
-        }
-
-        function renderizarConveniosAdmin() {
-            const container = document.getElementById('listaConveniosAdmin');
-            if (!container) return;
-
-            if (listaConvenios.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500 italic col-span-full">No hay convenios registrados.</p>';
-                return;
-            }
-
-            let html = '';
-            listaConvenios.forEach(conv => {
-                html += `
-                    <div class="flex justify-between items-center bg-black/80 p-3.5 rounded-xl border border-zinc-800">
-                        <div>
-                            <span class="font-bold text-white text-xs uppercase">${conv.faccion}</span>
-                            <span class="ml-2 text-xs font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">${conv.porcentaje}% DCTO</span>
-                        </div>
-                        <button onclick="eliminarConvenio(${conv.id})" class="text-rose-400 hover:text-rose-300 text-xs font-bold px-2.5 py-1 bg-rose-500/10 rounded-lg border border-rose-500/20 transition">
-                            🗑️ Retirar
-                        </button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        async function guardarNuevoConvenio() {
-            const faccion = document.getElementById('inpNombreConvenio').value.trim();
-            const porcentaje = parseInt(document.getElementById('inpPorcentajeConvenio').value);
-
-            if (!faccion || isNaN(porcentaje) || porcentaje <= 0 || porcentaje > 50) {
-                return mostrarAviso('Datos Inválidos', 'Ingresa el nombre de la facción y un porcentaje entre 1% y 50%.');
-            }
-
-            const res = await fetch('/api/convenios', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ faccion, porcentaje, usuario_nombre: usuarioActual.nombre })
-            });
-
-            if (res.ok) {
-                document.getElementById('inpNombreConvenio').value = '';
-                document.getElementById('inpPorcentajeConvenio').value = '';
-                mostrarAviso('Convenio Creado', `Convenio de ${porcentaje}% guardado para ${faccion}.`);
-                cargarConvenios();
-            } else {
-                const data = await res.json();
-                mostrarAviso('Error', data.error, true);
-            }
-        }
-
-        async function eliminarConvenio(id) {
-            if (!confirm('¿Deseas retirar este convenio?')) return;
-            const res = await fetch(`/api/convenios/${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                if (convenioActivo && convenioActivo.id === id) seleccionarConvenio(null);
-                cargarConvenios();
-            }
-        }
-
-        let debounceTimer = null;
-        socket.on('online_users_update', (onlineList) => {
-            actualizarBarraOnline(onlineList);
-            if (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe') && pestanaActiva === 'admin') cargarGestionAdmin();
-            if (pestanaActiva === 'top') cargarTop();
-        });
-
-        socket.on('db_update', (data) => {
-            if (data.evento === 'convenios_actualizados') cargarConvenios();
-
-            if (data.evento === 'nueva_factura' && data.total) {
-                let tieneV12 = false;
-                if (data.items && Array.isArray(data.items)) {
-                    tieneV12 = data.items.some(it => it.id === 7 || it.id === 20 || it.id === 21);
-                }
-
-                mostrarLiveFeedVenta(data.usuario_nombre || 'Un mecánico', data.cliente, data.total);
-
-                if (data.total >= 500000 || tieneV12) {
-                    mostrarAviso(
-                        '🔥 ¡VENTA ÉPICA REGISTRADA!', 
-                        `👷 ${data.usuario_nombre} acaba de cerrar una orden de $${data.total.toLocaleString()} para ${data.cliente}`
-                    );
-                    if (typeof confetti === 'function') {
-                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
-                    }
-                }
-            }
-
-            if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
-                usuarioActual = null;
-                actualizarVistaUsuario();
-                return;
-            }
-
-            if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                usuarioActual.comision_porcentaje = data.comision_porcentaje;
-                usuarioActual.rol = data.rol;
-                actualizarVistaUsuario();
-            }
-
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                if (pestanaActiva === 'historial') cargarHistorial();
-                if (pestanaActiva === 'almacen' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarAlmacen();
-                if (pestanaActiva === 'top') cargarTop();
-                if (pestanaActiva === 'admin' && (usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe'))) cargarGestionAdmin();
-                actualizarBarraNivelHeader();
-            }, 250);
-        });
-
-        function mostrarLiveFeedVenta(trabajador, cliente, total) {
-            const feed = document.getElementById('liveFeedVentas');
-            const texto = document.getElementById('liveFeedTexto');
-            texto.innerText = `¡${trabajador} acaba de cerrar una orden de $${total.toLocaleString()} para ${cliente}!`;
-            feed.classList.remove('hidden');
-            setTimeout(() => { feed.classList.add('hidden'); }, 6500);
-        }
-
-        async function actualizarBarraNivelHeader() {
-            if (!usuarioActual) return;
-            try {
-                const res = await fetch(`/api/mis-facturas/${usuarioActual.id}`);
-                const facturas = await res.json();
-                let totalVendido = 0;
-                facturas.forEach(f => totalVendido += f.total_cliente);
-                
-                const stats = calcularNivelYProgreso(totalVendido, usuarioActual.id);
-                const miAvatar = obtenerAvatarTrabajador(usuarioActual.id);
-
-                document.getElementById('headerAvatarContainer').innerHTML = renderLolAvatar(miAvatar, stats.nivel, 52);
-                document.getElementById('headerRankCrestContainer').innerHTML = stats.rank.crestSvg;
-
-                document.getElementById('badgeNivelHeader').classList.remove('hidden');
-                document.getElementById('badgeNivelHeader').classList.add('flex');
-                document.getElementById('txtNivelHeader').innerText = `Nivel ${stats.nivel}`;
-                document.getElementById('txtTituloNivelHeader').innerText = stats.titulo;
-                document.getElementById('barraProgresoXPHeader').style.width = `${stats.porcentaje}%`;
-
-                const racha = calcularRachaDiaria(usuarioActual.id);
-                document.getElementById('badgeRachaHeader').classList.remove('hidden');
-                document.getElementById('badgeRachaHeader').classList.add('flex');
-                document.getElementById('txtRachaHeader').innerText = `${racha} ${racha === 1 ? 'día' : 'días'}`;
-            } catch (e) {}
-        }
-
-        function mostrarAviso(titulo, mensaje, esError = false) {
-            document.getElementById('modalAvisoTitulo').innerText = titulo;
-            document.getElementById('modalAvisoMensaje').innerText = mensaje;
-            const icono = document.getElementById('modalAvisoIcono');
-            icono.innerText = esError ? '❌' : '⚠️';
-            icono.className = `w-12 h-12 ${esError ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'} rounded-full flex items-center justify-center mx-auto text-2xl font-bold border`;
-            document.getElementById('modalAviso').classList.remove('hidden');
-        }
-
-        function cerrarModalAviso() {
-            document.getElementById('modalAviso').classList.add('hidden');
-        }
-
-        function actualizarBarraOnline(onlineList) {
-            usuariosOnlineSet = new Set(onlineList.map(u => Number(u.id)));
-            document.getElementById('txtOnlineCount').innerText = `${onlineList.length} en línea`;
-
-            const contenedor = document.getElementById('listaUsuariosOnlineChips');
-            const barra = document.getElementById('barraUsuariosOnline');
-            
-            if (!usuarioActual || onlineList.length === 0) {
-                barra.classList.add('hidden');
-                return;
-            }
-
-            barra.classList.remove('hidden');
-            let chipsHTML = '';
-            onlineList.forEach(u => {
-                const colorClase = obtenerClaseColorNombre(u.rol, u.comision_porcentaje ?? (u.rol === 'admin' ? 0 : 30));
-                const esAdminOJefe = u.rol === 'admin' || u.rol === 'jefe';
-                const avatar = obtenerAvatarTrabajador(u.id);
-                chipsHTML += `
-                    <div class="flex items-center gap-2 bg-black/90 px-3 py-1.5 rounded-xl border border-zinc-800 shadow-sm">
-                        <img src="${avatar}" class="w-5 h-5 rounded-full object-cover" />
-                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_6px_#10b981]"></span>
-                        <span class="${colorClase}">${u.nombre}</span>
-                        ${esAdminOJefe ? '<span class="text-[9px] text-amber-400 font-bold">👑</span>' : ''}
-                        <span class="text-[10px] text-zinc-500">(@${u.usuario})</span>
-                    </div>
-                `;
-            });
-            contenedor.innerHTML = chipsHTML;
-        }
-
-        function togglePrecioFabrica() {
-            const esAdminOJefe = usuarioActual && (usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe');
-            if (!esAdminOJefe) {
-                document.getElementById('checkPrecioFabrica').checked = false;
-                modoPrecioFabrica = false;
-                return mostrarAviso('Acceso Restringido', 'Solo los administradores y jefes pueden cobrar a precio de fábrica.', true);
-            }
-
-            modoPrecioFabrica = document.getElementById('checkPrecioFabrica').checked;
-            if (modoPrecioFabrica) {
-                descuentoPorcentaje = 0;
-                document.getElementById('inputDescuentoManual').value = '';
-                document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
-            }
-
-            document.getElementById('seccionDescuentosContenedor').classList.toggle('opacity-40', modoPrecioFabrica);
-            document.getElementById('seccionDescuentosContenedor').classList.toggle('pointer-events-none', modoPrecioFabrica);
-            
-            actualizarCarrito();
-        }
-
-        function actualizarVistaUsuario() {
-            const container = document.getElementById('userInfo');
-            const btnAdmin = document.getElementById('tab-admin');
-            const btnAlmacen = document.getElementById('tab-almacen');
-            const contModoFabrica = document.getElementById('contenedorModoFabrica');
-
-            if (usuarioActual) {
-                const esAdminOJefe = usuarioActual.rol === 'admin' || usuarioActual.rol === 'jefe';
-                if (esAdminOJefe) {
-                    btnAdmin.classList.remove('hidden');
-                    btnAlmacen.classList.remove('hidden');
-                    contModoFabrica.classList.remove('hidden');
-                } else {
-                    btnAdmin.classList.add('hidden');
-                    btnAlmacen.classList.add('hidden');
-                    contModoFabrica.classList.add('hidden');
-                    modoPrecioFabrica = false;
-                    document.getElementById('checkPrecioFabrica').checked = false;
-                }
-
-                container.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
-                        ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
-                    </div>
-                    <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
-                `;
-                document.getElementById('seccion-auth').classList.add('hidden');
-                cambiarPestana('calculadora');
-                cambiarZonaHorariaFacturas(zonaHorariaActiva);
-                actualizarBarraNivelHeader();
-                cargarConvenios();
-
-                socket.emit('user_connected', usuarioActual);
-            } else {
-                btnAdmin.classList.add('hidden');
-                btnAlmacen.classList.add('hidden');
-                contModoFabrica.classList.add('hidden');
-                modoPrecioFabrica = false;
-                document.getElementById('barraUsuariosOnline').classList.add('hidden');
-                document.getElementById('badgeNivelHeader').classList.add('hidden');
-                document.getElementById('badgeRachaHeader').classList.add('hidden');
-                container.innerHTML = `<span>No has iniciado sesión</span>`;
-                document.getElementById('seccion-auth').classList.remove('hidden');
-                ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'].forEach(s => {
-                    const el = document.getElementById(`seccion-${s}`);
-                    if (el) el.classList.add('hidden');
-                });
-            }
-        }
-
-        function toggleModoAuth() {
-            esModoRegistro = !esModoRegistro;
-            document.getElementById('campoNombre').classList.toggle('hidden', !esModoRegistro);
-            document.getElementById('authTitle').innerText = esModoRegistro ? 'Crear Cuenta' : 'Acceso AutoExotic';
-            document.getElementById('btnAuth').innerText = esModoRegistro ? 'Registrar Trabajador' : 'Ingresar al Sistema';
-            document.getElementById('toggleText').innerText = esModoRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
-            document.getElementById('toggleBtn').innerText = esModoRegistro ? 'Ingresa aquí' : 'Regístrate';
-        }
-
         async function procesarAuth() {
             const usuario = document.getElementById('authUsuario').value.trim();
             const password = document.getElementById('authPassword').value.trim();
+
+            if (!usuario || !password) {
+                return mostrarAviso('Campos Requeridos', 'Por favor llena tanto el usuario como la contraseña.');
+            }
 
             if (esModoRegistro) {
                 const nombre = document.getElementById('regNombre').value.trim();
@@ -1673,6 +1547,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     usuarioActual = data;
+                    await cargarUsuariosGlobales();
                     actualizarVistaUsuario();
                 } else mostrarAviso('Error de Acceso', data.error, true);
             }
@@ -1700,7 +1575,7 @@
 
             pestanaActiva = pestana;
 
-            const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin'];
+            const tabs = ['calc', 'almacen', 'combos', 'hist', 'top', 'admin', 'tienda'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 if (btn) btn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800 transition';
@@ -1709,7 +1584,7 @@
             const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
             if (targetBtn) targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs btn-ae-action transition';
 
-            const secciones = ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin'];
+            const secciones = ['calculadora', 'almacen', 'combos', 'historial', 'top', 'admin', 'tienda'];
             secciones.forEach(s => {
                 const el = document.getElementById(`seccion-${s}`);
                 if (el) {
@@ -1727,8 +1602,10 @@
             if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
             if (pestana === 'historial') cargarHistorial();
             if (pestana === 'top') cargarTop();
+            if (pestana === 'tienda') cargarTienda();
             if (pestana === 'admin' && esAdminOJefe) {
                 cargarGestionAdmin();
+                cargarPedidosAdmin();
                 cargarConvenios();
             }
         }
@@ -2007,6 +1884,8 @@
             contenedorSecciones.innerHTML = htmlFinal;
             selectFiltro.innerHTML = optionsHTML;
             if (valorPrevio) selectFiltro.value = valorPrevio;
+
+            cargarGestionPuntos();
 
             const resFacturas = await fetch('/api/admin/todas-facturas');
             facturasAdminGlobal = await resFacturas.json();
@@ -2442,7 +2321,6 @@
             }
         }
 
-        // AGREGAR: Desglosa los combos en piezas individuales + Mano de Obra para cuadrar el precio total oficial
         function agregar(id) {
             const itemSeleccionado = catalogo.find(x => x.id === id);
             if (!itemSeleccionado) return;
@@ -2450,7 +2328,6 @@
             if (itemSeleccionado.esCombo && itemSeleccionado.componentes) {
                 itemSeleccionado.componentes.forEach(comp => {
                     if (comp.id === 99) {
-                        // Ítem de mano de obra
                         const idManoObra = `mano_obra_${id}`;
                         if (!carrito[idManoObra]) {
                             carrito[idManoObra] = {
@@ -2551,7 +2428,6 @@
                     subtotalBruto += subtotalLinea;
                     totalCantidad += item.cantidad;
 
-                    // REGLA: Motor V12 (id: 7) y Mano de Obra (noDescuento) están protegidos
                     const admiteDescuento = !modoPrecioFabrica && !item.noDescuento && item.id !== 7 && descuentoPorcentaje > 0;
                     const pctLinea = admiteDescuento ? descuentoPorcentaje : 0;
                     const descuentoLinea = subtotalLinea * (pctLinea / 100);
@@ -2623,7 +2499,7 @@
             const btn = document.getElementById('btnRealizarOrden');
 
             if (!usuarioActual) return mostrarAviso('Acceso Requerido', 'Inicia sesión primero.');
-            if (items.length === 0) return mostrarAvspace('Carrito Vacío', 'Selecciona al menos un producto o combo.');
+            if (items.length === 0) return mostrarAviso('Carrito Vacío', 'Selecciona al menos un producto o combo.');
             if (!cliente) return mostrarAviso('Datos Incompletos', 'Ingresa el nombre del cliente.');
 
             btn.disabled = true;
@@ -2690,8 +2566,10 @@
             document.getElementById('modalExito').classList.add('hidden');
         }
 
-        actualizarVistaUsuario();
-        renderCatalogo();
+        cargarUsuariosGlobales().then(() => {
+            actualizarVistaUsuario();
+            renderCatalogo();
+        });
     </script>
 </body>
 </html>
