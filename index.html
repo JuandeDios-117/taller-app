@@ -668,11 +668,11 @@
             </div>
         </div>
 
-        <!-- TOP TRABAJADORES (CON BADGE DE PUNTOS Y EMOJIS) -->
+        <!-- TOP TRABAJADORES (CON PUNTOS EN VIVO) -->
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
-                <p class="text-xs text-zinc-400">Ranking oficial con niveles y medallas destacadas.</p>
+                <p class="text-xs text-zinc-400">Ranking oficial con niveles, medallas y puntos actualizados en tiempo real.</p>
             </div>
             <div id="topContenedor" class="space-y-4"></div>
         </div>
@@ -1162,15 +1162,15 @@
         }
 
         const categoriaConfig = {
-            'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
-            'TURBO': { colorBadge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30', bordeCard: 'border-yellow-500/30 hover:border-yellow-400/60', bgCard: 'bg-gradient-to-r from-yellow-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🚀', colorVenta: 'text-yellow-300', colorBtn: 'bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black' },
-            'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
-            'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
-            'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
-            'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
-            'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30 hover:border-teal-400/60', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
-            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
-            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
+            'GENERAL': { colorBadge: 'bg-purple-500/10 text-purple-400 border-purple-500/30', bordeCard: 'border-purple-500/30 hover:border-purple-400/60', bgCard: 'bg-gradient-to-r from-purple-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛠️', emoji: '🔧', colorVenta: 'text-purple-300', colorBtn: 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black' },
+            'TURBO': { colorBadge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30', bordeCard: 'border-yellow-500/30 hover:border-yellow-400/60', bgCard: 'bg-gradient-to-r from-yellow-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🚀', emoji: '🚀', colorVenta: 'text-yellow-300', colorBtn: 'bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-black' },
+            'DRIFT Y NITRO': { colorBadge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30', bordeCard: 'border-cyan-500/30 hover:border-cyan-400/60', bgCard: 'bg-gradient-to-r from-cyan-950/20 via-zinc-950/70 to-zinc-950/70', icon: '💨', emoji: '🏎️', colorVenta: 'text-cyan-300', colorBtn: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black font-black' },
+            'MOTOR': { colorBadge: 'bg-blue-500/10 text-blue-400 border-blue-500/30', bordeCard: 'border-blue-500/30 hover:border-blue-400/60', bgCard: 'bg-gradient-to-r from-blue-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚙️', emoji: '⚙️', colorVenta: 'text-blue-300', colorBtn: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black' },
+            'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', emoji: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
+            'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', emoji: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
+            'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30 hover:border-teal-400/60', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', emoji: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
+            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', emoji: '📦', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
+            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', emoji: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
         };
 
         const catalogo = [
@@ -1364,7 +1364,6 @@
             return 'text-emerald-300 font-bold';
         }
 
-        // CONVENIOS
         async function cargarConvenios() {
             try {
                 const res = await fetch('/api/convenios');
@@ -1486,6 +1485,7 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
+        // ESCUCHA DE EVENTOS WEBSOCKETS EN TIEMPO REAL
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
 
@@ -1524,6 +1524,11 @@
 
             if (data.evento === 'pedido_puntos_creado' || data.evento === 'pedido_puntos_actualizado') {
                 if (pestanaActiva === 'admin') cargarPedidosAdmin();
+            }
+
+            // ACTUALIZACIÓN DIRECTA E INMEDIATA DEL TOP TRABAJADORES
+            if (pestanaActiva === 'top' || data.evento === 'nueva_factura' || data.evento === 'usuario_modificado' || data.evento === 'pedido_puntos_creado' || data.evento === 'pedido_puntos_actualizado') {
+                cargarTop();
             }
 
             clearTimeout(debounceTimer);
@@ -1662,7 +1667,7 @@
                     <div class="flex items-center gap-2">
                         <span>👷 <strong class="${obtenerClaseColorNombre(usuarioActual.rol, usuarioActual.comision_porcentaje)}">${usuarioActual.nombre}</strong></span>
                         ${obtenerBadgeRango(usuarioActual.rol, usuarioActual.comision_porcentaje)}
-                        <span class="ml-2 font-black text-fuchsia-400 text-xs bg-fuchsia-500/10 px-2 py-0.5 rounded border border-fuchsia-500/30">🪙 ${usuarioActual.puntos || 0} Pts</span>
+                        <span class="ml-2 font-black text-fuchsia-400 text-xs bg-fuchsia-500/15 border border-fuchsia-500/40 px-2.5 py-0.5 rounded-lg shadow-sm">🪙 ${usuarioActual.puntos || 0} Pts</span>
                     </div>
                     <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
                 `;
@@ -2279,6 +2284,7 @@
             container.innerHTML = html;
         }
 
+        // TOP TRABAJADORES CON PUNTOS ACTUALIZADOS EN VIVO
         async function cargarTop() {
             try {
                 const res = await fetch('/api/top-trabajadores');
@@ -2313,6 +2319,7 @@
                                         <span class="text-xs text-zinc-500">(@${item.usuario})</span>
                                         <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
                                         ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
+                                        <!-- BADGE DE PUNTOS DINÁMICO EN EL TOP -->
                                         <span class="text-[11px] font-black bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/50 px-2.5 py-0.5 rounded-lg shadow-sm">
                                             🪙 ${item.puntos || 0} Pts
                                         </span>
@@ -2654,7 +2661,7 @@
                         <div class="flex justify-between items-center text-xs bg-zinc-950 p-2.5 rounded-xl border border-zinc-800/80">
                             <div>
                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                    <h4 class="font-black text-white text-xs">${item.nombre}</h4>
+                                    <h4 class="font-black text-white text-xs flex items-center gap-1"><span>${item.emoji || '🔧'}</span> ${item.nombre}</h4>
                                     ${badgeEspecial}
                                 </div>
                                 <p class="text-zinc-400 mt-0.5">
@@ -2765,6 +2772,7 @@
                     document.querySelectorAll('.btn-desc').forEach(b => b.classList.remove('ring-2', 'ring-cyan-400'));
                     
                     actualizarBarraNivelHeader();
+                    cargarTop();
                 } else {
                     mostrarAviso('Almacén Insuficiente', data.error, true);
                 }
@@ -2788,7 +2796,7 @@
             catalogo.forEach(item => {
                 if (item.id === 99) return;
                 const costoPuntos = Math.max(1, Math.floor(item.costo / 1000));
-                const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.icon || '🎁');
+                const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.emoji || '🎁');
                 const badgeCombo = item.esCombo ? '<span class="ml-1 text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-black">COMBO</span>' : '';
 
                 html += `
@@ -2801,8 +2809,8 @@
                             <h4 class="font-black text-white text-sm leading-tight">${item.nombre} ${badgeCombo}</h4>
                             <p class="text-[11px] text-zinc-400 mt-1">Precio ref: $${item.venta.toLocaleString()}</p>
                         </div>
-                        <button onclick="pedirItemTienda('${item.nombre}', ${costoPuntos})" class="mt-4 w-full bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-black py-2 rounded-lg text-xs uppercase tracking-wider transition shadow-lg shadow-fuchsia-600/20">
-                            Pedir • 🪙 ${costoPuntos} Pts
+                        <button onclick="pedirItemTienda('${item.nombre}', ${costoPuntos})" class="mt-4 w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black py-2 rounded-lg text-xs uppercase tracking-wider transition shadow-lg shadow-fuchsia-600/20 flex items-center justify-center gap-1.5">
+                            <span>🛒 Pedir</span> • <span>🪙 ${costoPuntos} Pts</span>
                         </button>
                     </div>
                 `;
@@ -2821,8 +2829,8 @@
             if (res.ok) {
                 mostrarAviso('Pedido Exitoso', 'Tu petición fue enviada a los administradores.');
                 usuarioActual.puntos -= costo_puntos;
-                document.getElementById('tiendaMisPuntos').innerText = `🪙 ${usuarioActual.puntos}`;
                 actualizarVistaUsuario();
+                cargarTop();
             } else mostrarAviso('Error', data.error, true);
         }
 

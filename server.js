@@ -23,7 +23,6 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tablas y columnas protegidas
 (async function initDB() {
     try {
         await db.execute(`
@@ -49,7 +48,6 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
 
-        // Retroactividad: Asignar 1 punto por cada $50,000 cobrados históricamente a los que tengan 0 o NULL
         try {
             await db.execute(`
                 UPDATE usuarios 
@@ -366,7 +364,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA (Borra facturas pero conserva usuarios y sus puntos intactos)
+// 12. REINICIAR SEMANA
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -452,7 +450,6 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        // Sumar 1 punto por cada $50,000
         const puntosGanados = Math.floor(total_cliente / 50000) || 1;
         try {
             await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] });
@@ -522,7 +519,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES (CON FALLBACK TOTAL DE SEGURIDAD)
+// 16. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -586,7 +583,7 @@ app.post('/api/pedidos-puntos', async (req, res) => {
         await db.execute({ sql: "UPDATE usuarios SET puntos = puntos - ? WHERE id = ?", args: [costo_puntos, usuario_id] });
         await db.execute({ sql: "INSERT INTO pedidos_puntos (usuario_id, item_nombre, costo_puntos) VALUES (?, ?, ?)", args: [usuario_id, item_nombre, costo_puntos] });
         
-        notificarCambioGlobal('pedido_puntos_creado');
+        notificarCambioGlobal('pedido_puntos_creado', { usuario_id: Number(usuario_id) });
         res.json({ message: "Pedido realizado con éxito." });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
