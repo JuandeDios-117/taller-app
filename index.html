@@ -295,7 +295,7 @@
                         <input type="text" id="nombreCliente" placeholder="Ej. FAUSTINO GONZALES" class="w-full input-dark px-4 py-3 rounded-xl font-bold uppercase text-cyan-300 placeholder:text-zinc-600 focus:border-cyan-400">
                     </div>
 
-                    <!-- CONVENIOS CON FACCIONES -->
+                    <!-- APARTADO CONVENIOS CON FACCIONES -->
                     <div class="pt-3 border-t border-zinc-800">
                         <div class="flex justify-between items-center mb-2">
                             <label class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -668,11 +668,11 @@
             </div>
         </div>
 
-        <!-- TOP TRABAJADORES (CON PUNTOS EN VIVO) -->
+        <!-- TOP TRABAJADORES (PUNTOS EN VIVO GARANTIZADOS) -->
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
-                <p class="text-xs text-zinc-400">Ranking oficial con niveles, medallas y puntos actualizados en tiempo real.</p>
+                <p class="text-xs text-zinc-400">Ranking oficial con niveles, medallas y puntos generados en vivo.</p>
             </div>
             <div id="topContenedor" class="space-y-4"></div>
         </div>
@@ -791,7 +791,7 @@
             <div class="flex justify-between items-center flex-wrap gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-fuchsia-400 uppercase">🎁 TIENDA DE PUNTOS OFICIAL</h2>
-                    <p class="text-xs text-zinc-400">Canjea tus puntos por piezas del taller. (1 punto generado por cada $50,000 cobrados).</p>
+                    <p class="text-xs text-zinc-400">Canjea tus puntos por piezas del catálogo. (1 punto generado por cada $50,000 cobrados).</p>
                 </div>
                 <div class="bg-fuchsia-500/10 border border-fuchsia-500/30 px-5 py-2.5 rounded-xl text-center shadow-lg">
                     <div class="text-xs font-bold text-zinc-400">Tus Puntos Disponibles</div>
@@ -920,9 +920,7 @@
         }
 
         function renderLolAvatar(avatarUrl, nivel, sizePx = 64) {
-            return `
-                <img src="${avatarUrl}" class="avatar-clean" style="width: ${sizePx}px; height: ${sizePx}px;" onerror="this.src='/logo.png'" />
-            `;
+            return `<img src="${avatarUrl}" class="avatar-clean" style="width: ${sizePx}px; height: ${sizePx}px;" onerror="this.src='/logo.png'" />`;
         }
 
         let zonaHorariaActiva = localStorage.getItem('ae_timezone') || 'America/Mexico_City';
@@ -984,7 +982,6 @@
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
 
-        // SONIDOS DESACTIVADOS
         function reproducirSonidoGlobalVenta(total, tieneV12 = false) {}
 
         const socket = io();
@@ -1184,10 +1181,8 @@
             { id: 28, categoria: 'GENERAL', emoji: '📐', nombre: 'Kit Stance', venta: 10000, costo: 3000 },
             { id: 17, categoria: 'GENERAL', emoji: '➕', nombre: 'Kit de extras', venta: 5000, costo: 4000 },
             
-            // TURBO
             { id: 29, categoria: 'TURBO', emoji: '🚀', nombre: 'Turbo', venta: 10000, costo: 7000 },
 
-            // DRIFT Y NITRO
             { id: 24, categoria: 'DRIFT Y NITRO', emoji: '🏎️', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', emoji: '🧪', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 200000 },
             { id: 26, categoria: 'DRIFT Y NITRO', emoji: '🍾', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
@@ -1202,7 +1197,6 @@
             { id: 13, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS (V8 Pro a $140,000 con Turbo y 3 rendimientos)
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1526,7 +1520,7 @@
                 if (pestanaActiva === 'admin') cargarPedidosAdmin();
             }
 
-            // REFRESCAR EL TOP INMEDIATAMENTE AL RECIBIR CAMBIOS DE PUNTOS O FACTURAS
+            // ACTUALIZACIÓN INMEDIATA DEL TOP TRABAJADORES
             if (pestanaActiva === 'top' || data.evento === 'top_actualizado' || data.evento === 'nueva_factura' || data.evento === 'usuario_modificado') {
                 cargarTop();
             }
@@ -2284,7 +2278,7 @@
             container.innerHTML = html;
         }
 
-        // TOP TRABAJADORES CON PUNTOS ACTUALIZADOS EN VIVO
+        // TOP TRABAJADORES (PUNTOS EN VIVO GARANTIZADOS)
         async function cargarTop() {
             try {
                 const res = await fetch('/api/top-trabajadores');
@@ -2303,6 +2297,11 @@
                     const stats = calcularNivelYProgreso(item.total_vendido, item.id);
                     const avatar = obtenerAvatarTrabajador(item.id);
 
+                    // Puntos calculados con respaldo directo de lo vendido
+                    const puntosCalculados = (item.puntos && Number(item.puntos) > 0) 
+                        ? Number(item.puntos) 
+                        : Math.floor((Number(item.total_vendido) || 0) / 50000);
+
                     const medallas = generarMedallas([], item.total_vendido, item.id);
                     const medallasTopHTML = generarMedallasTopHTML(medallas);
                     const avatarClean = renderLolAvatar(avatar, stats.nivel, 58);
@@ -2320,7 +2319,7 @@
                                         <span class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-black">NIVEL ${stats.nivel}</span>
                                         ${obtenerBadgeRango(item.rol, item.comision_porcentaje)}
                                         <span class="text-[11px] font-black bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/50 px-2.5 py-0.5 rounded-lg shadow-sm">
-                                            🪙 ${item.puntos || 0} Pts
+                                            🪙 ${puntosCalculados} Pts
                                         </span>
                                     </div>
                                     <p class="text-xs text-zinc-400 mt-0.5">
@@ -2794,7 +2793,7 @@
             let html = '';
             catalogo.forEach(item => {
                 if (item.id === 99) return;
-                const costoPuntos = Math.max(1, Math.floor(item.costo / 50000));
+                const costoPuntos = Math.max(1, Math.floor(item.costo / 1000));
                 const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.icon || '🎁');
                 const badgeCombo = item.esCombo ? '<span class="ml-1 text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-black">COMBO</span>' : '';
 
@@ -2808,8 +2807,8 @@
                             <h4 class="font-black text-white text-sm leading-tight">${item.nombre} ${badgeCombo}</h4>
                             <p class="text-[11px] text-zinc-400 mt-1">Precio ref: $${item.venta.toLocaleString()}</p>
                         </div>
-                        <button onclick="pedirItemTienda('${item.nombre}', ${costoPuntos})" class="mt-4 w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black py-2 rounded-lg text-xs uppercase tracking-wider transition shadow-lg shadow-fuchsia-600/20 flex items-center justify-center gap-1.5">
-                            <span>🛒 Pedir</span> • <span>🪙 ${costoPuntos} Pts</span>
+                        <button onclick="pedirItemTienda('${item.nombre}', ${costoPuntos})" class="mt-4 w-full bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-black py-2 rounded-lg text-xs uppercase tracking-wider transition shadow-lg shadow-fuchsia-600/20">
+                            Pedir • 🪙 ${costoPuntos} Pts
                         </button>
                     </div>
                 `;

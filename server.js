@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
+// Inicialización y sincronización de puntos históricos
 (async function initDB() {
     try {
         await db.execute(`
@@ -48,16 +49,16 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
 
-        // Retroactividad: 1 punto por cada $50,000 cobrados históricamente si están en 0 o NULL
+        // RECALCULAR PUNTOS DE TODOS CON BASE EN LO QUE YA HAN GENERADO (1 punto por cada $50,000)
         try {
             await db.execute(`
                 UPDATE usuarios 
                 SET puntos = (
-                    SELECT COALESCE(SUM(total_cliente), 0) / 50000 
+                    SELECT CAST(COALESCE(SUM(total_cliente), 0) / 50000 AS INTEGER)
                     FROM facturas 
                     WHERE facturas.usuario_id = usuarios.id
                 )
-                WHERE puntos IS NULL OR puntos = 0
+                WHERE id IN (SELECT DISTINCT usuario_id FROM facturas)
             `);
         } catch(e){}
     } catch (e) {
@@ -369,7 +370,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA
+// 12. REINICIAR SEMANA (Conserva puntos)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -386,7 +387,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA (1 punto por cada $50,000)
+// 13. REGISTRAR FACTURA (1 punto por cada $50,000 cobrados)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -526,11 +527,13 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES (Puntos dinámicos en tiempo real)
+// 16. TOP TRABAJADORES (Puntos dinámicos garantizados)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.puntos, 0) as puntos, u.avatar, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
+            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, 
+                   MAX(COALESCE(u.puntos, 0), CAST(COALESCE(SUM(f.total_cliente), 0) / 50000 AS INTEGER)) as puntos,
+                   u.avatar, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                    COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -555,7 +558,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
                 GROUP BY u.id
                 ORDER BY ganancia_generada DESC
             `);
-            res.json(fallback.rows.map(r => ({ ...r, puntos: 0, avatar: null })));
+            res.json(fallback.rows.map(r => ({ ...r, puntos: Math.floor((r.total_vendido || 0) / 50000), avatar: null })));
         } catch (e2) {
             res.status(500).json({ error: err.message });
         }
