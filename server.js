@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tablas
+// Inicializar tablas y columnas de puntos y avatar
 (async function initDB() {
     try {
         await db.execute(`
@@ -35,7 +35,6 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        // NUEVAS TABLAS Y COLUMNAS
         await db.execute(`
             CREATE TABLE IF NOT EXISTS pedidos_puntos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,8 +47,19 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
         `);
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
+
+        // Retroactividad: si el usuario no tiene puntos asignados, otorgarle 1 punto por cada $50,000 históricos facturados
+        await db.execute(`
+            UPDATE usuarios 
+            SET puntos = (
+                SELECT COALESCE(SUM(total_cliente), 0) / 50000 
+                FROM facturas 
+                WHERE facturas.usuario_id = usuarios.id
+            )
+            WHERE puntos IS NULL OR puntos = 0
+        `);
     } catch (e) {
-        console.error("Error iniciando tabla convenios o columnas:", e.message);
+        console.error("Error iniciando base de datos:", e.message);
     }
 })();
 
@@ -135,14 +145,14 @@ app.post('/api/register', async (req, res) => {
         const rolInicial = esPrimerUsuario ? 'jefe' : 'empleado';
         const comisionInicial = esPrimerUsuario ? 0 : 30;
 
-        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol) VALUES (?, ?, ?, ?, ?)`;
+        const sql = `INSERT INTO usuarios (nombre, usuario, password, comision_porcentaje, rol, puntos) VALUES (?, ?, ?, ?, ?, 0)`;
         const result = await db.execute({
             sql,
             args: [nombre, usuario.trim().toLowerCase(), password, comisionInicial, rolInicial]
         });
 
         notificarCambioGlobal('nuevo_usuario');
-        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial });
+        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial, puntos: 0 });
     } catch (err) {
         if (err.message && err.message.includes('UNIQUE')) {
             return res.status(400).json({ error: "El nombre de usuario ya está registrado." });
@@ -265,12 +275,7 @@ app.get('/api/usuarios', async (req, res) => {
         const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -280,9 +285,9 @@ app.put('/api/usuarios/modificar', async (req, res) => {
     try {
         await db.execute({
             sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ?, puntos = ? WHERE id = ?",
-            args: [comision_porcentaje, rol, puntos || 0, usuario_id]
+            args: [comision_porcentaje, rol, Number(puntos) || 0, usuario_id]
         });
-        notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol, puntos });
+        notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol, puntos: Number(puntos) || 0 });
         res.json({ message: "Usuario actualizado." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -294,6 +299,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
+        await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
         notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
         res.json({ message: "Cuenta eliminada correctamente." });
@@ -342,13 +348,13 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA
+// 12. REINICIAR SEMANA (Corte: liquida facturas pero conserva puntos y perfiles)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
         await db.execute("DELETE FROM facturas");
         await db.execute({
-            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas.', 0, ?)",
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas (puntos preservados).', 0, ?)",
             args: [usuario_nombre || 'Admin']
         });
         notificarCambioGlobal('reinicio_semana');
@@ -358,7 +364,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA
+// 13. REGISTRAR FACTURA (1 punto por cada $50,000)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -428,8 +434,8 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        // Otorgar 1 punto de tienda por cada $10,000 cobrados al cliente
-        const puntosGanados = Math.floor(total_cliente / 10000) || 1;
+        // REGLA: 1 punto por cada $50,000 cobrados (mínimo 1 punto si la factura tiene monto)
+        const puntosGanados = Math.floor(total_cliente / 50000) || 1;
         await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] });
 
         if (v8Necesarios > 0 || v12Necesarios > 0) {
@@ -458,6 +464,7 @@ app.post('/api/facturas', async (req, res) => {
             total: total_cliente,
             comision: comision_empleado,
             porcentaje_aplicado: user.comision,
+            puntos_ganados: puntosGanados,
             es_precio_fabrica: aplicarFabrica
         });
     } catch (err) {
@@ -495,7 +502,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES
+// 16. TOP TRABAJADORES (Incluye puntos guardados)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -512,26 +519,11 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const result = await db.execute(sql);
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.puntos, 0) as puntos, u.avatar, CURRENT_TIMESTAMP as created_at,
-                       COUNT(f.id) as total_facturas,
-                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
-                FROM usuarios u
-                LEFT JOIN facturas f ON u.id = f.usuario_id
-                GROUP BY u.id
-                ORDER BY ganancia_generada DESC
-            `);
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
-// ====== SISTEMA DE AVATARES Y TIENDA DE PUNTOS ======
+// AVATAR GLOBAL Y PEDIDOS TIENDA PUNTOS
 app.put('/api/usuarios/:id/avatar', async (req, res) => {
     try {
         await db.execute({ sql: "UPDATE usuarios SET avatar = ? WHERE id = ?", args: [req.body.avatar, req.params.id] });
