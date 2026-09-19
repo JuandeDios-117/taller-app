@@ -35,47 +35,21 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
-
+        // NUEVAS TABLAS Y COLUMNAS
         await db.execute(`
-            CREATE TABLE IF NOT EXISTS recompensas_usuarios (
-                usuario_id INTEGER PRIMARY KEY,
-                puntos INTEGER DEFAULT 0,
-                xp INTEGER DEFAULT 0
-            )
-        `);
-
-        await db.execute(`
-            INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp)
-            SELECT id, 0, 0 FROM usuarios
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS transferencias_puntos (
+            CREATE TABLE IF NOT EXISTS pedidos_puntos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                origen_id INTEGER,
-                destino_id INTEGER,
-                puntos INTEGER,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS pedidos_tienda (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER,
-                producto_id TEXT,
-                nombre_producto TEXT,
+                usuario_id INTEGER NOT NULL,
+                item_nombre TEXT NOT NULL,
+                costo_puntos INTEGER NOT NULL,
                 estado TEXT DEFAULT 'pendiente',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
-
-        try {
-            await db.execute(`ALTER TABLE usuarios ADD COLUMN avatar TEXT`);
-        } catch (e) {}
-
+        try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
+        try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
     } catch (e) {
-        console.error("Error iniciando tablas:", e.message);
+        console.error("Error iniciando tabla convenios o columnas:", e.message);
     }
 })();
 
@@ -167,14 +141,8 @@ app.post('/api/register', async (req, res) => {
             args: [nombre, usuario.trim().toLowerCase(), password, comisionInicial, rolInicial]
         });
 
-        const nuevoId = Number(result.lastInsertRowid);
-        await db.execute({
-            sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
-            args: [nuevoId]
-        });
-
         notificarCambioGlobal('nuevo_usuario');
-        res.json({ id: nuevoId, nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial });
+        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial });
     } catch (err) {
         if (err.message && err.message.includes('UNIQUE')) {
             return res.status(400).json({ error: "El nombre de usuario ya está registrado." });
@@ -183,25 +151,17 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. LOGIN (MANTENIDO EXACTAMENTE COMO EL ORIGINAL FUNCIONAL)
+// 2. LOGIN
 app.post('/api/login', async (req, res) => {
     const { usuario, password } = req.body;
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(avatar, '/logo.png') as avatar, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
-        
-        const user = result.rows[0];
-        
-        // Crear la fila de puntos silenciosamente si no existe
-        try {
-            await db.execute({ sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)", args: [user.id] });
-        } catch (e) {}
-
-        res.json(user);
+        res.json(result.rows[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -302,11 +262,11 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
 // 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(avatar, '/logo.png') as avatar, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
         try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, '/logo.png' as avatar, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
+            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
             res.json(fallback.rows);
         } catch (e2) {
             res.status(500).json({ error: err.message });
@@ -314,27 +274,15 @@ app.get('/api/usuarios', async (req, res) => {
     }
 });
 
-// GUARDAR AVATAR
-app.put('/api/usuarios/:id/avatar', async (req, res) => {
-    const { avatar } = req.body;
-    try {
-        await db.execute({ sql: "UPDATE usuarios SET avatar = ? WHERE id = ?", args: [avatar, req.params.id] });
-        notificarCambioGlobal('avatar_actualizado');
-        res.json({ message: "Avatar guardado en la base de datos." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 8. MODIFICAR RANGO Y PERMISOS DE USUARIO
+// 8. MODIFICAR RANGO, PERMISOS Y PUNTOS DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
-    const { usuario_id, comision_porcentaje, rol } = req.body;
+    const { usuario_id, comision_porcentaje, rol, puntos } = req.body;
     try {
         await db.execute({
-            sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?",
-            args: [comision_porcentaje, rol, usuario_id]
+            sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ?, puntos = ? WHERE id = ?",
+            args: [comision_porcentaje, rol, puntos || 0, usuario_id]
         });
-        notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol });
+        notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol, puntos });
         res.json({ message: "Usuario actualizado." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -346,8 +294,6 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     const usuario_id = req.params.id;
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
-        await db.execute({ sql: "DELETE FROM recompensas_usuarios WHERE usuario_id = ?", args: [usuario_id] });
-        await db.execute({ sql: "DELETE FROM pedidos_tienda WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
         notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
         res.json({ message: "Cuenta eliminada correctamente." });
@@ -482,16 +428,9 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        const puntosGanados = Math.floor(total_cliente / 5000);
-        const xpGanada = Math.floor(total_cliente / 100);
-
-        try {
-            await db.execute({sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)", args: [usuario_id]});
-            await db.execute({
-                sql: `UPDATE recompensas_usuarios SET puntos = puntos + ?, xp = xp + ? WHERE usuario_id = ?`,
-                args: [puntosGanados, xpGanada, usuario_id]
-            });
-        } catch(e) {}
+        // Otorgar 1 punto de tienda por cada $10,000 cobrados al cliente
+        const puntosGanados = Math.floor(total_cliente / 10000) || 1;
+        await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] });
 
         if (v8Necesarios > 0 || v12Necesarios > 0) {
             const descuentoV8 = Math.min(estado.stock_v8, v8Necesarios);
@@ -560,7 +499,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
+            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.puntos, 0) as puntos, u.avatar, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                    COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -575,7 +514,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
     } catch (err) {
         try {
             const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
+                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.puntos, 0) as puntos, u.avatar, CURRENT_TIMESTAMP as created_at,
                        COUNT(f.id) as total_facturas,
                        COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                        COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -592,176 +531,52 @@ app.get('/api/top-trabajadores', async (req, res) => {
     }
 });
 
-// ================= RUTAS DE TIENDA Y PUNTOS ================= //
-
-app.get('/api/recompensas/:usuario_id', async (req, res) => {
+// ====== SISTEMA DE AVATARES Y TIENDA DE PUNTOS ======
+app.put('/api/usuarios/:id/avatar', async (req, res) => {
     try {
-        const uid = req.params.usuario_id;
-        await db.execute({sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)", args: [uid]});
-        const result = await db.execute({sql: "SELECT * FROM recompensas_usuarios WHERE usuario_id = ?", args: [uid]});
-        res.json(result.rows[0] || { puntos: 0, xp: 0 });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+        await db.execute({ sql: "UPDATE usuarios SET avatar = ? WHERE id = ?", args: [req.body.avatar, req.params.id] });
+        notificarCambioGlobal('avatar_actualizado');
+        res.json({ message: "Avatar guardado globalmente." });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// CANJEAR
-app.post('/api/recompensas/canjear', async (req, res) => {
-    const { usuario_id, producto_id, nombre_producto } = req.body;
-    const costos = {
-        'limpieza_x2': 2, 'reparacion': 2, 'pintura': 3, 'cosmeticas': 5,
-        'stance': 6, 'humo': 8, 'semi_slick': 12, 'slick': 15,
-        'turbo': 25, 'rendimiento': 25, 'frenos': 30, 'awd': 30,
-        'v8': 120, 'nitro': 180, 'inst_nitro': 350, 'v12': 400, 'drift': 800
-    };
-    const costo = costos[producto_id];
-    if (!costo) return res.status(400).json({ error: "Producto inválido." });
-
+app.get('/api/pedidos-puntos', async (req, res) => {
     try {
-        const result = await db.execute({sql: "SELECT puntos FROM recompensas_usuarios WHERE usuario_id = ?", args: [usuario_id]});
-        if (result.rows.length === 0 || result.rows[0].puntos < costo) {
-            return res.status(400).json({ error: "Puntos insuficientes." });
-        }
-
-        await db.execute({
-            sql: "UPDATE recompensas_usuarios SET puntos = puntos - ? WHERE usuario_id = ?",
-            args: [costo, usuario_id]
-        });
-
-        await db.execute({
-            sql: "INSERT INTO pedidos_tienda (usuario_id, producto_id, nombre_producto, estado) VALUES (?, ?, ?, 'pendiente')",
-            args: [usuario_id, producto_id, nombre_producto || producto_id]
-        });
-
-        notificarCambioGlobal('pedidos_actualizados');
-        res.json({ message: "Canje exitoso", producto: nombre_producto, puntos: costo });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// MIS PEDIDOS
-app.get('/api/pedidos/:usuario_id', async (req, res) => {
-    try {
-        const result = await db.execute({sql: "SELECT * FROM pedidos_tienda WHERE usuario_id = ? ORDER BY created_at DESC", args: [req.params.usuario_id]});
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ADMIN: VER TODOS LOS PEDIDOS
-app.get('/api/admin/pedidos', async (req, res) => {
-    try {
-        const sql = `
-            SELECT p.*, u.nombre as trabajador_nombre, u.usuario as trabajador_usuario 
-            FROM pedidos_tienda p 
-            JOIN usuarios u ON p.usuario_id = u.id 
-            ORDER BY p.estado DESC, p.created_at DESC
-        `;
+        const sql = `SELECT p.*, u.nombre as trabajador_nombre FROM pedidos_puntos p JOIN usuarios u ON p.usuario_id = u.id ORDER BY p.fecha DESC`;
         const result = await db.execute(sql);
         res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ADMIN: CAMBIAR ESTADO PEDIDO
-app.put('/api/pedidos/:id/estado', async (req, res) => {
+app.post('/api/pedidos-puntos', async (req, res) => {
+    const { usuario_id, item_nombre, costo_puntos } = req.body;
+    try {
+        const userRes = await db.execute({ sql: "SELECT COALESCE(puntos, 0) as puntos FROM usuarios WHERE id = ?", args: [usuario_id] });
+        const puntosActuales = userRes.rows[0]?.puntos || 0;
+        
+        if (puntosActuales < costo_puntos) return res.status(400).json({ error: "Puntos insuficientes." });
+        
+        await db.execute({ sql: "UPDATE usuarios SET puntos = puntos - ? WHERE id = ?", args: [costo_puntos, usuario_id] });
+        await db.execute({ sql: "INSERT INTO pedidos_puntos (usuario_id, item_nombre, costo_puntos) VALUES (?, ?, ?)", args: [usuario_id, item_nombre, costo_puntos] });
+        
+        notificarCambioGlobal('pedido_puntos_creado');
+        res.json({ message: "Pedido realizado con éxito." });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/pedidos-puntos/:id/estado', async (req, res) => {
     const { estado } = req.body;
     try {
-        await db.execute({
-            sql: "UPDATE pedidos_tienda SET estado = ? WHERE id = ?",
-            args: [estado, req.params.id]
-        });
-        notificarCambioGlobal('pedidos_actualizados');
-        res.json({ message: "Estado de pedido actualizado." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// TRANSFERIR PUNTOS
-app.post('/api/recompensas/transferir', async (req, res) => {
-    const { origen_id, destino_id, puntos } = req.body;
-    const pts = Number(puntos);
-    if (!pts || pts <= 0 || origen_id === destino_id) return res.status(400).json({ error: "Datos de transferencia inválidos." });
-
-    try {
-        const result = await db.execute({sql: "SELECT puntos FROM recompensas_usuarios WHERE usuario_id = ?", args: [origen_id]});
-        if (result.rows.length === 0 || result.rows[0].puntos < pts) return res.status(400).json({ error: "No tienes suficientes puntos." });
-
-        await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos - ? WHERE usuario_id = ?", args: [pts, origen_id] });
-        await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos + ? WHERE usuario_id = ?", args: [pts, destino_id] });
-        await db.execute({
-            sql: "INSERT INTO transferencias_puntos (origen_id, destino_id, puntos) VALUES (?, ?, ?)",
-            args: [origen_id, destino_id, pts]
-        });
-
-        res.json({ message: "Transferencia exitosa" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// HISTORIAL TRANSFERENCIAS
-app.get('/api/recompensas/transferencias/:usuario_id', async (req, res) => {
-    try {
-        const uid = req.params.usuario_id;
-        const sql = `
-            SELECT t.*, 
-            CASE WHEN t.origen_id = ? THEN 'salida' ELSE 'entrada' END as direccion,
-            CASE WHEN t.origen_id = ? THEN u2.nombre ELSE u1.nombre END as persona
-            FROM transferencias_puntos t
-            JOIN usuarios u1 ON t.origen_id = u1.id
-            JOIN usuarios u2 ON t.destino_id = u2.id
-            WHERE t.origen_id = ? OR t.destino_id = ?
-            ORDER BY t.created_at DESC LIMIT 20
-        `;
-        const result = await db.execute({sql, args: [uid, uid, uid, uid]});
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ADMIN: GESTIÓN DE PUNTOS
-app.get('/api/recompensas/admin/lista', async (req, res) => {
-    try {
-        const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(r.puntos, 0) as puntos 
-            FROM usuarios u 
-            LEFT JOIN recompensas_usuarios r ON u.id = r.usuario_id 
-            ORDER BY u.id ASC
-        `;
-        const result = await db.execute(sql);
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.post('/api/recompensas/admin/ajustar-puntos', async (req, res) => {
-    const { usuario_id, cantidad, modo } = req.body;
-    const cant = Number(cantidad);
-    if (isNaN(cant) || cant < 0) return res.status(400).json({ error: "Cantidad inválida." });
-
-    try {
-        await db.execute({
-            sql: "INSERT OR IGNORE INTO recompensas_usuarios (usuario_id, puntos, xp) VALUES (?, 0, 0)",
-            args: [usuario_id]
-        });
-
-        if (modo === 'fijar') {
-            await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = ? WHERE usuario_id = ?", args: [cant, usuario_id] });
-        } else {
-            await db.execute({ sql: "UPDATE recompensas_usuarios SET puntos = puntos + ? WHERE usuario_id = ?", args: [cant, usuario_id] });
+        if (estado === 'rechazado') {
+            const pedidoRes = await db.execute({ sql: "SELECT usuario_id, costo_puntos FROM pedidos_puntos WHERE id = ?", args: [req.params.id] });
+            if (pedidoRes.rows[0]) {
+                await db.execute({ sql: "UPDATE usuarios SET puntos = puntos + ? WHERE id = ?", args: [pedidoRes.rows[0].costo_puntos, pedidoRes.rows[0].usuario_id] });
+            }
         }
-        notificarCambioGlobal('pedidos_actualizados');
-        res.json({ message: "Puntos ajustados correctamente." });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+        await db.execute({ sql: "UPDATE pedidos_puntos SET estado = ? WHERE id = ?", args: [estado, req.params.id] });
+        notificarCambioGlobal('pedido_puntos_actualizado');
+        res.json({ message: `Pedido ${estado}.` });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 const PORT = process.env.PORT || 3000;
