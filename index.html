@@ -791,38 +791,15 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-black text-fuchsia-400 uppercase">🎁 TIENDA DE PUNTOS OFICIAL</h2>
-                    <p class="text-xs text-zinc-400">Canjea los puntos que ganas trabajando (1 pto = $10K de la factura) por beneficios para tu rol en el taller.</p>
+                    <p class="text-xs text-zinc-400">Canjea tus puntos por piezas del catálogo. (Los puntos se calculan automáticamente basados en el costo de fábrica).</p>
                 </div>
                 <div class="bg-fuchsia-500/10 border border-fuchsia-500/30 px-4 py-2 rounded-xl text-center shadow-lg">
                     <div class="text-xs font-bold text-zinc-400">Tus Puntos</div>
                     <div id="tiendaMisPuntos" class="text-2xl font-black text-fuchsia-400">0</div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Ítem 1 -->
-                <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl flex flex-col justify-between">
-                    <div>
-                        <h4 class="font-black text-white">Día Libre Pagado</h4>
-                        <p class="text-[11px] text-zinc-400 mt-1">Tómate un descanso sin perder comisiones base.</p>
-                    </div>
-                    <button onclick="pedirItemTienda('Día Libre Pagado', 500)" class="mt-4 w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black py-2 rounded-lg text-xs transition">Comprar - 500 Pts</button>
-                </div>
-                <!-- Ítem 2 -->
-                <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl flex flex-col justify-between">
-                    <div>
-                        <h4 class="font-black text-white">Bono Económico $50k</h4>
-                        <p class="text-[11px] text-zinc-400 mt-1">Recibe un depósito directo de $50,000 en el rol.</p>
-                    </div>
-                    <button onclick="pedirItemTienda('Bono Económico $50k', 1500)" class="mt-4 w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black py-2 rounded-lg text-xs transition">Comprar - 1500 Pts</button>
-                </div>
-                <!-- Ítem 3 -->
-                <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl flex flex-col justify-between">
-                    <div>
-                        <h4 class="font-black text-white">Vehículo Especial del Taller</h4>
-                        <p class="text-[11px] text-zinc-400 mt-1">Usa la grúa especial o un deportivo de la empresa toda la semana.</p>
-                    </div>
-                    <button onclick="pedirItemTienda('Vehículo Especial Semanal', 3000)" class="mt-4 w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black py-2 rounded-lg text-xs transition">Comprar - 3000 Pts</button>
-                </div>
+            <div id="contenedorTiendaProductos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Se llena dinámicamente con JS -->
             </div>
         </div>
 
@@ -2773,6 +2750,35 @@
             document.getElementById('modalExito').classList.add('hidden');
         }
 
+        function renderTienda() {
+            const container = document.getElementById('contenedorTiendaProductos');
+            if (!container) return;
+
+            let html = '';
+            catalogo.forEach(item => {
+                // Filtramos la mano de obra para que no salga en la tienda
+                if (item.id === 99) return;
+
+                // Calculamos el costo en puntos (1 punto por cada $1,000 de costo de fábrica)
+                const costoPuntos = Math.max(1, Math.floor(item.costo / 1000));
+                const badgeCombo = item.esCombo ? '<span class="ml-1 text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-black">COMBO</span>' : '';
+
+                html += `
+                    <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl flex flex-col justify-between hover:border-fuchsia-500/40 transition">
+                        <div>
+                            <div class="text-[10px] font-black text-fuchsia-400 uppercase tracking-wider mb-1">${item.categoria}</div>
+                            <h4 class="font-black text-white text-sm leading-tight">${item.nombre} ${badgeCombo}</h4>
+                            <p class="text-[11px] text-zinc-400 mt-1">Precio ref: $${item.venta.toLocaleString()}</p>
+                        </div>
+                        <button onclick="pedirItemTienda('${item.nombre}', ${costoPuntos})" class="mt-4 w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black py-2 rounded-lg text-xs transition shadow-lg shadow-fuchsia-600/20">
+                            Pedir • ${costoPuntos} Pts
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
         async function pedirItemTienda(item_nombre, costo_puntos) {
             if (!confirm(`¿Deseas canjear ${costo_puntos} Pts por: ${item_nombre}?`)) return;
             const res = await fetch('/api/pedidos-puntos', {
@@ -2824,6 +2830,7 @@
 
         actualizarVistaUsuario();
         renderCatalogo();
+        renderTienda(); // Llama a la tienda al iniciar
     </script>
 </body>
 </html>
