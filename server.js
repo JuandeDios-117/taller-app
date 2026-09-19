@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización y sincronización de puntos históricos
+// Inicialización y cálculo sobre Ganancia Neta del Taller
 (async function initDB() {
     try {
         await db.execute(`
@@ -49,12 +49,12 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
 
-        // RECALCULAR PUNTOS DE TODOS CON BASE EN LO QUE YA HAN GENERADO (1 punto por cada $50,000)
+        // RECALCULAR PUNTOS BASADOS EN GANANCIA NETA DEL TALLER (1 punto por cada $50,000 de ganancia)
         try {
             await db.execute(`
                 UPDATE usuarios 
                 SET puntos = (
-                    SELECT CAST(COALESCE(SUM(total_cliente), 0) / 50000 AS INTEGER)
+                    SELECT CAST(COALESCE(SUM(ganancia_neta), 0) / 50000 AS INTEGER)
                     FROM facturas 
                     WHERE facturas.usuario_id = usuarios.id
                 )
@@ -370,7 +370,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     }
 });
 
-// 12. REINICIAR SEMANA (Conserva puntos)
+// 12. REINICIAR SEMANA (Conserva los puntos)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -387,7 +387,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA (1 punto por cada $50,000 cobrados)
+// 13. REGISTRAR FACTURA (1 punto por cada $50,000 DE GANANCIA NETA DEL TALLER)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -457,7 +457,8 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        const puntosGanados = Math.floor(total_cliente / 50000) || 1;
+        // PUNTOS CALCULADOS EN BASE A LA GANANCIA NETA DEL TALLER
+        const puntosGanados = Math.floor(ganancia_neta / 50000) || 1;
         try {
             await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] });
         } catch(e){}
@@ -527,12 +528,12 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES (Puntos dinámicos garantizados)
+// 16. TOP TRABAJADORES (Puntos calculados sobre Ganancia Neta del Taller)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
             SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, 
-                   MAX(COALESCE(u.puntos, 0), CAST(COALESCE(SUM(f.total_cliente), 0) / 50000 AS INTEGER)) as puntos,
+                   MAX(COALESCE(u.puntos, 0), CAST(COALESCE(SUM(f.ganancia_neta), 0) / 50000 AS INTEGER)) as puntos,
                    u.avatar, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
@@ -558,7 +559,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
                 GROUP BY u.id
                 ORDER BY ganancia_generada DESC
             `);
-            res.json(fallback.rows.map(r => ({ ...r, puntos: Math.floor((r.total_vendido || 0) / 50000), avatar: null })));
+            res.json(fallback.rows.map(r => ({ ...r, puntos: Math.floor((r.ganancia_generada || 0) / 50000), avatar: null })));
         } catch (e2) {
             res.status(500).json({ error: err.message });
         }

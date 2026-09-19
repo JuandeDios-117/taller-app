@@ -668,11 +668,11 @@
             </div>
         </div>
 
-        <!-- TOP TRABAJADORES (PUNTOS EN VIVO GARANTIZADOS) -->
+        <!-- TOP TRABAJADORES (CON PUNTOS EN VIVO) -->
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
-                <p class="text-xs text-zinc-400">Ranking oficial con niveles, medallas y puntos generados en vivo.</p>
+                <p class="text-xs text-zinc-400">Ranking oficial con niveles, medallas y puntos generados sobre la ganancia del taller en vivo.</p>
             </div>
             <div id="topContenedor" class="space-y-4"></div>
         </div>
@@ -791,7 +791,7 @@
             <div class="flex justify-between items-center flex-wrap gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-fuchsia-400 uppercase">🎁 TIENDA DE PUNTOS OFICIAL</h2>
-                    <p class="text-xs text-zinc-400">Canjea tus puntos por piezas del catálogo. (1 punto generado por cada $50,000 cobrados).</p>
+                    <p class="text-xs text-zinc-400">Canjea tus puntos por piezas del taller. (1 punto generado por cada $50,000 de ganancia de taller generada).</p>
                 </div>
                 <div class="bg-fuchsia-500/10 border border-fuchsia-500/30 px-5 py-2.5 rounded-xl text-center shadow-lg">
                     <div class="text-xs font-bold text-zinc-400">Tus Puntos Disponibles</div>
@@ -920,7 +920,9 @@
         }
 
         function renderLolAvatar(avatarUrl, nivel, sizePx = 64) {
-            return `<img src="${avatarUrl}" class="avatar-clean" style="width: ${sizePx}px; height: ${sizePx}px;" onerror="this.src='/logo.png'" />`;
+            return `
+                <img src="${avatarUrl}" class="avatar-clean" style="width: ${sizePx}px; height: ${sizePx}px;" onerror="this.src='/logo.png'" />
+            `;
         }
 
         let zonaHorariaActiva = localStorage.getItem('ae_timezone') || 'America/Mexico_City';
@@ -1479,7 +1481,7 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
-        // ESCUCHA DE EVENTOS EN TIEMPO REAL
+        // ACTUALIZACIÓN DIRECTA EN TIEMPO REAL
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
 
@@ -2278,7 +2280,7 @@
             container.innerHTML = html;
         }
 
-        // TOP TRABAJADORES (PUNTOS EN VIVO GARANTIZADOS)
+        // TOP TRABAJADORES (PUNTOS EN VIVO CALCULADOS CON GANANCIA NETA)
         async function cargarTop() {
             try {
                 const res = await fetch('/api/top-trabajadores');
@@ -2297,10 +2299,10 @@
                     const stats = calcularNivelYProgreso(item.total_vendido, item.id);
                     const avatar = obtenerAvatarTrabajador(item.id);
 
-                    // Puntos calculados con respaldo directo de lo vendido
+                    // PUNTOS CALCULADOS BASADOS EN GANANCIA GENERADA (40 Pts para $2,013,000)
                     const puntosCalculados = (item.puntos && Number(item.puntos) > 0) 
                         ? Number(item.puntos) 
-                        : Math.floor((Number(item.total_vendido) || 0) / 50000);
+                        : Math.floor((Number(item.ganancia_generada) || 0) / 50000);
 
                     const medallas = generarMedallas([], item.total_vendido, item.id);
                     const medallasTopHTML = generarMedallasTopHTML(medallas);
@@ -2793,7 +2795,7 @@
             let html = '';
             catalogo.forEach(item => {
                 if (item.id === 99) return;
-                const costoPuntos = Math.max(1, Math.floor(item.costo / 1000));
+                const costoPuntos = Math.max(1, Math.floor(item.costo / 50000));
                 const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.icon || '🎁');
                 const badgeCombo = item.esCombo ? '<span class="ml-1 text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-black">COMBO</span>' : '';
 
@@ -2807,8 +2809,8 @@
                             <h4 class="font-black text-white text-sm leading-tight">${item.nombre} ${badgeCombo}</h4>
                             <p class="text-[11px] text-zinc-400 mt-1">Precio ref: $${item.venta.toLocaleString()}</p>
                         </div>
-                        <button onclick="pedirItemTienda('${item.nombre}', ${costoPuntos})" class="mt-4 w-full bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-black py-2 rounded-lg text-xs uppercase tracking-wider transition shadow-lg shadow-fuchsia-600/20">
-                            Pedir • 🪙 ${costoPuntos} Pts
+                        <button onclick="pedirItemTienda('${item.nombre}', ${costoPuntos})" class="mt-4 w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-black py-2 rounded-lg text-xs uppercase tracking-wider transition shadow-lg shadow-fuchsia-600/20 flex items-center justify-center gap-1.5">
+                            <span>🛒 Pedir</span> • <span>🪙 ${costoPuntos} Pts</span>
                         </button>
                     </div>
                 `;
