@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización de la base de datos y migración segura
+// Inicializar tablas sin bloqueos en Render
 (async function initDB() {
     try {
         await db.execute(`
@@ -316,7 +316,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 12. REINICIAR SEMANA (Borra facturas pero conserva usuarios y sus puntos intactos)
+// 12. REINICIAR SEMANA (Borra facturas pero mantiene puntos guardados)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -327,7 +327,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 13. REGISTRAR FACTURA (1 punto por cada $50,000 de ganancia neta)
+// 13. REGISTRAR FACTURA (1 punto por cada $50,000 de ganancia neta del taller)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -380,7 +380,7 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        // 1 PUNTO POR CADA $50,000 DE GANANCIA NETA DEL TALLER
+        // 1 punto por cada $50,000 de ganancia
         const puntosGanados = Math.floor(ganancia_neta / 50000) || 1;
         try { await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] }); } catch(e){}
 
@@ -416,7 +416,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 16. TOP TRABAJADORES (Puntos dinámicos garantizados desde BD sin borrar por el corte)
+// 16. TOP TRABAJADORES (Puntos dinámicos garantizados desde BD)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
