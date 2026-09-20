@@ -58,7 +58,7 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                     FROM facturas 
                     WHERE facturas.usuario_id = usuarios.id
                 )
-                WHERE id IN (SELECT DISTINCT usuario_id FROM facturas)
+                WHERE puntos IS NULL OR puntos = 0
             `);
         } catch(e){}
     } catch (e) {
@@ -75,7 +75,8 @@ io.on('connection', (socket) => {
                 nombre: userData.nombre,
                 usuario: userData.usuario,
                 rol: userData.rol,
-                comision_porcentaje: userData.comision_porcentaje
+                comision_porcentaje: userData.comision_porcentaje,
+                avatar: userData.avatar
             });
             emitirUsuariosOnline();
         }
@@ -155,7 +156,7 @@ app.post('/api/register', async (req, res) => {
         });
 
         notificarCambioGlobal('nuevo_usuario');
-        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial, puntos: 0 });
+        res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial, puntos: 0, avatar: null });
     } catch (err) {
         if (err.message && err.message.includes('UNIQUE')) {
             return res.status(400).json({ error: "El nombre de usuario ya está registrado." });
@@ -387,7 +388,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     }
 });
 
-// 13. REGISTRAR FACTURA (1 punto por cada $50,000 DE GANANCIA NETA DEL TALLER)
+// 13. REGISTRAR FACTURA (1 punto por cada $50,000 de ganancia neta)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -515,7 +516,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `
-            SELECT f.*, u.nombre as trabajador_nombre, u.usuario as trabajador_usuario 
+            SELECT f.*, u.nombre as trabajador_nombre, u.usuario as trabajador_usuario, u.avatar as trabajador_avatar 
             FROM facturas f 
             JOIN usuarios u ON f.usuario_id = u.id 
             ORDER BY f.fecha DESC
@@ -528,12 +529,12 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES (Puntos calculados sobre Ganancia Neta del Taller)
+// 16. TOP TRABAJADORES (Puntos dinámicos garantizados desde BD sin borrar por el corte)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
             SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, 
-                   MAX(COALESCE(u.puntos, 0), CAST(COALESCE(SUM(f.ganancia_neta), 0) / 50000 AS INTEGER)) as puntos,
+                   COALESCE(u.puntos, 0) as puntos,
                    u.avatar, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
                    COUNT(f.id) as total_facturas,
                    COALESCE(SUM(f.total_cliente), 0) as total_vendido,
@@ -559,7 +560,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
                 GROUP BY u.id
                 ORDER BY ganancia_generada DESC
             `);
-            res.json(fallback.rows.map(r => ({ ...r, puntos: Math.floor((r.ganancia_generada || 0) / 50000), avatar: null })));
+            res.json(fallback.rows.map(r => ({ ...r, puntos: 0, avatar: null })));
         } catch (e2) {
             res.status(500).json({ error: err.message });
         }
