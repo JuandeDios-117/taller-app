@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicializar tablas sin bloqueos en Render
+// Inicialización de la base de datos
 (async function initDB() {
     try {
         await db.execute(`
@@ -316,7 +316,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 12. REINICIAR SEMANA (Borra facturas pero mantiene puntos guardados)
+// 12. REINICIAR SEMANA (Borra facturas pero mantiene intactos los puntos de los usuarios)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -380,7 +380,7 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        // 1 punto por cada $50,000 de ganancia
+        // PUNTOS CALCULADOS EN BASE A LA GANANCIA NETA DEL TALLER
         const puntosGanados = Math.floor(ganancia_neta / 50000) || 1;
         try { await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] }); } catch(e){}
 
@@ -416,7 +416,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 16. TOP TRABAJADORES (Puntos dinámicos garantizados desde BD)
+// 16. TOP TRABAJADORES (PUNTOS PERSISTENTES GARANTIZADOS DE LA TABLA USUARIOS)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -437,7 +437,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
     } catch (err) {
         try {
             const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
+                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.puntos, 0) as puntos, CURRENT_TIMESTAMP as created_at,
                        COUNT(f.id) as total_facturas,
                        COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                        COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -447,7 +447,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
                 GROUP BY u.id
                 ORDER BY ganancia_generada DESC
             `);
-            res.json(fallback.rows.map(r => ({ ...r, puntos: 0, avatar: null })));
+            res.json(fallback.rows);
         } catch (e2) {
             res.status(500).json({ error: err.message });
         }
