@@ -48,19 +48,6 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
         
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
-
-        // Recalcular puntos iniciales solo a quienes los tengan en 0 o nulos
-        try {
-            await db.execute(`
-                UPDATE usuarios 
-                SET puntos = (
-                    SELECT CAST(COALESCE(SUM(ganancia_neta), 0) / 50000 AS INTEGER)
-                    FROM facturas 
-                    WHERE facturas.usuario_id = usuarios.id
-                )
-                WHERE puntos IS NULL OR puntos = 0
-            `);
-        } catch(e){}
     } catch (e) {
         console.error("Error iniciando base de datos:", e.message);
     }
@@ -429,7 +416,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 16. TOP TRABAJADORES (Lee directamente los puntos de la tabla usuarios)
+// 16. TOP TRABAJADORES (Puntos dinámicos garantizados desde BD sin borrar por el corte)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
