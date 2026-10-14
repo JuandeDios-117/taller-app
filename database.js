@@ -20,16 +20,32 @@ async function initDB() {
             usuario TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             comision_porcentaje REAL DEFAULT 30,
-            rol TEXT DEFAULT 'empleado'
+            rol TEXT DEFAULT 'empleado',
+            puntos INTEGER DEFAULT 0,
+            avatar TEXT
         )`);
 
-        // Comprobación y creación automática de la columna created_at
-        try {
-            await client.execute(`ALTER TABLE usuarios ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`);
-            console.log("Columna created_at agregada con éxito.");
-        } catch (e) {
-            // Ya existía la columna
-        }
+        // Columnas adicionales seguras (una por una en orden)
+        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`); } catch (e) {}
+        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0`); } catch (e) {}
+        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN avatar TEXT`); } catch (e) {}
+
+        await client.execute(`CREATE TABLE IF NOT EXISTS convenios_facciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            faccion TEXT UNIQUE NOT NULL,
+            porcentaje INTEGER NOT NULL,
+            usuario_nombre TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        await client.execute(`CREATE TABLE IF NOT EXISTS pedidos_puntos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            item_nombre TEXT NOT NULL,
+            costo_puntos INTEGER NOT NULL,
+            estado TEXT DEFAULT 'pendiente',
+            fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
 
         await client.execute(`CREATE TABLE IF NOT EXISTS facturas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +87,7 @@ async function initDB() {
         }
         console.log("Base de datos y columnas sincronizadas correctamente.");
     } catch (err) {
-        console.error("Error al inicializar tablas:", err);
+        console.error("Error al inicializar tablas:", err.message);
     }
 }
 
