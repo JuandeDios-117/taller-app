@@ -112,11 +112,6 @@
             transition: transform 0.15s ease;
         }
         .ribbon-chip:hover { transform: scale(1.2); z-index: 10; }
-
-        /* ESTILOS DE LA RULETA */
-        #wheelCanvas {
-            transition: transform 4.5s cubic-bezier(0.15, 0.88, 0.22, 1);
-        }
     </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen">
@@ -223,7 +218,7 @@
                     👑 PANEL ADMIN
                 </button>
                 <button onclick="cambiarPestana('tienda')" id="tab-tienda" class="tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-fuchsia-400 hover:text-white hover:bg-zinc-800 transition border border-fuchsia-500/20">
-                    🎁 TIENDA & RULETA
+                    🎁 TIENDA PUNTOS
                 </button>
             </div>
         </div>
@@ -660,7 +655,7 @@
             </div>
         </div>
 
-        <!-- TOP TRABAJADORES -->
+        <!-- TOP TRABAJADORES (PUNTOS PERSISTENTES DE BD) -->
         <div id="seccion-top" class="card-dark p-6 rounded-xl space-y-6 hidden">
             <div>
                 <h2 class="text-2xl font-black text-white uppercase">🏆 TOP TRABAJADORES AUTOEXOTIC</h2>
@@ -721,9 +716,9 @@
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
                     <div>
                         <h3 class="text-lg font-black text-fuchsia-400 uppercase flex items-center gap-2">
-                            🎁 PEDIDOS DE LA TIENDA Y RULETA DE PUNTOS
+                            🎁 PEDIDOS DE LA TIENDA DE PUNTOS
                         </h3>
-                        <p class="text-xs text-zinc-400">Revisa las solicitudes que los trabajadores han comprado o ganado en la ruleta y entrégalas.</p>
+                        <p class="text-xs text-zinc-400">Revisa las solicitudes que los trabajadores han comprado con sus puntos y entrégalas.</p>
                     </div>
                 </div>
                 <div id="listaPedidosTiendaAdmin" class="space-y-3 max-h-96 overflow-y-auto"></div>
@@ -778,95 +773,19 @@
             </div>
         </div>
 
-        <!-- TIENDA DE PUNTOS Y RULETA -->
-        <div id="seccion-tienda" class="space-y-6 hidden">
-            <!-- HEADER DE PUNTOS -->
-            <div class="card-dark p-6 rounded-xl flex justify-between items-center flex-wrap gap-4 border-l-4 border-fuchsia-500">
+        <!-- TIENDA DE PUNTOS -->
+        <div id="seccion-tienda" class="card-dark p-6 rounded-xl space-y-6 hidden">
+            <div class="flex justify-between items-center flex-wrap gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-fuchsia-400 uppercase">🎁 TIENDA & RULETA DE PUNTOS OFICIAL</h2>
-                    <p class="text-xs text-zinc-400">Canjea tus puntos por piezas del taller o prueba tu suerte en la Ruleta AutoExotic. (1 punto cada $50,000 de ganancia).</p>
+                    <h2 class="text-2xl font-black text-fuchsia-400 uppercase">🎁 TIENDA DE PUNTOS OFICIAL</h2>
+                    <p class="text-xs text-zinc-400">Canjea tus puntos por piezas del taller. (1 punto generado por cada $50,000 de ganancia de taller generada).</p>
                 </div>
                 <div class="bg-fuchsia-500/10 border border-fuchsia-500/30 px-5 py-2.5 rounded-xl text-center shadow-lg">
                     <div class="text-xs font-bold text-zinc-400">Tus Puntos Disponibles</div>
                     <div id="tiendaMisPuntos" class="text-3xl font-black text-fuchsia-400">🪙 0</div>
                 </div>
             </div>
-
-            <!-- SECCIÓN DE LA RULETA DE LA SUERTE -->
-            <div class="card-dark p-6 rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-950/15 via-zinc-950 to-zinc-950">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                    
-                    <!-- RUEDA VISUAL -->
-                    <div class="flex flex-col items-center justify-center relative">
-                        <div class="z-20 -mb-3 text-3xl filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)]">🔻</div>
-                        <div class="relative p-2 rounded-full bg-gradient-to-tr from-amber-500 via-fuchsia-500 to-cyan-500 shadow-[0_0_35px_rgba(245,158,11,0.25)]">
-                            <canvas id="wheelCanvas" width="340" height="340" class="rounded-full bg-black block"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- CONTROLES Y TABLA DE PROBABILIDADES -->
-                    <div class="space-y-5">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-1 rounded-full">🎰 MINIJUEGO OFICIAL DEL TALLER</span>
-                            <h3 class="text-2xl font-black text-white uppercase mt-2">RULETA DE LA SUERTE AUTOEXOTIC</h3>
-                            <p class="text-xs text-zinc-400 mt-1">Gira la ruleta por <strong class="text-fuchsia-400">🪙 25 Puntos</strong>. Si ganas una pieza o motor, se enviará automáticamente un pedido a los administradores para que te lo entreguen dentro del juego.</p>
-                        </div>
-
-                        <!-- TABLA DE PREMIOS Y PROBABILIDADES -->
-                        <div class="bg-black/70 p-4 rounded-xl border border-zinc-800 space-y-2">
-                            <div class="text-[11px] font-black text-cyan-400 uppercase tracking-wider mb-2">📊 PROBABILIDADES Y PREMIOS DISPONIBLES:</div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                <div class="flex justify-between bg-zinc-900/90 px-3 py-1.5 rounded-lg border border-zinc-800">
-                                    <span>🧰 Kit Rep. + Pintura</span>
-                                    <span class="font-bold text-zinc-400">Común (35%)</span>
-                                </div>
-                                <div class="flex justify-between bg-zinc-900/90 px-3 py-1.5 rounded-lg border border-zinc-800">
-                                    <span>🪙 +10 Puntos</span>
-                                    <span class="font-bold text-fuchsia-400">Común (25%)</span>
-                                </div>
-                                <div class="flex justify-between bg-zinc-900/90 px-3 py-1.5 rounded-lg border border-zinc-800">
-                                    <span>🛞 Neumáticos Slicks</span>
-                                    <span class="font-bold text-teal-400">Poco Común (16%)</span>
-                                </div>
-                                <div class="flex justify-between bg-zinc-900/90 px-3 py-1.5 rounded-lg border border-zinc-800">
-                                    <span>🚀 1x Pieza de Turbo</span>
-                                    <span class="font-bold text-yellow-400">Raro (10%)</span>
-                                </div>
-                                <div class="flex justify-between bg-zinc-900/90 px-3 py-1.5 rounded-lg border border-zinc-800">
-                                    <span>🪙 +30 Puntos</span>
-                                    <span class="font-bold text-emerald-400">Raro (8%)</span>
-                                </div>
-                                <div class="flex justify-between bg-zinc-900/90 px-3 py-1.5 rounded-lg border border-zinc-800">
-                                    <span>🔵 1x Motor V8</span>
-                                    <span class="font-bold text-blue-400">Muy Raro (4%)</span>
-                                </div>
-                                <div class="flex justify-between bg-zinc-900/90 px-3 py-1.5 rounded-lg border border-cyan-500/30">
-                                    <span>🍾 1x Botella Nitro</span>
-                                    <span class="font-black text-cyan-300">Épico (1.5%)</span>
-                                </div>
-                                <div class="flex justify-between bg-amber-950/40 px-3 py-1.5 rounded-lg border border-amber-500/50">
-                                    <span class="font-black text-amber-300">🟣 1x Motor V12</span>
-                                    <span class="font-black text-amber-400">Legendario (0.5%)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="resultadoRuletaBanner" class="hidden p-3.5 rounded-xl border border-emerald-500/50 bg-emerald-950/30 text-center">
-                            <p class="text-xs font-bold text-emerald-300" id="textoResultadoRuleta">¡Felicidades!</p>
-                        </div>
-
-                        <button id="btnGirarRuleta" onclick="girarRuleta()" class="w-full bg-gradient-to-r from-amber-500 via-fuchsia-600 to-pink-600 hover:from-amber-400 hover:to-pink-500 text-white font-black py-4 rounded-xl text-sm uppercase tracking-wider transition shadow-[0_0_25px_rgba(236,72,153,0.4)]">
-                            🎰 GIRAR RULETA (COSTO: 🪙 25 PTS)
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CATÁLOGO DE COMPRA DIRECTA -->
-            <div class="card-dark p-6 rounded-xl space-y-4">
-                <h3 class="text-lg font-black text-white uppercase">🛒 CANJE DIRECTO DE PIEZAS</h3>
-                <div id="contenedorTiendaProductos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-            </div>
+            <div id="contenedorTiendaProductos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
         </div>
 
     </div>
@@ -1174,8 +1093,8 @@
                         items.forEach(it => {
                             if (it.id === 7 || it.id === 20 || it.id === 21) totalV12 += it.cantidad;
                             if (it.id === 8 || it.id === 18 || it.id === 19) totalV8 += it.cantidad;
-                            if (it.id === 25 || it.id === 26) totalNitro += it.cantidad;
-                            if (it.id === 24) totalDrift += it.cantidad;
+                            if (it.id === 25 || it.id === 26 || it.id === 22 || it.id === 23) totalNitro += it.cantidad;
+                            if (it.id === 24 || it.id === 23) totalDrift += it.cantidad;
                             if (it.id === 27) totalLimpieza += it.cantidad;
                         });
                     } catch (e) {}
@@ -1237,10 +1156,10 @@
             'FRENOS': { colorBadge: 'bg-rose-500/10 text-rose-400 border-rose-500/30', bordeCard: 'border-rose-500/30 hover:border-rose-400/60', bgCard: 'bg-gradient-to-r from-rose-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛑', emoji: '🛑', colorVenta: 'text-rose-300', colorBtn: 'bg-gradient-to-r from-rose-500 to-red-500 text-white font-black' },
             'TRACCIÓN': { colorBadge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30', bordeCard: 'border-emerald-500/30 hover:border-emerald-400/60', bgCard: 'bg-gradient-to-r from-emerald-950/20 via-zinc-950/70 to-zinc-950/70', icon: '⚡', emoji: '⚡', colorVenta: 'text-emerald-300', colorBtn: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black' },
             'NEUMÁTICOS': { colorBadge: 'bg-teal-500/10 text-teal-400 border-teal-500/30', bordeCard: 'border-teal-500/30 hover:border-teal-400/60', bgCard: 'bg-gradient-to-r from-teal-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🛞', emoji: '🛞', colorVenta: 'text-teal-300', colorBtn: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-black' },
-            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', emoji: '📦', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' }
+            'COMBOS (PRECIOS FIJOS)': { colorBadge: 'bg-amber-500/10 text-amber-400 border-amber-500/30', bordeCard: 'border-amber-500/30 hover:border-amber-400/60', bgCard: 'bg-gradient-to-r from-amber-950/20 via-zinc-950/70 to-zinc-950/70', icon: '👑', emoji: '📦', colorVenta: 'text-amber-300', colorBtn: 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black' },
+            'PAQUETES ESPECIALES': { colorBadge: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30', bordeCard: 'border-fuchsia-500/30 hover:border-fuchsia-400/60', bgCard: 'bg-gradient-to-r from-fuchsia-950/20 via-zinc-950/70 to-zinc-950/70', icon: '🔥', emoji: '🔥', colorVenta: 'text-fuchsia-300', colorBtn: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black' }
         };
 
-        // CATÁLOGO ACTUALIZADO: Tracción FWD ($6,000 costo), Kit Nitro ($300,000 costo) y Sin Paquetes Especiales
         const catalogo = [
             { id: 27, categoria: 'GENERAL', emoji: '🧼', nombre: 'Kit de Limpieza', venta: 500, costo: 250 },
             { id: 1, categoria: 'GENERAL', emoji: '⚡', nombre: 'Piezas de Rendimiento', venta: 10000, costo: 7000 },
@@ -1254,25 +1173,22 @@
             
             { id: 29, categoria: 'TURBO', emoji: '🚀', nombre: 'Turbo', venta: 10000, costo: 7000 },
 
-            // DRIFT Y NITRO (Kit de instalación de nitro costo actualizado a $300,000)
+            // DRIFT Y NITRO
             { id: 24, categoria: 'DRIFT Y NITRO', emoji: '🏎️', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
-            { id: 25, categoria: 'DRIFT Y NITRO', emoji: '🧪', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 300000 },
+            { id: 25, categoria: 'DRIFT Y NITRO', emoji: '🧪', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 200000 },
             { id: 26, categoria: 'DRIFT Y NITRO', emoji: '🍾', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
             
             { id: 7, categoria: 'MOTOR', emoji: '🟣', nombre: 'Motor V12', venta: 500000, costo: 300000, noDescuento: true },
             { id: 8, categoria: 'MOTOR', emoji: '🔵', nombre: 'Motor V8', venta: 50000, costo: 40000 },
             { id: 15, categoria: 'FRENOS', emoji: '🛑', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
-            
-            // TRACCIÓN (Tracción FWD costo actualizado a $6,000)
             { id: 9, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción AWD', venta: 12500, costo: 8000 },
             { id: 10, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción RWD', venta: 11500, costo: 7000 },
-            { id: 11, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción FWD', venta: 10500, costo: 6000 },
-            
+            { id: 11, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción FWD', venta: 10500, costo: 8500 },
             { id: 12, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Slick', venta: 6000, costo: 4000 },
             { id: 13, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS OFICIALES
+            // COMBOS (V8 Pro a $140,000 con Turbo y 3 rendimientos)
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1342,138 +1258,38 @@
                     { id: 1, cantidad: 3 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
+            },
+            // NUEVO PRECIO: LA NITROSA (3 KITS DE NITRO POR $1,200,000)
+            { 
+                id: 22, 
+                categoria: 'PAQUETES ESPECIALES', 
+                emoji: '🔥',
+                nombre: 'La Nitrosa — 3 Kits de Instalación de Nitro', 
+                venta: 1200000, 
+                costo: 600000, 
+                esCombo: true,
+                componentes: [
+                    { id: 25, cantidad: 3 },
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación La Nitrosa', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                ]
+            },
+            // NUEVO PRECIO: KIT SPEED (DRIFT + NITRO + 2 BOTELLAS EXTRA) POR $1,800,000
+            { 
+                id: 23, 
+                categoria: 'PAQUETES ESPECIALES', 
+                emoji: '🔥',
+                nombre: 'Kit Speed — Drift + Nitro + 2 Botellas Extra', 
+                venta: 1800000, 
+                costo: 1600000, 
+                esCombo: true,
+                componentes: [
+                    { id: 24, cantidad: 1 },
+                    { id: 25, cantidad: 1 },
+                    { id: 26, cantidad: 2 },
+                    { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Kit Speed', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
+                ]
             }
         ];
-
-        // CONFIGURACIÓN VISUAL DE LA RULETA
-        const WHEEL_PRIZES = [
-            { label: 'Rep + Pintura', color: '#1e1b4b', text: '#c4b5fd' },
-            { label: '🪙 +10 Pts', color: '#4a044e', text: '#f0abfc' },
-            { label: '🛞 Slicks', color: '#064e3b', text: '#6ee7b7' },
-            { label: '🚀 1x Turbo', color: '#713f12', text: '#fde047' },
-            { label: '🪙 +30 Pts', color: '#065f46', text: '#a7f3d0' },
-            { label: '🔵 Motor V8', color: '#1e3a8a', text: '#93c5fd' },
-            { label: '🍾 Botella Nitro', color: '#155e75', text: '#67e8f9' },
-            { label: '🟣 Motor V12', color: '#854d0e', text: '#fef08a' }
-        ];
-
-        let anguloActualRuleta = 0;
-        let girandoRuleta = false;
-
-        function dibujarRuleta() {
-            const canvas = document.getElementById('wheelCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const numSectores = WHEEL_PRIZES.length;
-            const arco = (2 * Math.PI) / numSectores;
-            const radio = canvas.width / 2;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = 0; i < numSectores; i++) {
-                const anguloInicio = i * arco - Math.PI / 2 - arco / 2;
-                const anguloFin = anguloInicio + arco;
-
-                ctx.beginPath();
-                ctx.moveTo(radio, radio);
-                ctx.arc(radio, radio, radio - 4, anguloInicio, anguloFin);
-                ctx.closePath();
-                ctx.fillStyle = WHEEL_PRIZES[i].color;
-                ctx.fill();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#09090b';
-                ctx.stroke();
-
-                ctx.save();
-                ctx.translate(radio, radio);
-                ctx.rotate(anguloInicio + arco / 2);
-                ctx.textAlign = 'right';
-                ctx.fillStyle = WHEEL_PRIZES[i].text;
-                ctx.font = '900 12px system-ui, sans-serif';
-                ctx.fillText(WHEEL_PRIZES[i].label, radio - 18, 4);
-                ctx.restore();
-            }
-
-            ctx.beginPath();
-            ctx.arc(radio, radio, 28, 0, 2 * Math.PI);
-            ctx.fillStyle = '#09090b';
-            ctx.fill();
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = '#f59e0b';
-            ctx.stroke();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '900 11px system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('AE', radio, radio + 4);
-        }
-
-        async function girarRuleta() {
-            if (!usuarioActual) return mostrarAviso('Inicia Sesión', 'Debes iniciar sesión primero.');
-            if (girandoRuleta) return;
-            if ((usuarioActual.puntos || 0) < 25) {
-                return mostrarAviso('Puntos Insuficientes', 'Necesitas al menos 🪙 25 Puntos para girar la ruleta.', true);
-            }
-
-            const btn = document.getElementById('btnGirarRuleta');
-            const banner = document.getElementById('resultadoRuletaBanner');
-            banner.classList.add('hidden');
-            girandoRuleta = true;
-            btn.disabled = true;
-            btn.innerText = '🎰 GIRANDO RULETA...';
-
-            try {
-                const res = await fetch('/api/ruleta/girar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario_id: usuarioActual.id })
-                });
-                const data = await res.json();
-
-                if (!res.ok) {
-                    girandoRuleta = false;
-                    btn.disabled = false;
-                    btn.innerText = '🎰 GIRAR RULETA (COSTO: 🪙 25 PTS)';
-                    return mostrarAviso('Error', data.error, true);
-                }
-
-                const indexGanador = data.premio.index;
-                const gradosPorSector = 360 / WHEEL_PRIZES.length;
-                const anguloObjetivo = (360 - (indexGanador * gradosPorSector)) % 360;
-                const vueltasExtra = 360 * 6;
-                const desfaseActual = anguloActualRuleta % 360;
-                let diferencia = anguloObjetivo - desfaseActual;
-                if (diferencia < 0) diferencia += 360;
-
-                anguloActualRuleta += vueltasExtra + diferencia;
-
-                const canvas = document.getElementById('wheelCanvas');
-                canvas.style.transform = `rotate(${anguloActualRuleta}deg)`;
-
-                setTimeout(() => {
-                    usuarioActual.puntos = data.puntos_restantes;
-                    actualizarVistaUsuario();
-                    cargarTop();
-
-                    if (typeof confetti === 'function') {
-                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                    }
-
-                    banner.classList.remove('hidden');
-                    document.getElementById('textoResultadoRuleta').innerText = `🎉 ¡GANASTE: ${data.premio.nombre}! ${data.premio.tipo === 'item' ? '(Pedido enviado a Admin para entrega)' : '(Sumados a tu cuenta)'}`;
-
-                    girandoRuleta = false;
-                    btn.disabled = false;
-                    btn.innerText = '🎰 GIRAR RULETA (COSTO: 🪙 25 PTS)';
-                }, 4600);
-
-            } catch (e) {
-                girandoRuleta = false;
-                btn.disabled = false;
-                btn.innerText = '🎰 GIRAR RULETA (COSTO: 🪙 25 PTS)';
-                mostrarAviso('Error de Red', 'No se pudo conectar con el servidor.', true);
-            }
-        }
 
         let usuarioActual = null;
         let pestanaActiva = 'calculadora';
@@ -1687,9 +1503,9 @@
             }
 
             if (data.evento === 'usuario_modificado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                if (data.comision_porcentaje !== undefined) usuarioActual.comision_porcentaje = data.comision_porcentaje;
-                if (data.rol !== undefined) usuarioActual.rol = data.rol;
-                if (data.puntos !== undefined) usuarioActual.puntos = data.puntos;
+                usuarioActual.comision_porcentaje = data.comision_porcentaje;
+                usuarioActual.rol = data.rol;
+                usuarioActual.puntos = data.puntos;
                 actualizarVistaUsuario();
             }
 
@@ -1842,7 +1658,7 @@
                     <button onclick="cerrarSesion()" class="text-rose-400 hover:text-rose-300 underline font-bold ml-2 transition">Salir</button>
                 `;
                 document.getElementById('seccion-auth').classList.add('hidden');
-                if (pestanaActiva === 'auth' || !pestanaActiva) cambiarPestana('calculadora');
+                cambiarPestana('calculadora');
                 cambiarZonaHorariaFacturas(zonaHorariaActiva);
                 actualizarBarraNivelHeader();
                 cargarConvenios();
@@ -1903,9 +1719,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     usuarioActual = data;
-                    pestanaActiva = 'calculadora';
                     actualizarVistaUsuario();
-                    cambiarPestana('calculadora');
                 } else mostrarAviso('Error de Acceso', data.error, true);
             }
         }
@@ -1965,10 +1779,7 @@
             if (pestana === 'almacen' && esAdminOJefe) cargarAlmacen();
             if (pestana === 'historial') cargarHistorial();
             if (pestana === 'top') cargarTop();
-            if (pestana === 'tienda') {
-                renderTienda();
-                dibujarRuleta();
-            }
+            if (pestana === 'tienda') renderTienda();
             if (pestana === 'admin' && esAdminOJefe) {
                 cargarGestionAdmin();
                 cargarConvenios();
@@ -2550,10 +2361,7 @@
                                 const subtotalLinea = (item.precioCobrado || item.venta) * item.cantidad;
                                 const descTexto = item.descuentoMontoLinea > 0 ? `<span class="text-rose-400 text-[11px] font-bold"> (-$${item.descuentoMontoLinea.toLocaleString()})</span>` : '';
                                 itemsHTML += `
-                                    <div class="flex justify-between items-center text-xs">
-                                        <span class="font-bold text-zinc-300">${item.nombre}</span>
-                                        <span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span>
-                                    </div>
+                                    <div class="flex justify-between items-center text-xs"><span class="font-bold text-zinc-300">${item.nombre}</span><span class="text-zinc-400">${item.cantidad} × $${(item.precioCobrado || item.venta).toLocaleString()} = <strong class="text-white">$${(item.totalFinalLinea || subtotalLinea).toLocaleString()}</strong>${descTexto}</span></div>
                                 `;
                             });
                             itemsHTML += '</div>';
@@ -3055,7 +2863,6 @@
         actualizarVistaUsuario();
         renderCatalogo();
         renderTienda();
-        dibujarRuleta();
     </script>
 </body>
 </html>
