@@ -454,7 +454,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
     }
 });
 
-// GESTIÓN DE TIENDA Y AVATARES
+// GESTIÓN DE TIENDA, RULETA Y AVATARES
 app.put('/api/usuarios/:id/avatar', async (req, res) => {
     try {
         await db.execute({ sql: "UPDATE usuarios SET avatar = ? WHERE id = ?", args: [req.body.avatar, req.params.id] });
@@ -487,6 +487,75 @@ app.post('/api/pedidos-puntos', async (req, res) => {
         notificarCambioGlobal('top_actualizado');
         res.json({ message: "Pedido realizado con éxito." });
     } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ENDPOINT OFICIAL DE LA RULETA DE PUNTOS (SISTEMA DE PESOS EQUILIBRADO PARA EL TALLER)
+app.post('/api/ruleta/girar', async (req, res) => {
+    const { usuario_id } = req.body;
+    const COSTO_GIRO = 25;
+
+    try {
+        const userRes = await db.execute({ sql: "SELECT nombre, COALESCE(puntos, 0) as puntos FROM usuarios WHERE id = ?", args: [usuario_id] });
+        if (userRes.rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado." });
+        
+        const user = userRes.rows[0];
+        if (user.puntos < COSTO_GIRO) {
+            return res.status(400).json({ error: `Necesitas ${COSTO_GIRO} Pts para girar la ruleta. Tienes ${user.puntos} Pts.` });
+        }
+
+        // Tabla de probabilidades (Total peso = 1000)
+        const premios = [
+            { index: 0, nombre: '🧰 Kit Reparación + 🎨 Pintura', tipo: 'item', valor: 0, peso: 350 }, // 35.0%
+            { index: 1, nombre: '🪙 +10 Puntos', tipo: 'puntos', valor: 10, peso: 250 },                // 25.0%
+            { index: 2, nombre: '🛞 Neumáticos Slicks', tipo: 'item', valor: 0, peso: 160 },            // 16.0%
+            { index: 3, nombre: '🚀 1x Pieza de Turbo', tipo: 'item', valor: 0, peso: 100 },            // 10.0%
+            { index: 4, nombre: '🪙 +30 Puntos', tipo: 'puntos', valor: 30, peso: 80 },                 // 8.0%
+            { index: 5, nombre: '🔵 1x Motor V8', tipo: 'item', valor: 0, peso: 40 },                   // 4.0%
+            { index: 6, nombre: '🍾 1x Botella de Nitro', tipo: 'item', valor: 0, peso: 15 },           // 1.5%
+            { index: 7, nombre: '🟣 1x Motor V12', tipo: 'item', valor: 0, peso: 5 }                    // 0.5%
+        ];
+
+        const totalPeso = premios.reduce((acc, p) => acc + p.peso, 0);
+        let random = Math.random() * totalPeso;
+        let premioGanado = premios[0];
+
+        for (const p of premios) {
+            if (random < p.peso) {
+                premioGanado = p;
+                break;
+            }
+            random -= p.peso;
+        }
+
+        let nuevosPuntos = user.puntos - COSTO_GIRO;
+        if (premioGanado.tipo === 'puntos') {
+            nuevosPuntos += premioGanado.valor;
+        }
+
+        await db.execute({ sql: "UPDATE usuarios SET puntos = ? WHERE id = ?", args: [nuevosPuntos, usuario_id] });
+
+        // Si ganó un artículo físico del taller, registrarlo automáticamente en pedidos de admin
+        if (premioGanado.tipo === 'item') {
+            await db.execute({
+                sql: "INSERT INTO pedidos_puntos (usuario_id, item_nombre, costo_puntos) VALUES (?, ?, ?)",
+                args: [usuario_id, `🎰 [RULETA] ${premioGanado.nombre}`, COSTO_GIRO]
+            });
+            notificarCambioGlobal('pedido_puntos_creado');
+        }
+
+        notificarCambioGlobal('top_actualizado');
+        notificarCambioGlobal('usuario_modificado', { 
+            usuario_id: Number(usuario_id), 
+            puntos: nuevosPuntos 
+        });
+
+        res.json({
+            premio: premioGanado,
+            puntos_restantes: nuevosPuntos
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.put('/api/pedidos-puntos/:id/estado', async (req, res) => {
