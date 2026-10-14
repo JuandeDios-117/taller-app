@@ -1175,7 +1175,7 @@
 
             // DRIFT Y NITRO
             { id: 24, categoria: 'DRIFT Y NITRO', emoji: '🏎️', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
-            { id: 25, categoria: 'DRIFT Y NITRO', emoji: '🧪', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 200000 },
+            { id: 25, categoria: 'DRIFT Y NITRO', emoji: '🧪', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', emoji: '🍾', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
             
             { id: 7, categoria: 'MOTOR', emoji: '🟣', nombre: 'Motor V12', venta: 500000, costo: 300000, noDescuento: true },
@@ -1183,7 +1183,7 @@
             { id: 15, categoria: 'FRENOS', emoji: '🛑', nombre: 'Frenos Cerámicos', venta: 20000, costo: 8000 },
             { id: 9, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción AWD', venta: 12500, costo: 8000 },
             { id: 10, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción RWD', venta: 11500, costo: 7000 },
-            { id: 11, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción FWD', venta: 10500, costo: 8500 },
+            { id: 11, categoria: 'TRACCIÓN', emoji: '⚡', nombre: 'Tracción FWD', venta: 10500, costo: 6000 },
             { id: 12, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Slick', venta: 6000, costo: 4000 },
             { id: 13, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Offroad', venta: 6500, costo: 4500 },
@@ -1258,9 +1258,9 @@
                     { id: 1, cantidad: 3 },
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación V12 PRO', ventaPersonalizada: 1500, costoPersonalizado: 0, noDescuento: true }
                 ]
-            },
-            // NUEVO PRECIO: LA NITROSA (3 KITS DE NITRO POR $1,200,000)
-            { 
+            }
+            /* PAQUETES ESPECIALES DESACTIVADOS TEMPORALMENTE
+            ,{ 
                 id: 22, 
                 categoria: 'PAQUETES ESPECIALES', 
                 emoji: '🔥',
@@ -1273,7 +1273,6 @@
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación La Nitrosa', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             },
-            // NUEVO PRECIO: KIT SPEED (DRIFT + NITRO + 2 BOTELLAS EXTRA) POR $1,800,000
             { 
                 id: 23, 
                 categoria: 'PAQUETES ESPECIALES', 
@@ -1289,6 +1288,7 @@
                     { id: 99, cantidad: 1, nombrePersonalizado: 'Mano de Obra / Instalación Kit Speed', ventaPersonalizada: 0, costoPersonalizado: 0, noDescuento: true }
                 ]
             }
+            */
         ];
 
         let usuarioActual = null;
@@ -2652,7 +2652,7 @@
                                 <p class="text-zinc-400 mt-0.5">
                                     ${item.cantidad} × $${precioUnitario.toLocaleString()}
                                     ${modoPrecioFabrica ? '<span class="text-rose-400 font-bold">(Fábrica)</span>' : ''}
-                                    ${pctLinea > 0 ? `<span class="text-rose-400 font-bold ml-1">(-${pctLinea}%: -$${descuentoLinea.toLocaleString()})</span>` : ''}
+                                    ${pctLinea > 0 ? `<span class="text-rose-400 font-bold ml-1">(-${pctLinea}\%: -$${descuentoLinea.toLocaleString()})</span>` : ''}
                                 </p>
                             </div>
                             <div class="flex items-center gap-2">
