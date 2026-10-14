@@ -23,8 +23,8 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización de la base de datos
-(async function initDB() {
+// Inicialización segura sin bloquear el despliegue de Render
+async function initDB() {
     try {
         await db.execute(`
             CREATE TABLE IF NOT EXISTS convenios_facciones (
@@ -45,13 +45,22 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 fecha DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
+
+        // Verificar columnas existentes antes de hacer ALTER TABLE para evitar bloqueos
+        const info = await db.execute("PRAGMA table_info(usuarios)");
+        const columnas = info.rows.map(r => r.name);
+
+        if (!columnas.includes('puntos')) {
+            await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0");
+        }
+        if (!columnas.includes('avatar')) {
+            await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT");
+        }
+        console.log("Base de datos sincronizada correctamente.");
     } catch (e) {
-        console.error("Error iniciando base de datos:", e.message);
+        console.error("Aviso en initDB:", e.message);
     }
-})();
+}
 
 const onlineSockets = new Map();
 io.on('connection', (socket) => {
@@ -99,7 +108,9 @@ app.get('/api/convenios', async (req, res) => {
 
 app.post('/api/convenios', async (req, res) => {
     const { faccion, porcentaje, usuario_nombre } = req.body;
-    if (!faccion || isNaN(porcentaje) || porcentaje <= 0) return res.status(400).json({ error: "Datos del convenio inválidos." });
+    if (!faccion || isNaN(porcentaje) || porcentaje <= 0) {
+        return res.status(400).json({ error: "Datos del convenio inválidos." });
+    }
 
     try {
         await db.execute({
@@ -143,7 +154,9 @@ app.post('/api/register', async (req, res) => {
         notificarCambioGlobal('nuevo_usuario');
         res.json({ id: Number(result.lastInsertRowid), nombre, usuario, comision_porcentaje: comisionInicial, rol: rolInicial, puntos: 0, avatar: null });
     } catch (err) {
-        if (err.message && err.message.includes('UNIQUE')) return res.status(400).json({ error: "El nombre de usuario ya está registrado." });
+        if (err.message && err.message.includes('UNIQUE')) {
+            return res.status(400).json({ error: "El nombre de usuario ya está registrado." });
+        }
         res.status(500).json({ error: err.message });
     }
 });
@@ -213,13 +226,18 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
         const estadoRes = await db.execute("SELECT capital FROM taller_estado WHERE id = 1");
         const estado = estadoRes.rows[0];
 
-        if (!estado || estado.capital < costoTotal) return res.status(400).json({ error: `Capital insuficiente. Se requieren $${costoTotal.toLocaleString()}` });
+        if (!estado || estado.capital < costoTotal) {
+            return res.status(400).json({ error: `Capital insuficiente. Se requieren $${costoTotal.toLocaleString()}` });
+        }
 
         const columnaStock = tipo_motor === 'v12' ? 'stock_v12' : 'stock_v8';
         const desc = `Compra de ${cant}x Motor ${tipo_motor.toUpperCase()} a Fábrica`;
 
         await db.execute({ sql: `UPDATE taller_estado SET capital = capital - ?, ${columnaStock} = ${columnaStock} + ? WHERE id = 1`, args: [costoTotal, cant] });
-        await db.execute({ sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES (?, ?, ?, ?)", args: [`compra_${tipo_motor}`, desc, -costoTotal, usuario_nombre || 'Admin'] });
+        await db.execute({
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES (?, ?, ?, ?)",
+            args: [`compra_${tipo_motor}`, desc, -costoTotal, usuario_nombre || 'Admin']
+        });
 
         notificarCambioGlobal('almacen_actualizado');
         res.json({ message: `Comprados ${cant}x Motores ${tipo_motor.toUpperCase()} con éxito.` });
@@ -231,13 +249,25 @@ app.post('/api/almacen/comprar-motor', async (req, res) => {
 // 6. AJUSTE MANUAL ALMACÉN
 app.put('/api/almacen/ajuste-manual', async (req, res) => {
     const { capital, stock_v8, stock_v12, usuario_nombre } = req.body;
-    const capNum = parseFloat(capital); const v8Num = parseInt(stock_v8); const v12Num = parseInt(stock_v12);
+    const capNum = parseFloat(capital);
+    const v8Num = parseInt(stock_v8);
+    const v12Num = parseInt(stock_v12);
 
-    if (isNaN(capNum) || isNaN(v8Num) || isNaN(v12Num) || capNum < 0 || v8Num < 0 || v12Num < 0) return res.status(400).json({ error: "Valores numéricos inválidos." });
+    if (isNaN(capNum) || isNaN(v8Num) || isNaN(v12Num) || capNum < 0 || v8Num < 0 || v12Num < 0) {
+        return res.status(400).json({ error: "Valores numéricos inválidos." });
+    }
 
     try {
-        await db.execute({ sql: "UPDATE taller_estado SET capital = ?, stock_v8 = ?, stock_v12 = ? WHERE id = 1", args: [capNum, v8Num, v12Num] });
-        await db.execute({ sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('ajuste_manual', ?, 0, ?)", args: [`Ajuste manual: Cap: $${capNum.toLocaleString()} | V8: ${v8Num} | V12: ${v12Num}`, usuario_nombre || 'Admin'] });
+        await db.execute({
+            sql: "UPDATE taller_estado SET capital = ?, stock_v8 = ?, stock_v12 = ? WHERE id = 1",
+            args: [capNum, v8Num, v12Num]
+        });
+
+        await db.execute({
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('ajuste_manual', ?, 0, ?)",
+            args: [`Ajuste manual: Cap: $${capNum.toLocaleString()} | V8: ${v8Num} | V12: ${v12Num}`, usuario_nombre || 'Admin']
+        });
+
         notificarCambioGlobal('almacen_actualizado');
         res.json({ message: "Inventario y capital actualizados." });
     } catch (err) {
@@ -264,8 +294,14 @@ app.get('/api/usuarios', async (req, res) => {
 app.put('/api/usuarios/modificar', async (req, res) => {
     const { usuario_id, comision_porcentaje, rol, puntos } = req.body;
     try {
-        try { await db.execute({ sql: "UPDATE usuarios SET puntos = ? WHERE id = ?", args: [Number(puntos) || 0, usuario_id] }); } catch(e){}
-        await db.execute({ sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?", args: [comision_porcentaje, rol, usuario_id] });
+        try {
+            await db.execute({ sql: "UPDATE usuarios SET puntos = ? WHERE id = ?", args: [Number(puntos) || 0, usuario_id] });
+        } catch(e){}
+
+        await db.execute({
+            sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?",
+            args: [comision_porcentaje, rol, usuario_id]
+        });
         notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol, puntos: Number(puntos) || 0 });
         notificarCambioGlobal('top_actualizado');
         res.json({ message: "Usuario actualizado." });
@@ -291,19 +327,30 @@ app.delete('/api/usuarios/:id', async (req, res) => {
 
 // 10. TRANSFERIR FACTURA
 app.put('/api/facturas/:id/transferir', async (req, res) => {
-    const factura_id = req.params.id; const { nuevo_usuario_id } = req.body;
+    const factura_id = req.params.id;
+    const { nuevo_usuario_id } = req.body;
     try {
         const userRes = await db.execute({ sql: "SELECT COALESCE(comision_porcentaje, 30) as comision FROM usuarios WHERE id = ?", args: [nuevo_usuario_id] });
         if (userRes.rows.length === 0) return res.status(404).json({ error: "El trabajador destino no existe." });
         const pctComision = userRes.rows[0].comision / 100;
+
         const factRes = await db.execute({ sql: "SELECT ganancia_neta FROM facturas WHERE id = ?", args: [factura_id] });
         if (factRes.rows.length === 0) return res.status(404).json({ error: "La factura no existe." });
         
-        const ganancia = factRes.rows[0].ganancia_neta; const nuevaComision = ganancia > 0 ? ganancia * pctComision : 0;
-        await db.execute({ sql: "UPDATE facturas SET usuario_id = ?, comision_empleado = ? WHERE id = ?", args: [nuevo_usuario_id, nuevaComision, factura_id] });
-        notificarCambioGlobal('factura_transferida'); notificarCambioGlobal('top_actualizado');
+        const ganancia = factRes.rows[0].ganancia_neta;
+        const nuevaComision = ganancia > 0 ? ganancia * pctComision : 0;
+
+        await db.execute({
+            sql: "UPDATE facturas SET usuario_id = ?, comision_empleado = ? WHERE id = ?",
+            args: [nuevo_usuario_id, nuevaComision, factura_id]
+        });
+
+        notificarCambioGlobal('factura_transferida');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Factura transferida con éxito." });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // 11. ELIMINAR FACTURA
@@ -311,9 +358,12 @@ app.delete('/api/facturas/:id', async (req, res) => {
     const factura_id = req.params.id;
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE id = ?", args: [factura_id] });
-        notificarCambioGlobal('factura_eliminada'); notificarCambioGlobal('top_actualizado');
+        notificarCambioGlobal('factura_eliminada');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Factura eliminada correctamente." });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // 12. REINICIAR SEMANA (Borra facturas pero mantiene intactos los puntos de los usuarios)
@@ -321,10 +371,16 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
         await db.execute("DELETE FROM facturas");
-        await db.execute({ sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas (puntos preservados).', 0, ?)", args: [usuario_nombre || 'Admin'] });
-        notificarCambioGlobal('reinicio_semana'); notificarCambioGlobal('top_actualizado');
+        await db.execute({
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas (puntos preservados).', 0, ?)",
+            args: [usuario_nombre || 'Admin']
+        });
+        notificarCambioGlobal('reinicio_semana');
+        notificarCambioGlobal('top_actualizado');
         res.json({ message: "Semana reiniciada correctamente." });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // 13. REGISTRAR FACTURA (1 punto por cada $50,000 de ganancia neta del taller)
@@ -341,7 +397,8 @@ app.post('/api/facturas', async (req, res) => {
         const aplicarFabrica = es_precio_fabrica && (user.rol === 'admin' || user.rol === 'jefe');
         const pctDescuentoGeneral = aplicarFabrica ? 0 : Math.max(0, Math.min(100, Number(descuento_porcentaje) || 0));
 
-        let v8Necesarios = 0, v12Necesarios = 0;
+        let v8Necesarios = 0;
+        let v12Necesarios = 0;
 
         items.forEach(item => {
             if (item.id === 8) v8Necesarios += item.cantidad;
@@ -351,20 +408,35 @@ app.post('/api/facturas', async (req, res) => {
         const estadoRes = await db.execute("SELECT stock_v8, stock_v12 FROM taller_estado WHERE id = 1");
         const estado = estadoRes.rows[0] || { stock_v8: 0, stock_v12: 0 };
 
-        if (v12Necesarios > 0 && estado.stock_v12 < v12Necesarios) return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12.` });
+        if (v12Necesarios > 0 && estado.stock_v12 < v12Necesarios) {
+            return res.status(400).json({ error: `Almacén insuficiente: Se requieren ${v12Necesarios} Motor(es) V12.` });
+        }
 
-        let total_cliente = 0, coste_fabrica_total = 0, subtotal_bruto = 0;
+        let total_cliente = 0;
+        let coste_fabrica_total = 0;
+        let subtotal_bruto = 0;
 
         const itemsDetallados = items.map(item => {
-            const precioBase = aplicarFabrica ? item.costo : item.venta; const subtotalLinea = precioBase * item.cantidad;
-            coste_fabrica_total += item.costo * item.cantidad; subtotal_bruto += subtotalLinea;
+            const precioBase = aplicarFabrica ? item.costo : item.venta;
+            const subtotalLinea = precioBase * item.cantidad;
+            coste_fabrica_total += item.costo * item.cantidad;
+            subtotal_bruto += subtotalLinea;
 
             const admiteDescuento = !aplicarFabrica && !item.noDescuento && item.id !== 7 && pctDescuentoGeneral > 0;
             const pctLinea = admiteDescuento ? pctDescuentoGeneral : 0;
-            const descuentoMontoLinea = subtotalLinea * (pctLinea / 100); const totalFinalLinea = subtotalLinea - descuentoMontoLinea;
+            const descuentoMontoLinea = subtotalLinea * (pctLinea / 100);
+            const totalFinalLinea = subtotalLinea - descuentoMontoLinea;
+
             total_cliente += totalFinalLinea;
 
-            return { ...item, precioCobrado: precioBase, subtotalLinea, descuentoPorcentajeLinea: pctLinea, descuentoMontoLinea, totalFinalLinea };
+            return {
+                ...item,
+                precioCobrado: precioBase,
+                subtotalLinea,
+                descuentoPorcentajeLinea: pctLinea,
+                descuentoMontoLinea,
+                totalFinalLinea
+            };
         });
 
         const ganancia_neta = total_cliente - coste_fabrica_total;
@@ -375,25 +447,44 @@ app.post('/api/facturas', async (req, res) => {
 
         const sql = `INSERT INTO facturas (usuario_id, cliente, total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, descuento_porcentaje, items_json, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const insertRes = await db.execute({
-            sql, args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, pctDescuentoGeneral, itemsJSON, fechaLocalMx]
+            sql,
+            args: [usuario_id, cliente || 'Cliente General', total_cliente, coste_fabrica_total, ganancia_neta, comision_empleado, pctDescuentoGeneral, itemsJSON, fechaLocalMx]
         });
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
         // PUNTOS CALCULADOS EN BASE A LA GANANCIA NETA DEL TALLER
         const puntosGanados = Math.floor(ganancia_neta / 50000) || 1;
-        try { await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] }); } catch(e){}
+        try {
+            await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] });
+        } catch(e){}
 
         if (v8Necesarios > 0 || v12Necesarios > 0) {
             const descuentoV8 = Math.min(estado.stock_v8, v8Necesarios);
             await db.execute({ sql: "UPDATE taller_estado SET stock_v8 = stock_v8 - ?, stock_v12 = stock_v12 - ? WHERE id = 1", args: [descuentoV8, v12Necesarios] });
-            await db.execute({ sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('despacho_almacen', ?, 0, ?)", args: [`Salida Orden #${facturaId} (Cliente: ${cliente}): ${v8Necesarios > 0 ? v8Necesarios + 'x V8 ' : ''}${v12Necesarios > 0 ? v12Necesarios + 'x V12' : ''}`, user.nombre] });
+            await db.execute({
+                sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('despacho_almacen', ?, 0, ?)",
+                args: [`Salida Orden #${facturaId} (Cliente: ${cliente}): ${v8Necesarios > 0 ? v8Necesarios + 'x V8 ' : ''}${v12Necesarios > 0 ? v12Necesarios + 'x V12' : ''}`, user.nombre]
+            });
         }
 
-        notificarCambioGlobal('nueva_factura', { usuario_nombre: user.nombre, cliente: cliente || 'Cliente General', total: total_cliente, items: itemsDetallados });
+        notificarCambioGlobal('nueva_factura', { 
+            usuario_nombre: user.nombre, 
+            cliente: cliente || 'Cliente General', 
+            total: total_cliente,
+            items: itemsDetallados
+        });
         notificarCambioGlobal('top_actualizado');
 
-        res.json({ id: facturaId, subtotal: subtotal_bruto, total: total_cliente, comision: comision_empleado, porcentaje_aplicado: user.comision, puntos_ganados: puntosGanados, es_precio_fabrica: aplicarFabrica });
+        res.json({
+            id: facturaId,
+            subtotal: subtotal_bruto,
+            total: total_cliente,
+            comision: comision_empleado,
+            porcentaje_aplicado: user.comision,
+            puntos_ganados: puntosGanados,
+            es_precio_fabrica: aplicarFabrica
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -402,9 +493,14 @@ app.post('/api/facturas', async (req, res) => {
 // 14. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
-        const result = await db.execute({ sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60", args: [req.params.usuario_id] });
+        const result = await db.execute({
+            sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60",
+            args: [req.params.usuario_id]
+        });
         res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // 15. HISTORIAL GLOBAL
@@ -413,23 +509,29 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
         const sql = `SELECT f.*, u.nombre as trabajador_nombre, u.usuario as trabajador_usuario, u.avatar as trabajador_avatar FROM facturas f JOIN usuarios u ON f.usuario_id = u.id ORDER BY f.fecha DESC LIMIT 80`;
         const result = await db.execute(sql);
         res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// 16. TOP TRABAJADORES (PUNTOS PERSISTENTES GARANTIZADOS DE LA TABLA USUARIOS)
+// 16. TOP TRABAJADORES (Subconsultas directas para evitar pérdida de u.puntos en GROUP BY)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
-            SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, 
-                   COALESCE(u.puntos, 0) as puntos,
-                   u.avatar, COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
-                   COUNT(f.id) as total_facturas,
-                   COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                   COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                   COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
+            SELECT 
+                u.id, 
+                u.nombre, 
+                u.usuario, 
+                COALESCE(u.rol, 'empleado') as rol, 
+                COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, 
+                COALESCE(u.puntos, 0) as puntos,
+                u.avatar, 
+                COALESCE(u.created_at, CURRENT_TIMESTAMP) as created_at,
+                (SELECT COUNT(*) FROM facturas f WHERE f.usuario_id = u.id) as total_facturas,
+                (SELECT COALESCE(SUM(f.total_cliente), 0) FROM facturas f WHERE f.usuario_id = u.id) as total_vendido,
+                (SELECT COALESCE(SUM(f.ganancia_neta), 0) FROM facturas f WHERE f.usuario_id = u.id) as ganancia_generada,
+                (SELECT COALESCE(SUM(f.comision_empleado), 0) FROM facturas f WHERE f.usuario_id = u.id) as comision_ganada
             FROM usuarios u
-            LEFT JOIN facturas f ON u.id = f.usuario_id
-            GROUP BY u.id
             ORDER BY ganancia_generada DESC
         `;
         const result = await db.execute(sql);
@@ -437,7 +539,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
     } catch (err) {
         try {
             const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.puntos, 0) as puntos, CURRENT_TIMESTAMP as created_at,
+                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at,
                        COUNT(f.id) as total_facturas,
                        COALESCE(SUM(f.total_cliente), 0) as total_vendido,
                        COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
@@ -447,7 +549,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
                 GROUP BY u.id
                 ORDER BY ganancia_generada DESC
             `);
-            res.json(fallback.rows);
+            res.json(fallback.rows.map(r => ({ ...r, puntos: 0, avatar: null })));
         } catch (e2) {
             res.status(500).json({ error: err.message });
         }
@@ -461,7 +563,9 @@ app.put('/api/usuarios/:id/avatar', async (req, res) => {
         notificarCambioGlobal('avatar_actualizado');
         notificarCambioGlobal('top_actualizado');
         res.json({ message: "Avatar guardado globalmente." });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get('/api/pedidos-puntos', async (req, res) => {
@@ -469,7 +573,9 @@ app.get('/api/pedidos-puntos', async (req, res) => {
         const sql = `SELECT p.*, u.nombre as trabajador_nombre FROM pedidos_puntos p JOIN usuarios u ON p.usuario_id = u.id ORDER BY p.fecha DESC`;
         const result = await db.execute(sql);
         res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.post('/api/pedidos-puntos', async (req, res) => {
@@ -486,10 +592,12 @@ app.post('/api/pedidos-puntos', async (req, res) => {
         notificarCambioGlobal('pedido_puntos_creado');
         notificarCambioGlobal('top_actualizado');
         res.json({ message: "Pedido realizado con éxito." });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// ENDPOINT OFICIAL DE LA RULETA DE PUNTOS (SISTEMA DE PESOS EQUILIBRADO PARA EL TALLER)
+// ENDPOINT OFICIAL DE LA RULETA DE PUNTOS
 app.post('/api/ruleta/girar', async (req, res) => {
     const { usuario_id } = req.body;
     const COSTO_GIRO = 25;
@@ -503,7 +611,7 @@ app.post('/api/ruleta/girar', async (req, res) => {
             return res.status(400).json({ error: `Necesitas ${COSTO_GIRO} Pts para girar la ruleta. Tienes ${user.puntos} Pts.` });
         }
 
-        // Tabla de probabilidades (Total peso = 1000)
+        // Tabla de probabilidades equilibrada para el taller (Total peso = 1000)
         const premios = [
             { index: 0, nombre: '🧰 Kit Reparación + 🎨 Pintura', tipo: 'item', valor: 0, peso: 350 }, // 35.0%
             { index: 1, nombre: '🪙 +10 Puntos', tipo: 'puntos', valor: 10, peso: 250 },                // 25.0%
@@ -534,7 +642,6 @@ app.post('/api/ruleta/girar', async (req, res) => {
 
         await db.execute({ sql: "UPDATE usuarios SET puntos = ? WHERE id = ?", args: [nuevosPuntos, usuario_id] });
 
-        // Si ganó un artículo físico del taller, registrarlo automáticamente en pedidos de admin
         if (premioGanado.tipo === 'item') {
             await db.execute({
                 sql: "INSERT INTO pedidos_puntos (usuario_id, item_nombre, costo_puntos) VALUES (?, ?, ?)",
@@ -571,8 +678,14 @@ app.put('/api/pedidos-puntos/:id/estado', async (req, res) => {
         notificarCambioGlobal('pedido_puntos_actualizado');
         notificarCambioGlobal('top_actualizado');
         res.json({ message: `Pedido ${estado}.` });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
+// Primero abrimos el puerto en 0.0.0.0 para que Render detecte el servidor al instante
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor ejecutándose en el puerto ${PORT}`));
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor ejecutándose en el puerto ${PORT}`);
+    initDB();
+});

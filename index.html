@@ -798,7 +798,6 @@
                     
                     <!-- RUEDA VISUAL -->
                     <div class="flex flex-col items-center justify-center relative">
-                        <!-- Puntero Superior -->
                         <div class="z-20 -mb-3 text-3xl filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)]">🔻</div>
                         <div class="relative p-2 rounded-full bg-gradient-to-tr from-amber-500 via-fuchsia-500 to-cyan-500 shadow-[0_0_35px_rgba(245,158,11,0.25)]">
                             <canvas id="wheelCanvas" width="340" height="340" class="rounded-full bg-black block"></canvas>
@@ -1395,7 +1394,6 @@
                 ctx.restore();
             }
 
-            // Centro de la ruleta
             ctx.beginPath();
             ctx.arc(radio, radio, 28, 0, 2 * Math.PI);
             ctx.fillStyle = '#09090b';
@@ -1440,9 +1438,9 @@
                 }
 
                 const indexGanador = data.premio.index;
-                const gradosPorSector = 360 / WHEEL_PRIZES.length; // 45 grados
+                const gradosPorSector = 360 / WHEEL_PRIZES.length;
                 const anguloObjetivo = (360 - (indexGanador * gradosPorSector)) % 360;
-                const vueltasExtra = 360 * 6; // 6 vueltas completas
+                const vueltasExtra = 360 * 6;
                 const desfaseActual = anguloActualRuleta % 360;
                 let diferencia = anguloObjetivo - desfaseActual;
                 if (diferencia < 0) diferencia += 360;
