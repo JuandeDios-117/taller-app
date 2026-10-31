@@ -20,16 +20,18 @@ async function initDB() {
             usuario TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             comision_porcentaje REAL DEFAULT 30,
-            rol TEXT DEFAULT 'empleado'
+            rol TEXT DEFAULT 'empleado',
+            puntos INTEGER DEFAULT 0,
+            avatar TEXT,
+            discord_id TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
-        // Comprobación y creación automática de la columna created_at
-        try {
-            await client.execute(`ALTER TABLE usuarios ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`);
-            console.log("Columna created_at agregada con éxito.");
-        } catch (e) {
-            // Ya existía la columna
-        }
+        // Migraciones seguras para columnas adicionales en usuarios
+        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`); } catch (e) {}
+        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0`); } catch (e) {}
+        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN avatar TEXT`); } catch (e) {}
+        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN discord_id TEXT DEFAULT ''`); } catch (e) {}
 
         await client.execute(`CREATE TABLE IF NOT EXISTS facturas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,6 +64,40 @@ async function initDB() {
             fecha DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
+        await client.execute(`CREATE TABLE IF NOT EXISTS convenios_facciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            faccion TEXT UNIQUE NOT NULL,
+            porcentaje INTEGER NOT NULL,
+            usuario_nombre TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        await client.execute(`CREATE TABLE IF NOT EXISTS pedidos_puntos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            item_nombre TEXT NOT NULL,
+            costo_puntos INTEGER NOT NULL,
+            estado TEXT DEFAULT 'pendiente',
+            fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        // NUEVA TABLA: Configuración de Webhook e IDs de Roles de Discord
+        await client.execute(`CREATE TABLE IF NOT EXISTS discord_config (
+            clave TEXT PRIMARY KEY,
+            valor TEXT
+        )`);
+
+        // NUEVA TABLA: Ascensos y Bajas programadas para el Corte Semanal
+        await client.execute(`CREATE TABLE IF NOT EXISTS ascensos_programados (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL UNIQUE,
+            rango_anterior_clave TEXT,
+            nuevo_rango_clave TEXT NOT NULL,
+            motivo TEXT DEFAULT '',
+            programado_por TEXT,
+            fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
         await client.execute(`CREATE INDEX IF NOT EXISTS idx_facturas_usuario ON facturas(usuario_id)`);
         await client.execute(`CREATE INDEX IF NOT EXISTS idx_facturas_fecha ON facturas(fecha DESC)`);
 
@@ -69,7 +105,28 @@ async function initDB() {
         if (estado.rows[0].total === 0) {
             await client.execute("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 0, 0, 0)");
         }
-        console.log("Base de datos y columnas sincronizadas correctamente.");
+
+        // Inicializar claves por defecto de Discord si no existen
+        const clavesPorDefecto = [
+            'webhook_url',
+            'rol_jefe',
+            'rol_subjefe',
+            'rol_encargado',
+            'rol_maestro',
+            'rol_experto',
+            'rol_senior',
+            'rol_mecanico',
+            'rol_pruebas',
+            'rol_ciudadano'
+        ];
+        for (const clave of clavesPorDefecto) {
+            await client.execute({
+                sql: "INSERT OR IGNORE INTO discord_config (clave, valor) VALUES (?, '')",
+                args: [clave]
+            });
+        }
+
+        console.log("Base de datos sincronizada correctamente con soporte de Ascensos y Discord.");
     } catch (err) {
         console.error("Error al inicializar tablas:", err);
     }

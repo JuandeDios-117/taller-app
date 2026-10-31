@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const https = require('https');
 const compression = require('compression');
 const { Server } = require('socket.io');
 const db = require('./database');
@@ -23,35 +24,165 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización de la base de datos
-(async function initDB() {
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS convenios_facciones (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                faccion TEXT UNIQUE NOT NULL,
-                porcentaje INTEGER NOT NULL,
-                usuario_nombre TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS pedidos_puntos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER NOT NULL,
-                item_nombre TEXT NOT NULL,
-                costo_puntos INTEGER NOT NULL,
-                estado TEXT DEFAULT 'pendiente',
-                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
-    } catch (e) {
-        console.error("Error iniciando base de datos:", e.message);
+// CONFIGURACIÓN OFICIAL DE RANGOS Y COMISIONES
+const CATALOGO_RANGOS = {
+    jefe:      { nombre: 'Jefe',              emoji: '👑', comision: 0,  rol_sistema: 'jefe',     orden: 8 },
+    subjefe:   { nombre: 'Subjefe',           emoji: '🛡️', comision: 0,  rol_sistema: 'admin',    orden: 7 },
+    encargado: { nombre: 'Encargado',         emoji: '👔', comision: 45, rol_sistema: 'empleado', orden: 6 },
+    maestro:   { nombre: 'Mecánico Maestro',  emoji: '🛠️', comision: 43, rol_sistema: 'empleado', orden: 5 },
+    experto:   { nombre: 'Mecánico Experto',  emoji: '⭐', comision: 40, rol_sistema: 'empleado', orden: 4 },
+    senior:    { nombre: 'Mecánico Senior',   emoji: '🔩', comision: 37, rol_sistema: 'empleado', orden: 3 },
+    mecanico:  { nombre: 'Mecánico',          emoji: '🔧', comision: 35, rol_sistema: 'empleado', orden: 2 },
+    pruebas:   { nombre: 'En Pruebas',        emoji: '🔰', comision: 30, rol_sistema: 'empleado', orden: 1 },
+    ciudadano: { nombre: 'Ciudadano',         emoji: '👤', comision: 0,  rol_sistema: 'baja',     orden: 0 }
+};
+
+function deducirClaveRango(rol, comision) {
+    const com = Number(comision);
+    if (rol === 'jefe' || com === -1) return 'jefe';
+    if (com === 0) return 'subjefe';
+    if (com >= 45) return 'encargado';
+    if (com === 43) return 'maestro';
+    if (com === 40) return 'experto';
+    if (com === 37) return 'senior';
+    if (com === 35) return 'mecanico';
+    return 'pruebas';
+}
+
+// Función auxiliar para enviar payloads a un Webhook de Discord
+function enviarWebhookDiscord(webhookUrl, payload) {
+    return new Promise((resolve, reject) => {
+        if (!webhookUrl || !webhookUrl.startsWith('http')) {
+            return resolve({ enviado: false, razon: 'URL de Webhook no configurada o inválida.' });
+        }
+        try {
+            const urlObj = new URL(webhookUrl);
+            const dataString = JSON.stringify(payload);
+
+            const options = {
+                hostname: urlObj.hostname,
+                path: urlObj.pathname + urlObj.search,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(dataString)
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let resBody = '';
+                res.on('data', (chunk) => resBody += chunk);
+                res.on('end', () => {
+                    if (res.statusCode >= 200 && res.statusCode < 300) {
+                        resolve({ enviado: true });
+                    } else {
+                        resolve({ enviado: false, razon: `Discord respondió con código ${res.statusCode}: ${resBody}` });
+                    }
+                });
+            });
+
+            req.on('error', (e) => resolve({ enviado: false, razon: e.message }));
+            req.write(dataString);
+            req.end();
+        } catch (err) {
+            resolve({ enviado: false, razon: err.message });
+        }
+    });
+}
+
+// Formateador del Rol de Discord para mención <@&ID>
+function formatearMencionRol(idRol, infoRango) {
+    const limpio = (idRol || '').toString().replace(/[<@&>]/g, '').trim();
+    if (limpio) {
+        return `<@&${limpio}>`;
     }
-})();
+    return `**${infoRango.emoji} ${infoRango.nombre}**`;
+}
+
+// Construye el Embed bonito para Discord con todos los movimientos aplicados
+function construirPayloadAscensosDiscord(listaMovimientos, configMap, responsable) {
+    const ascensosTexto = [];
+    const degradacionesTexto = [];
+    const bajasCiudadanoTexto = [];
+
+    listaMovimientos.forEach(m => {
+        const infoAnt = CATALOGO_RANGOS[m.rango_anterior_clave] || CATALOGO_RANGOS.pruebas;
+        const infoNuevo = CATALOGO_RANGOS[m.nuevo_rango_clave] || CATALOGO_RANGOS.pruebas;
+
+        const mencionAnt = formatearMencionRol(configMap[`rol_${m.rango_anterior_clave}`], infoAnt);
+        const mencionNuevo = formatearMencionRol(configMap[`rol_${m.nuevo_rango_clave}`], infoNuevo);
+
+        const discordTag = m.discord_id
+            ? `<@${m.discord_id.replace(/[<@!>]/g, '').trim()}> (\`${m.nombre}\`)`
+            : `**${m.nombre}** (\`@${m.usuario}\`)`;
+
+        const notaMotivo = m.motivo ? `\n   └ 📝 *Motivo: ${m.motivo}*` : '';
+
+        if (m.nuevo_rango_clave === 'ciudadano') {
+            bajasCiudadanoTexto.push(
+                `🔴 ${discordTag}\n   └ **Estado:** Baja del taller ➔ ${mencionNuevo} *(Cuenta retirada del sistema)*${notaMotivo}`
+            );
+        } else if (infoNuevo.orden >= infoAnt.orden) {
+            ascensosTexto.push(
+                `🟢 ${discordTag}\n   └ **Ascenso:** ${mencionAnt} ➔ ${mencionNuevo} (**${infoNuevo.comision}% Comisión**)${notaMotivo}`
+            );
+        } else {
+            degradacionesTexto.push(
+                `🟠 ${discordTag}\n   └ **Ajuste de Rango:** ${mencionAnt} ➔ ${mencionNuevo} (**${infoNuevo.comision}% Comisión**)${notaMotivo}`
+            );
+        }
+    });
+
+    const fields = [];
+
+    if (ascensosTexto.length > 0) {
+        fields.push({
+            name: '🚀 ASCENSOS Y PROMOCIONES OFICIALES',
+            value: ascensosTexto.join('\n\n').slice(0, 1024),
+            inline: false
+        });
+    }
+
+    if (degradacionesTexto.length > 0) {
+        fields.push({
+            name: '📉 AJUSTES DE RANGO / DEGRADACIONES',
+            value: degradacionesTexto.join('\n\n').slice(0, 1024),
+            inline: false
+        });
+    }
+
+    if (bajasCiudadanoTexto.length > 0) {
+        fields.push({
+            name: '🚪 BAJAS DEL TALLER (CIUDADANO)',
+            value: bajasCiudadanoTexto.join('\n\n').slice(0, 1024),
+            inline: false
+        });
+    }
+
+    const fechaMx = new Date().toLocaleDateString('es-MX', {
+        timeZone: 'America/Mexico_City',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    return {
+        username: "AutoExotic • Dirección General",
+        content: "📢 **¡ACTUALIZACIÓN OFICIAL DE PLANTILLA Y CORTE SEMANAL AUTOEXOTIC!**",
+        embeds: [
+            {
+                title: "🏆 REGISTRO OFICIAL DE ASCENSOS Y MOVIMIENTOS",
+                description: `Se han aplicado los nuevos rangos, porcentajes de comisión y bajas correspondientes al cierre de semana.\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+                color: 0x06b6d4,
+                fields: fields,
+                footer: {
+                    text: `Autorizado por: ${responsable || 'Dirección AutoExotic'} • ${fechaMx}`
+                },
+                timestamp: new Date().toISOString()
+            }
+        ]
+    };
+}
 
 const onlineSockets = new Map();
 io.on('connection', (socket) => {
@@ -87,7 +218,198 @@ function notificarCambioGlobal(evento, data = {}) {
     io.emit('db_update', { evento, ...data });
 }
 
+// ==========================================
+// ENDPOINTS DE CONFIGURACIÓN DISCORD Y ASCENSOS
+// ==========================================
+
+// Obtener configuración de Webhook e IDs de Roles de Discord
+app.get('/api/discord/config', async (req, res) => {
+    try {
+        const result = await db.execute("SELECT clave, valor FROM discord_config");
+        const config = {};
+        result.rows.forEach(r => { config[r.clave] = r.valor || ''; });
+        res.json({ config, catalogo_rangos: CATALOGO_RANGOS });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Guardar configuración de Webhook e IDs de Roles de Discord
+app.put('/api/discord/config', async (req, res) => {
+    const configData = req.body || {};
+    try {
+        for (const [clave, valor] of Object.entries(configData)) {
+            await db.execute({
+                sql: "INSERT OR REPLACE INTO discord_config (clave, valor) VALUES (?, ?)",
+                args: [clave, (valor || '').toString().trim()]
+            });
+        }
+        notificarCambioGlobal('discord_config_actualizada');
+        res.json({ message: "Configuración de Discord y Roles guardada con éxito." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Obtener lista de ascensos/bajas programados para el corte
+app.get('/api/ascensos-programados', async (req, res) => {
+    try {
+        const sql = `
+            SELECT a.*, u.nombre, u.usuario, u.rol, u.comision_porcentaje, u.discord_id, u.avatar
+            FROM ascensos_programados a
+            JOIN usuarios u ON a.usuario_id = u.id
+            ORDER BY a.fecha DESC
+        `;
+        const result = await db.execute(sql);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Programar un ascenso, cambio de rango o baja a Ciudadano
+app.post('/api/ascensos-programados', async (req, res) => {
+    const { usuario_id, nuevo_rango_clave, motivo, programado_por, discord_id } = req.body;
+    if (!usuario_id || !nuevo_rango_clave || !CATALOGO_RANGOS[nuevo_rango_clave]) {
+        return res.status(400).json({ error: "Selecciona un trabajador y un rango válido." });
+    }
+
+    try {
+        const userRes = await db.execute({
+            sql: "SELECT id, rol, comision_porcentaje FROM usuarios WHERE id = ?",
+            args: [usuario_id]
+        });
+        if (userRes.rows.length === 0) return res.status(404).json({ error: "Trabajador no encontrado." });
+
+        const u = userRes.rows[0];
+        const rangoAnteriorClave = deducirClaveRango(u.rol, u.comision_porcentaje);
+
+        // Si se proporcionó el Discord ID del usuario al programar, lo actualizamos en su ficha
+        if (discord_id !== undefined) {
+            await db.execute({
+                sql: "UPDATE usuarios SET discord_id = ? WHERE id = ?",
+                args: [discord_id.toString().replace(/[<@!>]/g, '').trim(), usuario_id]
+            });
+        }
+
+        await db.execute({
+            sql: `INSERT OR REPLACE INTO ascensos_programados 
+                  (usuario_id, rango_anterior_clave, nuevo_rango_clave, motivo, programado_por, fecha) 
+                  VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+            args: [
+                Number(usuario_id),
+                rangoAnteriorClave,
+                nuevo_rango_clave,
+                (motivo || '').trim(),
+                programado_por || 'Admin'
+            ]
+        });
+
+        notificarCambioGlobal('ascensos_actualizados');
+        res.json({ message: "Movimiento programado para el próximo corte semanal." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Cancelar/Eliminar un ascenso programado antes del corte
+app.delete('/api/ascensos-programados/:id', async (req, res) => {
+    try {
+        await db.execute({ sql: "DELETE FROM ascensos_programados WHERE id = ?", args: [req.params.id] });
+        notificarCambioGlobal('ascensos_actualizados');
+        res.json({ message: "Ascenso programado eliminado." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Función centralizada que aplica los ascensos programados, borra a los "Ciudadano" y manda el Webhook
+async function procesarAscensosProgramados(responsable = 'Admin') {
+    const ascRes = await db.execute(`
+        SELECT a.*, u.nombre, u.usuario, u.rol, u.comision_porcentaje, u.discord_id
+        FROM ascensos_programados a
+        JOIN usuarios u ON a.usuario_id = u.id
+        ORDER BY a.id ASC
+    `);
+
+    const programados = ascRes.rows;
+    if (programados.length === 0) {
+        return { aplicados: 0, eliminados: 0, webhook: { enviado: false, razon: 'No había ascensos programados.' } };
+    }
+
+    const cfgRes = await db.execute("SELECT clave, valor FROM discord_config");
+    const configMap = {};
+    cfgRes.rows.forEach(r => { configMap[r.clave] = r.valor || ''; });
+
+    let aplicados = 0;
+    let eliminados = 0;
+
+    for (const item of programados) {
+        const infoNuevo = CATALOGO_RANGOS[item.nuevo_rango_clave];
+        if (!infoNuevo) continue;
+
+        if (item.nuevo_rango_clave === 'ciudadano') {
+            // Se le da de baja y se borra su cuenta y registros de la página
+            await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [item.usuario_id] });
+            await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [item.usuario_id] });
+            await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [item.usuario_id] });
+            notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(item.usuario_id) });
+            eliminados++;
+        } else {
+            // Conservamos permiso admin si ya lo tenía, salvo que suba a jefe
+            let nuevoRolSistema = item.rol;
+            if (item.nuevo_rango_clave === 'jefe') {
+                nuevoRolSistema = 'jefe';
+            } else if (item.nuevo_rango_clave === 'subjefe' && nuevoRolSistema === 'empleado') {
+                nuevoRolSistema = 'admin';
+            } else if (nuevoRolSistema === 'jefe' && item.nuevo_rango_clave !== 'jefe') {
+                nuevoRolSistema = 'admin';
+            }
+
+            await db.execute({
+                sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?",
+                args: [infoNuevo.comision, nuevoRolSistema, item.usuario_id]
+            });
+
+            notificarCambioGlobal('usuario_modificado', {
+                usuario_id: Number(item.usuario_id),
+                comision_porcentaje: infoNuevo.comision,
+                rol: nuevoRolSistema
+            });
+            aplicados++;
+        }
+    }
+
+    // Limpiar la cola de ascensos programados tras aplicarlos
+    await db.execute("DELETE FROM ascensos_programados");
+
+    // Construir y disparar el mensaje hacia Discord
+    const payloadDiscord = construirPayloadAscensosDiscord(programados, configMap, responsable);
+    const resultadoWebhook = await enviarWebhookDiscord(configMap.webhook_url, payloadDiscord);
+
+    notificarCambioGlobal('ascensos_actualizados');
+    notificarCambioGlobal('top_actualizado');
+
+    return { aplicados, eliminados, webhook: resultadoWebhook };
+}
+
+// Botón opcional por si el Admin desea aplicar y publicar los ascensos sin reiniciar facturas
+app.post('/api/ascensos-programados/aplicar-ahora', async (req, res) => {
+    const { usuario_nombre } = req.body;
+    try {
+        const resultado = await procesarAscensosProgramados(usuario_nombre || 'Admin');
+        res.json({
+            message: `Se aplicaron ${resultado.aplicados} ascenso(s) y ${resultado.eliminados} baja(s) a Ciudadano.`,
+            ...resultado
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ==========================================
 // CONVENIOS DE FACCIONES
+// ==========================================
 app.get('/api/convenios', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM convenios_facciones ORDER BY faccion ASC");
@@ -154,19 +476,12 @@ app.post('/api/login', async (req, res) => {
     const userClean = (usuario || '').trim().toLowerCase();
 
     try {
-        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar FROM usuarios WHERE usuario = ? AND password = ?`;
+        const sql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(discord_id, '') as discord_id FROM usuarios WHERE usuario = ? AND password = ?`;
         const result = await db.execute({ sql, args: [userClean, password] });
         if (result.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
         res.json(result.rows[0]);
     } catch (err) {
-        try {
-            const fallbackSql = `SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios WHERE usuario = ? AND password = ?`;
-            const fallbackRes = await db.execute({ sql: fallbackSql, args: [userClean, password] });
-            if (fallbackRes.rows.length === 0) return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
-            res.json({ ...fallbackRes.rows[0], puntos: 0, avatar: null });
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -248,25 +563,45 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
 // 7. LISTA DE USUARIOS
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(discord_id, '') as discord_id, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, CURRENT_TIMESTAMP as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows.map(r => ({ ...r, puntos: 0, avatar: null })));
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
-// 8. MODIFICAR RANGO, PERMISOS Y PUNTOS DE USUARIO
+// 8. MODIFICAR RANGO, PERMISOS, PUNTOS Y DISCORD_ID DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
-    const { usuario_id, comision_porcentaje, rol, puntos } = req.body;
+    const { usuario_id, comision_porcentaje, rol, puntos, discord_id } = req.body;
     try {
-        try { await db.execute({ sql: "UPDATE usuarios SET puntos = ? WHERE id = ?", args: [Number(puntos) || 0, usuario_id] }); } catch(e){}
-        await db.execute({ sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?", args: [comision_porcentaje, rol, usuario_id] });
-        notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol, puntos: Number(puntos) || 0 });
+        // Si seleccionaron "ciudadano" directamente en la tabla, eliminamos la cuenta
+        if (rol === 'ciudadano' || Number(comision_porcentaje) === -99) {
+            await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
+            await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [usuario_id] });
+            await db.execute({ sql: "DELETE FROM ascensos_programados WHERE usuario_id = ?", args: [usuario_id] });
+            await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
+            notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
+            notificarCambioGlobal('top_actualizado');
+            return res.json({ message: "Usuario pasado a Ciudadano y eliminado de la página." });
+        }
+
+        await db.execute({
+            sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ?, puntos = ?, discord_id = COALESCE(?, discord_id) WHERE id = ?",
+            args: [
+                comision_porcentaje,
+                rol,
+                Number(puntos) || 0,
+                discord_id !== undefined ? discord_id.toString().replace(/[<@!>]/g, '').trim() : null,
+                usuario_id
+            ]
+        });
+
+        notificarCambioGlobal('usuario_modificado', {
+            usuario_id: Number(usuario_id),
+            comision_porcentaje,
+            rol,
+            puntos: Number(puntos) || 0
+        });
         notificarCambioGlobal('top_actualizado');
         res.json({ message: "Usuario actualizado." });
     } catch (err) {
@@ -280,6 +615,7 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [usuario_id] });
+        await db.execute({ sql: "DELETE FROM ascensos_programados WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
         notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
         notificarCambioGlobal('top_actualizado');
@@ -316,18 +652,35 @@ app.delete('/api/facturas/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 12. REINICIAR SEMANA (Borra facturas pero mantiene intactos los puntos de los usuarios)
+// 12. REINICIAR SEMANA (Liquida facturas + Aplica Ascensos Programados + Borra Ciudadanos + Publica en Discord)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
+        // 1. Borrar todas las facturas de la semana
         await db.execute("DELETE FROM facturas");
-        await db.execute({ sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', 'Reinicio de ciclo semanal: facturas liquidadas (puntos preservados).', 0, ?)", args: [usuario_nombre || 'Admin'] });
-        notificarCambioGlobal('reinicio_semana'); notificarCambioGlobal('top_actualizado');
-        res.json({ message: "Semana reiniciada correctamente." });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+
+        // 2. Aplicar todos los ascensos programados y bajas a Ciudadano + Enviar Webhook a Discord
+        const resultadoAscensos = await procesarAscensosProgramados(usuario_nombre || 'Admin');
+
+        const detalleMov = `Reinicio semanal: facturas liquidadas. Ascensos aplicados: ${resultadoAscensos.aplicados}, Bajas (Ciudadano): ${resultadoAscensos.eliminados}.`;
+        await db.execute({
+            sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', ?, 0, ?)",
+            args: [detalleMov, usuario_nombre || 'Admin']
+        });
+
+        notificarCambioGlobal('reinicio_semana');
+        notificarCambioGlobal('top_actualizado');
+
+        res.json({
+            message: "Semana reiniciada y ascensos aplicados correctamente.",
+            ascensos: resultadoAscensos
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// 13. REGISTRAR FACTURA (1 punto por cada $50,000 de ganancia neta del taller)
+// 13. REGISTRAR FACTURA
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -380,7 +733,6 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
-        // PUNTOS CALCULADOS EN BASE A LA GANANCIA NETA DEL TALLER
         const puntosGanados = Math.floor(ganancia_neta / 50000) || 1;
         try { await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] }); } catch(e){}
 
@@ -416,7 +768,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 16. TOP TRABAJADORES (PUNTOS PERSISTENTES GARANTIZADOS DE LA TABLA USUARIOS)
+// 16. TOP TRABAJADORES
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
@@ -435,22 +787,7 @@ app.get('/api/top-trabajadores', async (req, res) => {
         const result = await db.execute(sql);
         res.json(result.rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute(`
-                SELECT u.id, u.nombre, u.usuario, COALESCE(u.rol, 'empleado') as rol, COALESCE(u.comision_porcentaje, 30) as comision_porcentaje, COALESCE(u.puntos, 0) as puntos, CURRENT_TIMESTAMP as created_at,
-                       COUNT(f.id) as total_facturas,
-                       COALESCE(SUM(f.total_cliente), 0) as total_vendido,
-                       COALESCE(SUM(f.ganancia_neta), 0) as ganancia_generada,
-                       COALESCE(SUM(f.comision_empleado), 0) as comision_ganada
-                FROM usuarios u
-                LEFT JOIN facturas f ON u.id = f.usuario_id
-                GROUP BY u.id
-                ORDER BY ganancia_generada DESC
-            `);
-            res.json(fallback.rows);
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 

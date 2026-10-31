@@ -1,7 +1,7 @@
 {
   "name": "taller-app",
-  "version": "1.0.0",
-  "description": "Sistema de gestión, almacén y facturación de taller en tiempo real",
+  "version": "1.1.0",
+  "description": "Sistema de gestión, almacén, ascensos y facturación de taller en tiempo real",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
