@@ -113,7 +113,7 @@
         }
         .ribbon-chip:hover { transform: scale(1.2); z-index: 10; }
 
-        /* ESTILO MODELO TABLA DE ASCENSOS (COMO LA IMAGEN) */
+        /* ESTILO MODELO TABLA DE ASCENSOS */
         .tabla-ascensos-wrapper {
             background: #07060c;
             border: 1px solid #2b1847;
@@ -722,16 +722,15 @@
             <div id="topContenedor" class="space-y-4"></div>
         </div>
 
-        <!-- NUEVA SECCIÓN: MODELO TABLA DE POSTULACIONES Y ASCENSOS (IDÉNTICO A LA IMAGEN) -->
+        <!-- NUEVA SECCIÓN: MODELO TABLA DE POSTULACIONES Y ASCENSOS -->
         <div id="seccion-ascensos" class="space-y-6 hidden">
-            <!-- BARRA SUPERIOR DE CONTROL DE LA TABLA -->
             <div class="card-dark p-5 rounded-2xl border border-purple-500/30 flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h2 class="text-xl font-black text-white uppercase flex items-center gap-2">
                         <span>📋</span> PLANTILLA OFICIAL DE RANGOS Y POSTULACIONES (MAYOR A MENOR)
                     </h2>
                     <p class="text-xs text-zinc-400 mt-0.5">
-                        Detecta automáticamente a todos los trabajadores de la base de datos. Pon su <strong>Discord ID</strong> manual y elige su <strong>Rango a Postular</strong>. Al darle a <strong class="text-rose-400">Corte Semanal</strong> (o al botón de aplicar), se actualizarán sus comisiones, se borrarán quienes pasen a <strong class="text-rose-400">Ciudadano</strong> y se enviará el anuncio a Discord.
+                        Aquí aparecen todos tus trabajadores ordenados desde el rango más alto al más bajo. Pon su <strong>Discord ID</strong> manual y elige su <strong>Rango a Postular</strong>. Se aplicarán automáticamente al hacer el <strong class="text-rose-400">Corte Semanal</strong>.
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
@@ -749,7 +748,7 @@
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
                     <div>
                         <h3 class="text-sm font-black text-purple-300 uppercase">🔗 CONFIGURACIÓN DE WEBHOOK E IDs DE ROLES DE DISCORD (<code class="text-amber-300">&lt;@&amp;ID&gt;</code>)</h3>
-                        <p class="text-[11px] text-zinc-400">Coloca la URL del Webhook y el ID de cada rol de tu servidor de Discord para que el mensaje los etiquete automáticamente.</p>
+                        <p class="text-[11px] text-zinc-400">Coloca la URL del Webhook y el ID de cada rol de tu servidor de Discord para que el mensaje los mencione con su color.</p>
                     </div>
                     <button onclick="togglePanelConfigDiscord()" class="text-xs text-zinc-400 hover:text-white font-bold">✕ Cerrar</button>
                 </div>
@@ -835,14 +834,14 @@
             <div class="card-dark p-6 rounded-xl border-2 border-rose-500/40 bg-rose-950/20 flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h3 class="text-lg font-black text-rose-400 uppercase flex items-center gap-2">
-                        🚨 CORTE SEMANAL, APLICACIÓN DE ASCENSOS Y REINICIO DE FACTURAS
+                        🚨 CORTE SEMANAL Y REINICIO DE FACTURAS
                     </h3>
                     <p class="text-xs text-zinc-400 mt-1">
-                        Limpia todas las facturas a $0, <strong>aplica los ascensos de la tabla de postulaciones</strong>, borra de la página a quienes tengan postulado <strong>Ciudadano</strong> y envía el mensaje al Webhook de Discord.
+                        Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas y puntos intactos, y aplica los ascensos de la tabla en Discord.
                     </p>
                 </div>
                 <button onclick="ejecutarReinicioSemanal()" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/30">
-                    🔄 Reiniciar Semana / Aplicar Ascensos
+                    🔄 Reiniciar Semana / Pagar
                 </button>
             </div>
 
@@ -896,15 +895,15 @@
                         <h2 class="text-2xl font-black text-white uppercase">👑 JERARQUÍA, RANGOS Y NIVELES (ADMIN)</h2>
                         <p class="text-xs text-zinc-400 mt-0.5">Controla rangos, permisos, niveles de experiencia, puntos y medallas personalizadas para cada trabajador.</p>
                     </div>
-                    <div class="flex flex-wrap gap-1.5 text-[10px] font-black">
-                        <span class="bg-amber-500/15 border border-amber-500/40 text-amber-300 px-2 py-1 rounded-lg">👑 Jefe: 0%</span>
-                        <span class="bg-rose-500/15 border border-rose-500/40 text-rose-400 px-2 py-1 rounded-lg">🛡️ Subjefe: 0%</span>
-                        <span class="bg-yellow-500/15 border border-yellow-500/40 text-yellow-400 px-2 py-1 rounded-lg">👔 Encargado: 45%</span>
-                        <span class="bg-orange-500/15 border border-orange-500/40 text-orange-300 px-2 py-1 rounded-lg">🛠️ M. Maestro: 43%</span>
-                        <span class="bg-purple-500/15 border border-purple-500/40 text-purple-300 px-2 py-1 rounded-lg">⭐ M. Experto: 40%</span>
-                        <span class="bg-sky-500/15 border border-sky-500/40 text-sky-300 px-2 py-1 rounded-lg">🔩 M. Senior: 37%</span>
-                        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 px-2 py-1 rounded-lg">🔧 Mecánico: 35%</span>
-                        <span class="bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 px-2 py-1 rounded-lg">🔰 En Pruebas: 30%</span>
+                    <div class="flex flex-wrap gap-2 text-[11px] font-black">
+                        <span class="bg-amber-500/15 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg">👑 Jefe: 0%</span>
+                        <span class="bg-rose-500/15 border border-rose-500/40 text-rose-400 px-2.5 py-1 rounded-lg">🛡️ Subjefe: 0%</span>
+                        <span class="bg-yellow-500/15 border border-yellow-500/40 text-yellow-400 px-2.5 py-1 rounded-lg">👔 Encargado: 45%</span>
+                        <span class="bg-orange-500/15 border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-lg">🛠️ M. Maestro: 43%</span>
+                        <span class="bg-purple-500/15 border border-purple-500/40 text-purple-300 px-2.5 py-1 rounded-lg">⭐ M. Experto: 40%</span>
+                        <span class="bg-sky-500/15 border border-sky-500/40 text-sky-300 px-2.5 py-1 rounded-lg">🔩 M. Senior: 37%</span>
+                        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 px-2.5 py-1 rounded-lg">🔧 Mecánico: 35%</span>
+                        <span class="bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 px-2.5 py-1 rounded-lg">🔰 En Pruebas: 30%</span>
                     </div>
                 </div>
 
@@ -1049,7 +1048,6 @@
         }
         crearFaviconCircular();
 
-        // CONFIGURACIÓN DE RANGOS CON PESO DE ORDENAMIENTO (MAYOR A MENOR) Y ESTÉTICA 『ICON』
         const RANGOS_JERARQUIA = {
             jefe:      { orden: 8, label: '『👑』 Jefe (0%)',             colorTexto: 'text-amber-300',   comision: 0 },
             subjefe:   { orden: 7, label: '『🛡️』 Subjefe (0%)',          colorTexto: 'text-rose-400',    comision: 0 },
@@ -1148,6 +1146,8 @@
         }
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
+
+        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {}
 
         const socket = io();
 
@@ -1351,6 +1351,7 @@
             
             { id: 29, categoria: 'TURBO', emoji: '🚀', nombre: 'Turbo', venta: 10000, costo: 7000 },
 
+            // DRIFT Y NITRO
             { id: 24, categoria: 'DRIFT Y NITRO', emoji: '🏎️', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', emoji: '🧪', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', emoji: '🍾', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
@@ -1365,6 +1366,7 @@
             { id: 13, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
+            // COMBOS (V8 Pro a $140,000 con Turbo y 3 rendimientos)
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1630,6 +1632,7 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
+        // ESCUCHA DE EVENTOS EN TIEMPO REAL
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
             if (data.evento === 'ascensos_actualizados' || data.evento === 'discord_config_actualizada') {
@@ -1656,7 +1659,7 @@
             }
 
             if (data.evento === 'usuario_eliminado' && usuarioActual && Number(usuarioActual.id) === Number(data.usuario_id)) {
-                mostrarAviso('Cuenta Dada de Baja', 'Tu cuenta ha pasado a Ciudadano y fue eliminada de la página.', true);
+                mostrarAviso('Cuenta Eliminada', 'Tu cuenta fue eliminada por un Administrador.', true);
                 usuarioActual = null;
                 actualizarVistaUsuario();
                 return;
@@ -1918,7 +1921,7 @@
 
             const targetBtn = document.getElementById(`tab-${pestana === 'calculadora' ? 'calc' : pestana === 'historial' ? 'hist' : pestana}`);
             if (targetBtn) {
-                if (pestana === 'tienda') {
+                if(pestana === 'tienda') {
                     targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white transition';
                 } else if (pestana === 'ascensos') {
                     targetBtn.className = 'tab-btn px-4 py-2 rounded-lg font-bold text-xs bg-gradient-to-r from-purple-700 to-indigo-600 text-white transition';
@@ -1954,7 +1957,7 @@
         }
 
         // ==========================================
-        // MODELO TABLA DE POSTULACIONES Y ASCENSOS (ORDENADO DE MAYOR A MENOR)
+        // MODELO TABLA DE POSTULACIONES Y ASCENSOS
         // ==========================================
         function togglePanelConfigDiscord() {
             const panel = document.getElementById('panelConfigDiscord');
@@ -1963,7 +1966,7 @@
 
         async function cargarSeccionAscensos() {
             try {
-                // 1. Cargar Configuración de Discord
+                // 1. Cargar configuración de Discord
                 const resCfg = await fetch('/api/discord/config');
                 if (resCfg.ok) {
                     const dataCfg = await resCfg.json();
@@ -1982,13 +1985,20 @@
                     }
                 }
 
-                // 2. Obtener todos los usuarios de la base de datos y ordenarlos de RANGO MAYOR A MENOR
-                const resUsers = await fetch('/api/usuarios');
-                const listaUsuarios = await resUsers.json();
-                if (!Array.isArray(listaUsuarios)) return;
-                usuariosAdminGlobal = listaUsuarios;
+                // 2. Obtener plantilla de trabajadores desde la ruta dedicada (y respaldo directo a /api/usuarios)
+                let listaPlantilla = [];
+                const resPlantilla = await fetch('/api/ascensos/plantilla');
+                if (resPlantilla.ok) {
+                    listaPlantilla = await resPlantilla.json();
+                } else {
+                    const resUsers = await fetch('/api/usuarios');
+                    listaPlantilla = await resUsers.json();
+                }
 
-                const ordenados = [...listaUsuarios].sort((a, b) => {
+                if (!Array.isArray(listaPlantilla)) listaPlantilla = [];
+
+                // Ordenar de Rango Mayor a Menor automáticamente
+                const ordenados = [...listaPlantilla].sort((a, b) => {
                     const claveA = obtenerClaveRango(a.rol, a.comision_porcentaje);
                     const claveB = obtenerClaveRango(b.rol, b.comision_porcentaje);
                     const pesoA = RANGOS_JERARQUIA[claveA]?.orden ?? 1;
@@ -2033,12 +2043,9 @@
 
                 html += `
                     <tr class="tabla-ascensos-row ${hayCambioPendiente ? 'bg-purple-950/20' : ''}">
-                        <!-- # -->
                         <td class="py-4 px-5 text-xs font-mono text-zinc-400 font-bold">
                             ${index + 1}
                         </td>
-
-                        <!-- DISCORD ID MANUAL -->
                         <td class="py-4 px-5">
                             <input 
                                 type="text" 
@@ -2049,16 +2056,12 @@
                                 class="bg-transparent border border-transparent hover:border-purple-500/40 focus:border-purple-400 focus:bg-[#120e1f] rounded-lg px-2.5 py-1.5 text-xs font-mono text-zinc-300 w-44 outline-none transition"
                             />
                         </td>
-
-                        <!-- NOMBRE (IC) -->
                         <td class="py-4 px-5">
                             <div class="font-black text-white text-sm tracking-wide flex items-center gap-2">
                                 <span>${u.nombre}</span>
                                 ${hayCambioPendiente ? '<span class="text-[9px] bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40 px-1.5 py-0.5 rounded font-black uppercase">Pendiente</span>' : ''}
                             </div>
                         </td>
-
-                        <!-- RANGO ACTUAL -->
                         <td class="py-4 px-5">
                             <select 
                                 id="asc_actual_${u.id}" 
@@ -2068,8 +2071,6 @@
                                 ${generarOpcionesSelectRango(claveActual, false)}
                             </select>
                         </td>
-
-                        <!-- RANGO A POSTULAR (INCLUYE CIUDADANO) -->
                         <td class="py-4 px-5">
                             <select 
                                 id="asc_postular_${u.id}" 
@@ -2079,8 +2080,6 @@
                                 ${generarOpcionesSelectRango(clavePostular, true)}
                             </select>
                         </td>
-
-                        <!-- ESTADO (ACTIVO / AUSENCIA) -->
                         <td class="py-4 px-5 text-center">
                             <select 
                                 id="asc_estado_${u.id}" 
@@ -2104,7 +2103,6 @@
             let rango_postular_clave = document.getElementById(`asc_postular_${usuario_id}`).value;
             const estado_laboral = document.getElementById(`asc_estado_${usuario_id}`).value;
 
-            // Si cambiaron manualmente el Rango Actual y antes no tenía postulación distinta, sincronizamos
             if (cambioRangoActual) {
                 rango_postular_clave = rango_actual_clave;
             }
@@ -2291,7 +2289,7 @@
         }
 
         async function ejecutarReinicioSemanal() {
-            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas, aplicará automáticamente los ascensos de la tabla de postulaciones, borrará a quienes pasen a CIUDADANO y publicará el anuncio en Discord.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
+            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas para empezar el nuevo ciclo semanal y aplicará los ascensos de la tabla en Discord.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
             
             if (confirmacion !== 'REINICIAR') {
                 return mostrarAviso('Acción Cancelada', 'No se realizaron cambios en las facturas.');
@@ -2305,10 +2303,7 @@
 
             const data = await res.json();
             if (res.ok) {
-                const detalleAsc = data.ascensos
-                    ? `\nAscensos aplicados: ${data.ascensos.aplicados} | Bajas (Ciudadano): ${data.ascensos.eliminados}.`
-                    : '';
-                mostrarAviso('¡Semana Reiniciada!', `Todas las facturas se han liquidado y la tabla de ascensos fue procesada.${detalleAsc}`);
+                mostrarAviso('¡Semana Reiniciada!', 'Todas las facturas se han liquidado, los puntos quedaron guardados y los ascensos programados fueron aplicados.');
                 cargarGestionAdmin();
                 cargarTop();
             } else {
@@ -2373,7 +2368,7 @@
                                     </div>
                                 </td>
                                 <td class="p-3">
-                                    <select id="rangoPreset-${u.id}" class="input-dark px-2.5 py-1 rounded-xl text-xs font-bold w-full max-w-[180px]">
+                                    <select id="rangoPreset-${u.id}" class="input-dark px-2.5 py-1 rounded-xl text-xs font-bold w-full max-w-[175px]">
                                         <option value="jefe" ${presetActual === 'jefe' ? 'selected' : ''}>👑 Jefe (0%)</option>
                                         <option value="subjefe" ${presetActual === 'subjefe' ? 'selected' : ''}>🛡️ Subjefe (0%)</option>
                                         <option value="encargado" ${presetActual === 'encargado' ? 'selected' : ''}>👔 Encargado (45%)</option>
@@ -2382,7 +2377,6 @@
                                         <option value="senior" ${presetActual === 'senior' ? 'selected' : ''}>🔩 M. Senior (37%)</option>
                                         <option value="mecanico" ${presetActual === 'mecanico' ? 'selected' : ''}>🔧 Mecánico (35%)</option>
                                         <option value="pruebas" ${presetActual === 'pruebas' ? 'selected' : ''}>🔰 En Pruebas (30%)</option>
-                                        <option value="ciudadano">👤 Ciudadano (Borrar)</option>
                                     </select>
                                 </td>
                                 <td class="p-3">
@@ -2477,20 +2471,6 @@
         async function guardarCambiosUsuario(usuario_id) {
             const preset = document.getElementById(`rangoPreset-${usuario_id}`).value;
             let rol = document.getElementById(`permisoAdmin-${usuario_id}`).value;
-
-            if (preset === 'ciudadano') {
-                if (!confirm('¿Estás seguro de pasar a este trabajador a Ciudadano? Se borrará de la página.')) return;
-                const res = await fetch('/api/usuarios/modificar', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario_id, comision_porcentaje: -99, rol: 'ciudadano' })
-                });
-                if (res.ok) {
-                    mostrarAviso('Usuario Dado de Baja', 'El trabajador pasó a Ciudadano y fue eliminado.');
-                    cargarGestionAdmin();
-                }
-                return;
-            }
             
             let comision_porcentaje = 30;
 
@@ -2681,7 +2661,7 @@
             container.innerHTML = html;
         }
 
-        // TOP TRABAJADORES (IDÉNTICO AL ORIGINAL QUE FUNCIONABA)
+        // TOP TRABAJADORES (PUNTOS PERSISTENTES LEÍDOS DIRECTAMENTE DE LA BD)
         async function cargarTop() {
             try {
                 const res = await fetch('/api/top-trabajadores');
@@ -2743,7 +2723,6 @@
             } catch(e){}
         }
 
-        // HISTORIAL PERSONAL (IDÉNTICO AL ORIGINAL QUE FUNCIONABA)
         async function cargarHistorial() {
             if (!usuarioActual) return;
             try {
@@ -3195,6 +3174,7 @@
             catalogo.forEach(item => {
                 if (item.id === 99) return;
                 
+                // V12 de $300,000 / 600 = 500 Pts
                 const costoPuntos = Math.max(1, Math.floor(item.costo / 600));
                 
                 const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.icon || '🎁');

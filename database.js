@@ -23,13 +23,13 @@ async function initDB() {
             rol TEXT DEFAULT 'empleado'
         )`);
 
-        // Columnas adicionales seguras sin afectar datos existentes
-        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`); } catch (e) {}
-        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0`); } catch (e) {}
-        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN avatar TEXT`); } catch (e) {}
-        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN discord_id TEXT DEFAULT ''`); } catch (e) {}
-        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN rango_postular TEXT DEFAULT ''`); } catch (e) {}
-        try { await client.execute(`ALTER TABLE usuarios ADD COLUMN estado_laboral TEXT DEFAULT 'Activo'`); } catch (e) {}
+        // Comprobación y creación automática de la columna created_at
+        try {
+            await client.execute(`ALTER TABLE usuarios ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`);
+            console.log("Columna created_at agregada con éxito.");
+        } catch (e) {
+            // Ya existía la columna
+        }
 
         await client.execute(`CREATE TABLE IF NOT EXISTS facturas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,10 +62,17 @@ async function initDB() {
             fecha DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
-        // Configuración de Webhook e IDs de Roles de Discord
+        // TABLAS NUEVAS INDEPENDIENTES (No alteran la tabla usuarios original)
         await client.execute(`CREATE TABLE IF NOT EXISTS discord_config (
             clave TEXT PRIMARY KEY,
             valor TEXT
+        )`);
+
+        await client.execute(`CREATE TABLE IF NOT EXISTS ascensos_datos (
+            usuario_id INTEGER PRIMARY KEY,
+            discord_id TEXT DEFAULT '',
+            rango_postular TEXT DEFAULT '',
+            estado_laboral TEXT DEFAULT 'Activo'
         )`);
 
         await client.execute(`CREATE INDEX IF NOT EXISTS idx_facturas_usuario ON facturas(usuario_id)`);
@@ -75,26 +82,6 @@ async function initDB() {
         if (estado.rows[0].total === 0) {
             await client.execute("INSERT INTO taller_estado (id, capital, stock_v8, stock_v12) VALUES (1, 0, 0, 0)");
         }
-
-        const clavesDiscord = [
-            'webhook_url',
-            'rol_jefe',
-            'rol_subjefe',
-            'rol_encargado',
-            'rol_maestro',
-            'rol_experto',
-            'rol_senior',
-            'rol_mecanico',
-            'rol_pruebas',
-            'rol_ciudadano'
-        ];
-        for (const clave of clavesDiscord) {
-            await client.execute({
-                sql: "INSERT OR IGNORE INTO discord_config (clave, valor) VALUES (?, '')",
-                args: [clave]
-            });
-        }
-
         console.log("Base de datos y columnas sincronizadas correctamente.");
     } catch (err) {
         console.error("Error al inicializar tablas:", err);

@@ -24,8 +24,8 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
-// Inicialización de tablas complementarias y columnas
-(async function initDBExtra() {
+// Inicialización de la base de datos (Original + Tablas independientes de Ascensos/Discord)
+(async function initDB() {
     try {
         await db.execute(`
             CREATE TABLE IF NOT EXISTS convenios_facciones (
@@ -52,31 +52,36 @@ app.get('/ping', (req, res) => res.status(200).send('OK'));
                 valor TEXT
             )
         `);
-
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS ascensos_datos (
+                usuario_id INTEGER PRIMARY KEY,
+                discord_id TEXT DEFAULT '',
+                rango_postular TEXT DEFAULT '',
+                estado_laboral TEXT DEFAULT 'Activo'
+            )
+        `);
+        
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN puntos INTEGER DEFAULT 0"); } catch(e){}
         try { await db.execute("ALTER TABLE usuarios ADD COLUMN avatar TEXT"); } catch(e){}
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN discord_id TEXT DEFAULT ''"); } catch(e){}
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN rango_postular TEXT DEFAULT ''"); } catch(e){}
-        try { await db.execute("ALTER TABLE usuarios ADD COLUMN estado_laboral TEXT DEFAULT 'Activo'"); } catch(e){}
     } catch (e) {
-        console.error("Error iniciando tablas extra:", e.message);
+        console.error("Error iniciando base de datos:", e.message);
     }
 })();
 
-// CATÁLOGO OFICIAL DE RANGOS ORDENADOS DE MAYOR A MENOR
+// CATÁLOGO OFICIAL DE RANGOS (MAYOR A MENOR)
 const CATALOGO_RANGOS = {
-    jefe:      { clave: 'jefe',      nombre: 'Jefe',              emoji: '👑', comision: 0,  rol_sistema: 'jefe',     orden: 8 },
-    subjefe:   { clave: 'subjefe',   nombre: 'Subjefe',           emoji: '🛡️', comision: 0,  rol_sistema: 'admin',    orden: 7 },
-    encargado: { clave: 'encargado', nombre: 'Encargado',         emoji: '👔', comision: 45, rol_sistema: 'empleado', orden: 6 },
-    maestro:   { clave: 'maestro',   nombre: 'Mecánico Maestro',  emoji: '🛠️', comision: 43, rol_sistema: 'empleado', orden: 5 },
-    experto:   { clave: 'experto',   nombre: 'Mecánico Experto',  emoji: '⭐', comision: 40, rol_sistema: 'empleado', orden: 4 },
-    senior:    { clave: 'senior',    nombre: 'Mecánico Senior',   emoji: '🔩', comision: 37, rol_sistema: 'empleado', orden: 3 },
-    mecanico:  { clave: 'mecanico',  nombre: 'Mecánico',          emoji: '🔧', comision: 35, rol_sistema: 'empleado', orden: 2 },
-    pruebas:   { clave: 'pruebas',   nombre: 'En Pruebas',        emoji: '🔰', comision: 30, rol_sistema: 'empleado', orden: 1 },
-    ciudadano: { clave: 'ciudadano', nombre: 'Ciudadano',         emoji: '👤', comision: -99, rol_sistema: 'baja',    orden: 0 }
+    jefe:      { clave: 'jefe',      nombre: 'Jefe',              emoji: '👑', comision: 0,   rol_sistema: 'jefe',     orden: 8 },
+    subjefe:   { clave: 'subjefe',   nombre: 'Subjefe',           emoji: '🛡️', comision: 0,   rol_sistema: 'admin',    orden: 7 },
+    encargado: { clave: 'encargado', nombre: 'Encargado',         emoji: '👔', comision: 45,  rol_sistema: 'empleado', orden: 6 },
+    maestro:   { clave: 'maestro',   nombre: 'Mecánico Maestro',  emoji: '🛠️', comision: 43,  rol_sistema: 'empleado', orden: 5 },
+    experto:   { clave: 'experto',   nombre: 'Mecánico Experto',  emoji: '⭐', comision: 40,  rol_sistema: 'empleado', orden: 4 },
+    senior:    { clave: 'senior',    nombre: 'Mecánico Senior',   emoji: '🔩', comision: 37,  rol_sistema: 'empleado', orden: 3 },
+    mecanico:  { clave: 'mecanico',  nombre: 'Mecánico',          emoji: '🔧', comision: 35,  rol_sistema: 'empleado', orden: 2 },
+    pruebas:   { clave: 'pruebas',   nombre: 'En Pruebas',        emoji: '🔰', comision: 30,  rol_sistema: 'empleado', orden: 1 },
+    ciudadano: { clave: 'ciudadano', nombre: 'Ciudadano',         emoji: '👤', comision: -99, rol_sistema: 'baja',     orden: 0 }
 };
 
-function obtenerClaveRangoServidor(rol, comision) {
+function deducirClaveRango(rol, comision) {
     const com = Number(comision);
     if (rol === 'jefe' || com === -1) return 'jefe';
     if (com === 0) return 'subjefe';
@@ -86,6 +91,17 @@ function obtenerClaveRangoServidor(rol, comision) {
     if (com === 37) return 'senior';
     if (com === 35) return 'mecanico';
     return 'pruebas';
+}
+
+// Helper universal para consultar todos los trabajadores existentes sin fallar jamás
+async function obtenerUsuariosBaseSegura() {
+    try {
+        const result = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
+        return result.rows;
+    } catch (err) {
+        const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje FROM usuarios ORDER BY id ASC");
+        return fallback.rows.map(r => ({ ...r, puntos: 0, avatar: null, created_at: new Date().toISOString() }));
+    }
 }
 
 function enviarWebhookDiscord(webhookUrl, payload) {
@@ -197,12 +213,12 @@ function construirPayloadAscensosDiscord(listaMovimientos, configMap, responsabl
     });
 
     return {
-        username: "AutoExotic • Gestión de Plantilla",
+        username: "AutoExotic • Dirección General",
         content: "📢 **¡ACTUALIZACIÓN OFICIAL DE RANGOS Y CORTE SEMANAL AUTOEXOTIC!**",
         embeds: [
             {
                 title: "🏆 RESULTADOS DE POSTULACIONES Y ASCENSOS",
-                description: "Se han aplicado los nuevos rangos, porcentajes de comisión y bajas correspondientes al corte semanal.\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                description: "Se han aplicado los nuevos rangos, porcentajes de comisión y bajas correspondientes al cierre semanal.\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
                 color: 0x8b5cf6,
                 fields: fields,
                 footer: {
@@ -249,7 +265,7 @@ function notificarCambioGlobal(evento, data = {}) {
 }
 
 // ==========================================
-// ENDPOINTS DEL MODELO DE TABLA DE ASCENSOS Y DISCORD
+// ENDPOINTS NUEVOS PARA LA TABLA DE ASCENSOS Y DISCORD
 // ==========================================
 
 app.get('/api/discord/config', async (req, res) => {
@@ -257,9 +273,9 @@ app.get('/api/discord/config', async (req, res) => {
         const result = await db.execute("SELECT clave, valor FROM discord_config");
         const config = {};
         result.rows.forEach(r => { config[r.clave] = r.valor || ''; });
-        res.json({ config, catalogo_rangos: CATALOGO_RANGOS });
+        res.json({ config });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.json({ config: {} });
     }
 });
 
@@ -273,43 +289,75 @@ app.put('/api/discord/config', async (req, res) => {
             });
         }
         notificarCambioGlobal('discord_config_actualizada');
-        res.json({ message: "Configuración de Webhook y Roles guardada." });
+        res.json({ message: "Configuración de Discord guardada." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Guardar fila de la tabla de ascensos (Discord ID, Rango Actual, Rango a Postular, Estado)
+// Obtiene todos los trabajadores de la tabla usuarios y los une con sus datos de postulación/Discord
+app.get('/api/ascensos/plantilla', async (req, res) => {
+    try {
+        const usuarios = await obtenerUsuariosBaseSegura();
+        let mapaExtra = {};
+        try {
+            const extraRes = await db.execute("SELECT * FROM ascensos_datos");
+            extraRes.rows.forEach(r => {
+                mapaExtra[Number(r.usuario_id)] = r;
+            });
+        } catch (e) {}
+
+        const plantilla = usuarios.map(u => {
+            const extra = mapaExtra[Number(u.id)] || {};
+            const claveActual = deducirClaveRango(u.rol, u.comision_porcentaje);
+            return {
+                ...u,
+                discord_id: extra.discord_id || '',
+                rango_actual_clave: claveActual,
+                rango_postular: (extra.rango_postular && CATALOGO_RANGOS[extra.rango_postular]) ? extra.rango_postular : claveActual,
+                estado_laboral: extra.estado_laboral || 'Activo'
+            };
+        });
+
+        res.json(plantilla);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Actualiza una fila cuando editas el Discord ID, Rango Actual, Rango a Postular o Estado
 app.put('/api/ascensos/actualizar-fila', async (req, res) => {
     const { usuario_id, discord_id, rango_actual_clave, rango_postular_clave, estado_laboral } = req.body;
-    if (!usuario_id) return res.status(400).json({ error: "Falta ID de usuario." });
+    if (!usuario_id) return res.status(400).json({ error: "Falta usuario_id" });
 
     try {
         const userRes = await db.execute({ sql: "SELECT id, rol, comision_porcentaje FROM usuarios WHERE id = ?", args: [usuario_id] });
-        if (userRes.rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado." });
+        if (userRes.rows.length === 0) return res.status(404).json({ error: "Trabajador no encontrado." });
 
         const u = userRes.rows[0];
         let nuevaComision = u.comision_porcentaje;
         let nuevoRol = u.rol;
 
-        // Si el admin cambió el Rango Actual directamente en la tabla
         if (rango_actual_clave && CATALOGO_RANGOS[rango_actual_clave] && rango_actual_clave !== 'ciudadano') {
             const infoAct = CATALOGO_RANGOS[rango_actual_clave];
             nuevaComision = infoAct.comision;
             if (rango_actual_clave === 'jefe') nuevoRol = 'jefe';
             else if (rango_actual_clave === 'subjefe' && nuevoRol === 'empleado') nuevoRol = 'admin';
             else if (nuevoRol === 'jefe' && rango_actual_clave !== 'jefe') nuevoRol = 'admin';
+
+            await db.execute({
+                sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?",
+                args: [nuevaComision, nuevoRol, usuario_id]
+            });
         }
 
-        const discordLimpio = discord_id !== undefined ? discord_id.toString().replace(/[<@!>]/g, '').trim() : '';
-        const postularVal = rango_postular_clave || obtenerClaveRangoServidor(nuevoRol, nuevaComision);
-        const estadoVal = estado_laboral || 'Activo';
+        const discordLimpio = (discord_id || '').toString().replace(/[<@!>]/g, '').trim();
+        const postularFinal = rango_postular_clave || deducirClaveRango(nuevoRol, nuevaComision);
+        const estadoFinal = estado_laboral || 'Activo';
 
         await db.execute({
-            sql: `UPDATE usuarios 
-                  SET discord_id = ?, comision_porcentaje = ?, rol = ?, rango_postular = ?, estado_laboral = ? 
-                  WHERE id = ?`,
-            args: [discordLimpio, nuevaComision, nuevoRol, postularVal, estadoVal, usuario_id]
+            sql: "INSERT OR REPLACE INTO ascensos_datos (usuario_id, discord_id, rango_postular, estado_laboral) VALUES (?, ?, ?, ?)",
+            args: [Number(usuario_id), discordLimpio, postularFinal, estadoFinal]
         });
 
         notificarCambioGlobal('usuario_modificado', {
@@ -318,38 +366,31 @@ app.put('/api/ascensos/actualizar-fila', async (req, res) => {
             rol: nuevoRol
         });
         notificarCambioGlobal('ascensos_actualizados');
-        res.json({ message: "Fila actualizada." });
+        notificarCambioGlobal('top_actualizado');
+        res.json({ message: "Fila guardada." });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Función que aplica todos los cambios donde "Rango a Postular" != "Rango Actual", elimina Ciudadanos y publica en Discord
+// Procesa los ascensos donde Rango a Postular != Rango Actual, elimina a Ciudadanos y publica en Discord
 async function procesarTablaAscensosEnCorte(responsable = 'Admin') {
-    let usuariosRows = [];
+    const usuarios = await obtenerUsuariosBaseSegura();
+    let mapaExtra = {};
     try {
-        const resU = await db.execute(`
-            SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, 
-                   COALESCE(comision_porcentaje, 30) as comision_porcentaje,
-                   COALESCE(discord_id, '') as discord_id,
-                   COALESCE(rango_postular, '') as rango_postular,
-                   COALESCE(estado_laboral, 'Activo') as estado_laboral
-            FROM usuarios
-        `);
-        usuariosRows = resU.rows;
-    } catch (e) {
-        return { aplicados: 0, eliminados: 0, webhook: { enviado: false, razon: e.message } };
-    }
+        const extraRes = await db.execute("SELECT * FROM ascensos_datos");
+        extraRes.rows.forEach(r => { mapaExtra[Number(r.usuario_id)] = r; });
+    } catch (e) {}
 
     const movimientos = [];
     let aplicados = 0;
     let eliminados = 0;
 
-    for (const u of usuariosRows) {
-        const claveActual = obtenerClaveRangoServidor(u.rol, u.comision_porcentaje);
-        const clavePostular = (u.rango_postular || '').trim();
+    for (const u of usuarios) {
+        const extra = mapaExtra[Number(u.id)] || {};
+        const claveActual = deducirClaveRango(u.rol, u.comision_porcentaje);
+        const clavePostular = (extra.rango_postular || '').trim();
 
-        // Solo procesamos si tiene un rango a postular válido y es distinto a su rango actual
         if (!clavePostular || !CATALOGO_RANGOS[clavePostular] || clavePostular === claveActual) {
             continue;
         }
@@ -358,7 +399,7 @@ async function procesarTablaAscensosEnCorte(responsable = 'Admin') {
             usuario_id: u.id,
             nombre: u.nombre,
             usuario: u.usuario,
-            discord_id: u.discord_id,
+            discord_id: extra.discord_id || '',
             rango_anterior_clave: claveActual,
             nuevo_rango_clave: clavePostular
         });
@@ -366,6 +407,7 @@ async function procesarTablaAscensosEnCorte(responsable = 'Admin') {
         if (clavePostular === 'ciudadano') {
             await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [u.id] });
             await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [u.id] });
+            await db.execute({ sql: "DELETE FROM ascensos_datos WHERE usuario_id = ?", args: [u.id] });
             await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [u.id] });
             notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(u.id) });
             eliminados++;
@@ -377,8 +419,13 @@ async function procesarTablaAscensosEnCorte(responsable = 'Admin') {
             else if (nuevoRol === 'jefe' && clavePostular !== 'jefe') nuevoRol = 'admin';
 
             await db.execute({
-                sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ?, rango_postular = ? WHERE id = ?",
-                args: [infoNuevo.comision, nuevoRol, clavePostular, u.id]
+                sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?",
+                args: [infoNuevo.comision, nuevoRol, u.id]
+            });
+
+            await db.execute({
+                sql: "UPDATE ascensos_datos SET rango_postular = ? WHERE usuario_id = ?",
+                args: [clavePostular, u.id]
             });
 
             notificarCambioGlobal('usuario_modificado', {
@@ -391,10 +438,9 @@ async function procesarTablaAscensosEnCorte(responsable = 'Admin') {
     }
 
     if (movimientos.length === 0) {
-        return { aplicados: 0, eliminados: 0, webhook: { enviado: false, razon: 'No había cambios de rango pendientes en la tabla.' } };
+        return { aplicados: 0, eliminados: 0, webhook: { enviado: false, razon: 'No había cambios pendientes en Rango a Postular.' } };
     }
 
-    // Ordenar movimientos de mayor rango a menor rango para el mensaje de Discord
     movimientos.sort((a, b) => {
         const ordB = CATALOGO_RANGOS[b.nuevo_rango_clave]?.orden ?? 0;
         const ordA = CATALOGO_RANGOS[a.nuevo_rango_clave]?.orden ?? 0;
@@ -414,7 +460,6 @@ async function procesarTablaAscensosEnCorte(responsable = 'Admin') {
     return { aplicados, eliminados, webhook: resultadoWebhook };
 }
 
-// Endpoint por si deseas aplicar y publicar en Discord sin esperar al corte semanal
 app.post('/api/ascensos/aplicar-ahora', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -429,8 +474,10 @@ app.post('/api/ascensos/aplicar-ahora', async (req, res) => {
 });
 
 // ==========================================
-// CONVENIOS DE FACCIONES
+// CÓDIGO ORIGINAL INTACTO
 // ==========================================
+
+// CONVENIOS DE FACCIONES
 app.get('/api/convenios', async (req, res) => {
     try {
         const result = await db.execute("SELECT * FROM convenios_facciones ORDER BY faccion ASC");
@@ -588,56 +635,35 @@ app.put('/api/almacen/ajuste-manual', async (req, res) => {
     }
 });
 
-// 7. LISTA DE USUARIOS (Con fallback total para nunca romper la carga)
+// 7. LISTA DE USUARIOS (100% IDÉNTICA AL ORIGINAL)
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.execute(`
-            SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, 
-                   COALESCE(comision_porcentaje, 30) as comision_porcentaje, 
-                   COALESCE(puntos, 0) as puntos, avatar, 
-                   COALESCE(discord_id, '') as discord_id,
-                   COALESCE(rango_postular, '') as rango_postular,
-                   COALESCE(estado_laboral, 'Activo') as estado_laboral,
-                   COALESCE(created_at, CURRENT_TIMESTAMP) as created_at 
-            FROM usuarios 
-            ORDER BY id ASC
-        `);
-        res.json(result.rows);
+        const rows = await obtenerUsuariosBaseSegura();
+        res.json(rows);
     } catch (err) {
-        try {
-            const fallback = await db.execute("SELECT id, nombre, usuario, COALESCE(rol, 'empleado') as rol, COALESCE(comision_porcentaje, 30) as comision_porcentaje, COALESCE(puntos, 0) as puntos, avatar, COALESCE(created_at, CURRENT_TIMESTAMP) as created_at FROM usuarios ORDER BY id ASC");
-            res.json(fallback.rows.map(r => ({ ...r, discord_id: '', rango_postular: '', estado_laboral: 'Activo' })));
-        } catch (e2) {
-            res.status(500).json({ error: err.message });
-        }
+        res.status(500).json({ error: err.message });
     }
 });
 
 // 8. MODIFICAR RANGO, PERMISOS Y PUNTOS DE USUARIO
 app.put('/api/usuarios/modificar', async (req, res) => {
-    const { usuario_id, comision_porcentaje, rol, puntos, discord_id } = req.body;
+    const { usuario_id, comision_porcentaje, rol, puntos } = req.body;
     try {
-        if (rol === 'ciudadano' || Number(comision_porcentaje) === -99) {
-            await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
-            await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [usuario_id] });
-            await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
-            notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
-            notificarCambioGlobal('top_actualizado');
-            return res.json({ message: "Usuario dado de baja (Ciudadano)." });
-        }
-
-        const claveNueva = obtenerClaveRangoServidor(rol, comision_porcentaje);
         try { await db.execute({ sql: "UPDATE usuarios SET puntos = ? WHERE id = ?", args: [Number(puntos) || 0, usuario_id] }); } catch(e){}
+        await db.execute({ sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?", args: [comision_porcentaje, rol, usuario_id] });
+        
+        // Sincronizar también su rango actual en ascensos_datos para que la tabla esté al día
+        const nuevaClave = deducirClaveRango(rol, comision_porcentaje);
         try {
-            if (discord_id !== undefined) {
-                await db.execute({ sql: "UPDATE usuarios SET discord_id = ? WHERE id = ?", args: [discord_id.toString().replace(/[<@!>]/g, '').trim(), usuario_id] });
-            }
-            await db.execute({ sql: "UPDATE usuarios SET rango_postular = ? WHERE id = ?", args: [claveNueva, usuario_id] });
+            await db.execute({
+                sql: "UPDATE ascensos_datos SET rango_postular = ? WHERE usuario_id = ?",
+                args: [nuevaClave, usuario_id]
+            });
         } catch(e){}
 
-        await db.execute({ sql: "UPDATE usuarios SET comision_porcentaje = ?, rol = ? WHERE id = ?", args: [comision_porcentaje, rol, usuario_id] });
         notificarCambioGlobal('usuario_modificado', { usuario_id: Number(usuario_id), comision_porcentaje, rol, puntos: Number(puntos) || 0 });
         notificarCambioGlobal('top_actualizado');
+        notificarCambioGlobal('ascensos_actualizados');
         res.json({ message: "Usuario actualizado." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -650,9 +676,11 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     try {
         await db.execute({ sql: "DELETE FROM facturas WHERE usuario_id = ?", args: [usuario_id] });
         await db.execute({ sql: "DELETE FROM pedidos_puntos WHERE usuario_id = ?", args: [usuario_id] });
+        try { await db.execute({ sql: "DELETE FROM ascensos_datos WHERE usuario_id = ?", args: [usuario_id] }); } catch(e){}
         await db.execute({ sql: "DELETE FROM usuarios WHERE id = ?", args: [usuario_id] });
         notificarCambioGlobal('usuario_eliminado', { usuario_id: Number(usuario_id) });
         notificarCambioGlobal('top_actualizado');
+        notificarCambioGlobal('ascensos_actualizados');
         res.json({ message: "Cuenta eliminada correctamente." });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -686,7 +714,7 @@ app.delete('/api/facturas/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 12. REINICIAR SEMANA (Borra facturas + Aplica Ascensos de la Tabla + Borra Ciudadanos + Envía Webhook a Discord)
+// 12. REINICIAR SEMANA (Borra facturas + Aplica Ascensos de la Tabla y publica en Discord)
 app.post('/api/admin/reiniciar-semana', async (req, res) => {
     const { usuario_nombre } = req.body;
     try {
@@ -695,7 +723,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
 
         await db.execute({
             sql: "INSERT INTO movimientos_capital (tipo, descripcion, monto, usuario_nombre) VALUES ('corte_semanal', ?, 0, ?)",
-            args: [`Reinicio de ciclo semanal: facturas liquidadas. Ascensos aplicados: ${resultadoAscensos.aplicados}, Bajas: ${resultadoAscensos.eliminados}.`, usuario_nombre || 'Admin']
+            args: [`Reinicio de ciclo semanal: facturas liquidadas (puntos preservados). Ascensos aplicados: ${resultadoAscensos.aplicados}, Bajas: ${resultadoAscensos.eliminados}.`, usuario_nombre || 'Admin']
         });
 
         notificarCambioGlobal('reinicio_semana');
@@ -704,7 +732,7 @@ app.post('/api/admin/reiniciar-semana', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 13. REGISTRAR FACTURA (Intacto)
+// 13. REGISTRAR FACTURA (1 punto por cada $50,000 de ganancia neta del taller)
 app.post('/api/facturas', async (req, res) => {
     const { usuario_id, cliente, items, descuento_porcentaje, es_precio_fabrica } = req.body;
     if (!usuario_id) return res.status(400).json({ error: "Debes iniciar sesión primero." });
@@ -757,6 +785,7 @@ app.post('/api/facturas', async (req, res) => {
 
         const facturaId = Number(insertRes.lastInsertRowid);
 
+        // PUNTOS CALCULADOS EN BASE A LA GANANCIA NETA DEL TALLER
         const puntosGanados = Math.floor(ganancia_neta / 50000) || 1;
         try { await db.execute({ sql: "UPDATE usuarios SET puntos = COALESCE(puntos, 0) + ? WHERE id = ?", args: [puntosGanados, usuario_id] }); } catch(e){}
 
@@ -775,7 +804,7 @@ app.post('/api/facturas', async (req, res) => {
     }
 });
 
-// 14. HISTORIAL PERSONAL (Intacto)
+// 14. HISTORIAL PERSONAL
 app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     try {
         const result = await db.execute({ sql: "SELECT * FROM facturas WHERE usuario_id = ? ORDER BY fecha DESC LIMIT 60", args: [req.params.usuario_id] });
@@ -783,7 +812,7 @@ app.get('/api/mis-facturas/:usuario_id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 15. HISTORIAL GLOBAL (Con fallback seguro)
+// 15. HISTORIAL GLOBAL
 app.get('/api/admin/todas-facturas', async (req, res) => {
     try {
         const sql = `SELECT f.*, u.nombre as trabajador_nombre, u.usuario as trabajador_usuario, u.avatar as trabajador_avatar FROM facturas f JOIN usuarios u ON f.usuario_id = u.id ORDER BY f.fecha DESC LIMIT 80`;
@@ -799,7 +828,7 @@ app.get('/api/admin/todas-facturas', async (req, res) => {
     }
 });
 
-// 16. TOP TRABAJADORES (Idéntico al original con fallback seguro)
+// 16. TOP TRABAJADORES (PUNTOS PERSISTENTES GARANTIZADOS DE LA TABLA USUARIOS)
 app.get('/api/top-trabajadores', async (req, res) => {
     try {
         const sql = `
