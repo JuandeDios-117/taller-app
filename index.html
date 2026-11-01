@@ -747,8 +747,8 @@
             <div id="panelConfigDiscord" class="card-dark p-6 rounded-2xl border border-purple-500/40 space-y-4 hidden">
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
                     <div>
-                        <h3 class="text-sm font-black text-purple-300 uppercase">🔗 CONFIGURACIÓN DE WEBHOOK E IDs DE ROLES DE DISCORD (<code class="text-amber-300">&lt;@&amp;ID&gt;</code>)</h3>
-                        <p class="text-[11px] text-zinc-400">Coloca la URL del Webhook y el ID de cada rol de tu servidor de Discord para que el mensaje los mencione con su color.</p>
+                        <h3 class="text-sm font-black text-purple-300 uppercase">🔗 CONFIGURACIÓN DE WEBHOOK E IDs DE ROLES DE DISCORD</h3>
+                        <p class="text-[11px] text-zinc-400">Coloca la URL del Webhook y el ID de cada rol de tu servidor de Discord.</p>
                     </div>
                     <button onclick="togglePanelConfigDiscord()" class="text-xs text-zinc-400 hover:text-white font-bold">✕ Cerrar</button>
                 </div>
@@ -761,39 +761,39 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3 pt-1">
                         <div>
-                            <label class="block text-[10px] font-black text-amber-300 uppercase mb-1">『👑』 Jefe (0%)</label>
+                            <label class="block text-[10px] font-black text-amber-300 uppercase mb-1">Jefe (0%)</label>
                             <input type="text" id="cfg_rol_jefe" placeholder="ID Rol Jefe" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-rose-400 uppercase mb-1">『🛡️』 Subjefe (0%)</label>
+                            <label class="block text-[10px] font-black text-rose-400 uppercase mb-1">Subjefe (0%)</label>
                             <input type="text" id="cfg_rol_subjefe" placeholder="ID Rol Subjefe" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-yellow-400 uppercase mb-1">『👔』 Encargado (45%)</label>
+                            <label class="block text-[10px] font-black text-yellow-400 uppercase mb-1">Encargado (45%)</label>
                             <input type="text" id="cfg_rol_encargado" placeholder="ID Rol Encargado" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-orange-400 uppercase mb-1">『🛠️』 Mecánico Maestro (43%)</label>
+                            <label class="block text-[10px] font-black text-orange-400 uppercase mb-1">Mecánico Maestro (43%)</label>
                             <input type="text" id="cfg_rol_maestro" placeholder="ID Rol M. Maestro" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-purple-300 uppercase mb-1">『⭐』 Mecánico Experto (40%)</label>
+                            <label class="block text-[10px] font-black text-purple-300 uppercase mb-1">Mecánico Experto (40%)</label>
                             <input type="text" id="cfg_rol_experto" placeholder="ID Rol M. Experto" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-sky-400 uppercase mb-1">『🔩』 Mecánico Senior (37%)</label>
+                            <label class="block text-[10px] font-black text-sky-400 uppercase mb-1">Mecánico Senior (37%)</label>
                             <input type="text" id="cfg_rol_senior" placeholder="ID Rol M. Senior" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-zinc-300 uppercase mb-1">『🔧』 Mecánico (35%)</label>
+                            <label class="block text-[10px] font-black text-zinc-300 uppercase mb-1">Mecánico (35%)</label>
                             <input type="text" id="cfg_rol_mecanico" placeholder="ID Rol Mecánico" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-emerald-400 uppercase mb-1">『🔰』 En Pruebas (30%)</label>
+                            <label class="block text-[10px] font-black text-emerald-400 uppercase mb-1">En Pruebas (30%)</label>
                             <input type="text" id="cfg_rol_pruebas" placeholder="ID Rol Pruebas" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-red-400 uppercase mb-1">『👤』 Ciudadano (Baja)</label>
+                            <label class="block text-[10px] font-black text-red-400 uppercase mb-1">Ciudadano (Baja)</label>
                             <input type="text" id="cfg_rol_ciudadano" placeholder="ID Rol Ciudadano" class="w-full input-dark px-3 py-1.5 rounded-lg text-xs font-mono border-red-500/40">
                         </div>
                     </div>
@@ -837,7 +837,7 @@
                         🚨 CORTE SEMANAL Y REINICIO DE FACTURAS
                     </h3>
                     <p class="text-xs text-zinc-400 mt-1">
-                        Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas y puntos intactos, y aplica los ascensos de la tabla en Discord.
+                        Limpia todas las facturas y reinicia las estadísticas a $0 manteniendo las cuentas y puntos intactos.
                     </p>
                 </div>
                 <button onclick="ejecutarReinicioSemanal()" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/30">
@@ -1147,8 +1147,6 @@
         setInterval(actualizarRelojesMultiZona, 1000);
         actualizarRelojesMultiZona();
 
-        function reproducirSonidoGlobalVenta(total, tieneV12 = false) {}
-
         const socket = io();
 
         function calcularRachaDiaria(usuarioId) {
@@ -1351,7 +1349,6 @@
             
             { id: 29, categoria: 'TURBO', emoji: '🚀', nombre: 'Turbo', venta: 10000, costo: 7000 },
 
-            // DRIFT Y NITRO
             { id: 24, categoria: 'DRIFT Y NITRO', emoji: '🏎️', nombre: 'Kit de Tuning para Drift', venta: 1500000, costo: 1200000 },
             { id: 25, categoria: 'DRIFT Y NITRO', emoji: '🧪', nombre: 'Kit de Instalación de Nitro', venta: 500000, costo: 300000 },
             { id: 26, categoria: 'DRIFT Y NITRO', emoji: '🍾', nombre: 'Botella de Nitro', venta: 200000, costo: 100000 },
@@ -1366,7 +1363,6 @@
             { id: 13, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Semi-Slick', venta: 6000, costo: 3500 },
             { id: 14, categoria: 'NEUMÁTICOS', emoji: '🛞', nombre: 'Offroad', venta: 6500, costo: 4500 },
             
-            // COMBOS (V8 Pro a $140,000 con Turbo y 3 rendimientos)
             { 
                 id: 18, 
                 categoria: 'COMBOS (PRECIOS FIJOS)', 
@@ -1632,7 +1628,6 @@
             if (pestanaActiva === 'top') cargarTop();
         });
 
-        // ESCUCHA DE EVENTOS EN TIEMPO REAL
         socket.on('db_update', (data) => {
             if (data.evento === 'convenios_actualizados') cargarConvenios();
             if (data.evento === 'ascensos_actualizados' || data.evento === 'discord_config_actualizada') {
@@ -1985,7 +1980,7 @@
                     }
                 }
 
-                // 2. Obtener plantilla de trabajadores desde la ruta dedicada (y respaldo directo a /api/usuarios)
+                // 2. Obtener plantilla de trabajadores desde la ruta dedicada
                 let listaPlantilla = [];
                 const resPlantilla = await fetch('/api/ascensos/plantilla');
                 if (resPlantilla.ok) {
@@ -2150,7 +2145,7 @@
         }
 
         async function aplicarAscensosManualmenteAhora() {
-            if (!confirm('¿Deseas aplicar todos los cambios donde "Rango a Postular" sea diferente a "Rango Actual", eliminar de la página a quienes tengan "Ciudadano" y enviar el anuncio a Discord ahora mismo?')) return;
+            if (!confirm('¿Deseas aplicar todos los cambios de rangos, eliminar a quienes tengan "Ciudadano" y enviar el anuncio a Discord ahora mismo?')) return;
 
             const res = await fetch('/api/ascensos/aplicar-ahora', {
                 method: 'POST',
@@ -2289,7 +2284,7 @@
         }
 
         async function ejecutarReinicioSemanal() {
-            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas para empezar el nuevo ciclo semanal y aplicará los ascensos de la tabla en Discord.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
+            const confirmacion = prompt("⚠️ ATENCIÓN: Esta acción eliminará TODAS las facturas registradas y aplicará los ascensos de la tabla en Discord.\n\nEscribe la palabra 'REINICIAR' para confirmar el corte:");
             
             if (confirmacion !== 'REINICIAR') {
                 return mostrarAviso('Acción Cancelada', 'No se realizaron cambios en las facturas.');
@@ -2303,7 +2298,7 @@
 
             const data = await res.json();
             if (res.ok) {
-                mostrarAviso('¡Semana Reiniciada!', 'Todas las facturas se han liquidado, los puntos quedaron guardados y los ascensos programados fueron aplicados.');
+                mostrarAviso('¡Semana Reiniciada!', 'Todas las facturas se han liquidado, los puntos quedaron guardados y los ascensos fueron aplicados.');
                 cargarGestionAdmin();
                 cargarTop();
             } else {
@@ -2661,7 +2656,6 @@
             container.innerHTML = html;
         }
 
-        // TOP TRABAJADORES (PUNTOS PERSISTENTES LEÍDOS DIRECTAMENTE DE LA BD)
         async function cargarTop() {
             try {
                 const res = await fetch('/api/top-trabajadores');
@@ -3174,7 +3168,6 @@
             catalogo.forEach(item => {
                 if (item.id === 99) return;
                 
-                // V12 de $300,000 / 600 = 500 Pts
                 const costoPuntos = Math.max(1, Math.floor(item.costo / 600));
                 
                 const itemEmoji = item.emoji || (categoriaConfig[item.categoria]?.icon || '🎁');
